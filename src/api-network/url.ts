@@ -22,6 +22,41 @@ const url = {
     mutationKey: "user_login",
   },
 
+  verifyCaptcha: {
+    endpoint: "/verify-captcha",
+    method: "post",
+    queryKey: "verifyCaptcha",
+    mutationKey: "verify_captcha",
+  },
+
+  userSignup: {
+    endpoint: "/user/signup",
+    method: "post",
+    queryKey: "userSignup",
+    mutationKey: "user_signup",
+  },
+
+  userLoginOtp: {
+    endpoint: "/user/login2",
+    method: "post",
+    queryKey: "userLoginOtp",
+    mutationKey: "user_login_otp",
+  },
+
+  userResendOtp: {
+    endpoint: "/user/resend-otp",
+    method: "post",
+    queryKey: "userResendOtp",
+    mutationKey: "user_resend_otp",
+  },
+
+  userVerifyOtp: {
+    endpoint: "/user/verify-otp",
+    method: "post",
+    queryKey: "userVerifyOtp",
+    mutationKey: "user_verify_otp",
+  },
+
   userInfo: {
     endpoint: "/user/info",
     method: "post",

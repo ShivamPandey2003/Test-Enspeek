@@ -5,7 +5,20 @@ import { store } from "../store/store";
 const platform_url = import.meta.env.VITE_REACT_APP_API_URL || "";
 
 export type ApiMethod = "get" | "post" | "put" | "delete";
-const AUTH_EXCLUDED_PATHS = new Set(["user/login", "uam/login"]);
+const AUTH_EXCLUDED_PATHS = new Set([
+  "user/login",
+  "user/login2",
+  "user/signup",
+  "user/resend-otp",
+  "user/verify-otp",
+  "verify-captcha",
+  "uam/login",
+]);
+
+const normalizePath = (url: string) => url.replace(/^\/+/, "");
+
+const shouldSkipAuth = (url?: string) =>
+  Boolean(url) && AUTH_EXCLUDED_PATHS.has(normalizePath(url ?? ""));
 
 const apiClient = axios.create({
   baseURL: platform_url,
@@ -14,7 +27,7 @@ const apiClient = axios.create({
 apiClient.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
-    if (token && config.url !== "/uam/login") {
+    if (token && !shouldSkipAuth(config.url)) {
       config.headers["Authorization"] = `Bearer ${token}`;
     }
     return config;
@@ -41,12 +54,8 @@ const handleSessionExpiration = (): void => {
   window.location.href = "/login";
 };
 
-const normalizePath = (url: string) => url.replace(/^\/+/, "");
-
-const shouldSkipApiToken = (url: string) => AUTH_EXCLUDED_PATHS.has(normalizePath(url));
-
 const injectApiToken = (url: string, data: any) => {
-  if (shouldSkipApiToken(url)) {
+  if (shouldSkipAuth(url)) {
     return data;
   }
 

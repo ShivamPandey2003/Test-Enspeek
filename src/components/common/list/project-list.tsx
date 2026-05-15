@@ -56,7 +56,7 @@ export default function ProjectListing() {
       {messages.length > 0 ? (
         <div className="h-full min-h-0 w-full">
           <ChatWindow surface="page" />
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 z-40 h-[164px] bg-[linear-gradient(180deg,rgba(245,244,255,0)_0%,rgba(245,244,255,0.36)_42%,rgba(245,244,255,0.78)_68%,rgba(245,244,255,0.96)_86%,rgba(245,244,255,1)_100%)]" />
+          <div className="platform-page-fade pointer-events-none absolute inset-x-0 bottom-0 z-40 h-[164px]" />
         </div>
       ) : (
         <div className="h-full min-h-0 w-full overflow-y-auto overflow-x-hidden pb-28 md:pb-32">
@@ -66,8 +66,8 @@ export default function ProjectListing() {
             )}
           >
             <div className="grid gap-4 xl:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)] xl:items-stretch">
-              <div className="home-surface home-border-soft h-full overflow-hidden rounded-[30px] border shadow-[0_18px_46px_rgba(79,86,230,0.08)]">
-                <div className="flex h-full flex-col bg-[radial-gradient(circle_at_top_left,_rgba(109,99,255,0.18),_transparent_36%),radial-gradient(circle_at_top_right,_rgba(59,130,246,0.14),_transparent_34%),linear-gradient(180deg,_rgba(255,255,255,0.96)_0%,_rgba(251,250,255,0.96)_100%)] px-5 py-5 md:px-6 md:py-6">
+              <div className="platform-card-shadow-strong home-surface home-border-soft h-full overflow-hidden rounded-[30px] border">
+                <div className="platform-hero-surface flex h-full flex-col px-5 py-5 md:px-6 md:py-6">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="home-panel-soft-bg home-highlight inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em]">
                       <LuSparkles className="h-3.5 w-3.5" />
@@ -137,7 +137,7 @@ export default function ProjectListing() {
                 </div>
               </div>
 
-              <div className="home-surface home-border-soft h-full rounded-[28px] border px-5 py-5 shadow-[0_14px_36px_rgba(79,86,230,0.07)] md:px-6">
+              <div className="platform-card-shadow-medium home-surface home-border-soft h-full rounded-[28px] border px-5 py-5 md:px-6">
                 <div className="flex h-full flex-col">
                   <div className="flex items-center gap-3">
                     <div className="home-panel-soft-bg flex h-10 w-10 items-center justify-center rounded-2xl">

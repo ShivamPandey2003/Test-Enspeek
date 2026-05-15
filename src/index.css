@@ -126,6 +126,32 @@
   --color-shadow-success: color-mix(in srgb, var(--color-core-success) 10%, transparent);
   --color-shadow-danger: color-mix(in srgb, var(--color-core-danger) 10%, transparent);
   --color-overlay: color-mix(in srgb, var(--color-core-text-strong) 34%, transparent);
+  --color-chart-series-primary: color-mix(in srgb, var(--color-brand-info) 68%, var(--color-brand-primary) 32%);
+  --color-chart-axis: var(--color-text-supporting);
+  --color-chart-line: var(--color-border-default);
+  --color-chart-grid: var(--color-border-soft);
+  --color-chart-tooltip-bg: var(--color-surface-base);
+  --color-chart-tooltip-border: var(--color-border-default);
+  --color-skeleton: color-mix(in srgb, var(--color-surface-soft) 70%, var(--color-border-default) 30%);
+  --color-selection-border: color-mix(in srgb, var(--color-border-default) 82%, var(--color-surface-base) 18%);
+  --color-modal-description: var(--color-text-default);
+  --color-chat-shadow-soft: color-mix(in srgb, var(--color-core-text-strong) 10%, transparent);
+  --color-chat-shadow-subtle: color-mix(in srgb, var(--color-core-text-strong) 5%, transparent);
+  --color-brand-primary-shadow: color-mix(in srgb, var(--color-brand-primary) 28%, transparent);
+  --color-brand-primary-shadow-soft: color-mix(in srgb, var(--color-brand-primary) 24%, transparent);
+  --color-surface-fade-top: color-mix(in srgb, var(--color-surface-soft) 0%, transparent);
+  --color-surface-fade-mid: color-mix(in srgb, var(--color-surface-soft) 36%, transparent);
+  --color-surface-fade-strong: color-mix(in srgb, var(--color-surface-soft) 78%, transparent);
+  --color-surface-fade-solid: color-mix(in srgb, var(--color-surface-soft) 96%, transparent);
+  --color-card-shadow-soft: color-mix(in srgb, var(--color-brand-primary) 8%, transparent);
+  --color-card-shadow-medium: color-mix(in srgb, var(--color-brand-primary) 7%, transparent);
+  --color-card-shadow-faint: color-mix(in srgb, var(--color-brand-primary) 4%, transparent);
+  --color-hero-spot-primary: color-mix(in srgb, var(--color-brand-primary-soft) 18%, transparent);
+  --color-hero-spot-secondary: color-mix(in srgb, var(--color-brand-info) 14%, transparent);
+  --color-hero-surface-top: color-mix(in srgb, var(--color-surface-base) 96%, transparent);
+  --color-hero-surface-bottom: color-mix(in srgb, var(--color-surface-softest) 96%, transparent);
+  --color-activate-ring: color-mix(in srgb, var(--color-brand-primary) 12%, transparent);
+  --color-activate-shadow: color-mix(in srgb, var(--color-brand-primary) 24%, transparent);
 }
 
 html,
@@ -676,8 +702,8 @@ body{
 
 .questionnaire-chatbar-panel {
   box-shadow:
-    0 14px 32px rgba(79, 86, 230, 0.08),
-    0 0 0 1px rgba(231, 228, 251, 0.9);
+    0 14px 32px var(--color-card-shadow-soft),
+    0 0 0 1px color-mix(in srgb, var(--color-border-default) 90%, transparent);
 }
 
 .questionnaire-logic-chip {
@@ -700,7 +726,7 @@ body{
   background-color: white;
   color: var(--color-questionnaire-heading);
   font-weight: 600;
-  box-shadow: 0 10px 24px rgba(79, 86, 230, 0.04);
+  box-shadow: 0 10px 24px var(--color-card-shadow-faint);
   padding-right: 3.25rem;
   background-position: right 1rem center;
 }
@@ -719,14 +745,14 @@ body{
   background-color: var(--color-surface-base);
   border: 1px solid var(--color-home-border-soft);
   border-radius: 1.5rem;
-  box-shadow: 0 10px 28px rgba(79, 86, 230, 0.08);
+  box-shadow: 0 10px 28px var(--color-card-shadow-soft);
 }
 
 .report-card {
   background-color: var(--color-surface-base);
   border: 1px solid var(--color-home-border-soft);
   border-radius: 1.5rem;
-  box-shadow: 0 10px 28px rgba(79, 86, 230, 0.08);
+  box-shadow: 0 10px 28px var(--color-card-shadow-soft);
 }
 
 .report-card-header {
@@ -761,7 +787,7 @@ body{
   background-color: var(--color-surface-base);
   border: 1px solid var(--color-home-border-soft);
   border-radius: 1.5rem;
-  box-shadow: 0 10px 28px rgba(79, 86, 230, 0.08);
+  box-shadow: 0 10px 28px var(--color-card-shadow-soft);
 }
 
 .crosstab-soft-panel {
@@ -870,4 +896,68 @@ body{
 
 .force_align_center {
   align-items: center !important;
+}
+
+.theme-skeleton {
+  background-color: var(--color-skeleton);
+}
+
+.theme-selection-border {
+  border-color: var(--color-selection-border);
+}
+
+.theme-modal-description {
+  color: var(--color-modal-description);
+}
+
+.platform-chat-shell {
+  box-shadow:
+    0 10px 28px var(--color-chat-shadow-soft),
+    0 2px 8px var(--color-chat-shadow-subtle);
+}
+
+.platform-chat-send {
+  box-shadow: 0 10px 24px var(--color-brand-primary-shadow);
+}
+
+.platform-chat-send-panel {
+  box-shadow: 0 12px 28px var(--color-brand-primary-shadow-soft);
+}
+
+.platform-page-fade {
+  background: linear-gradient(
+    180deg,
+    var(--color-surface-fade-top) 0%,
+    var(--color-surface-fade-mid) 42%,
+    var(--color-surface-fade-strong) 68%,
+    var(--color-surface-fade-solid) 86%,
+    var(--color-surface-soft) 100%
+  );
+}
+
+.platform-card-shadow-strong {
+  box-shadow: 0 18px 46px var(--color-card-shadow-soft);
+}
+
+.platform-card-shadow-medium {
+  box-shadow: 0 14px 36px var(--color-card-shadow-medium);
+}
+
+.platform-hero-surface {
+  background:
+    radial-gradient(circle at top left, var(--color-hero-spot-primary), transparent 36%),
+    radial-gradient(circle at top right, var(--color-hero-spot-secondary), transparent 34%),
+    linear-gradient(180deg, var(--color-hero-surface-top) 0%, var(--color-hero-surface-bottom) 100%);
+}
+
+.platform-activate-glow {
+  box-shadow:
+    0 0 0 6px var(--color-activate-ring),
+    0 14px 28px var(--color-activate-shadow);
+}
+
+.platform-auth-card {
+  border-color: color-mix(in srgb, var(--color-core-surface) 30%, transparent);
+  background-color: color-mix(in srgb, var(--color-login-card) 95%, transparent);
+  box-shadow: 0 20px 60px var(--color-shadow-strong);
 }

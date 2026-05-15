@@ -4,6 +4,7 @@ import ProjectListing from "../components/common/list/project-list";
 import CreateProject from "../components/common/create/create-project";
 import Auth_layout from "../layout/Auth.layout";
 import LoginForm from "../components/common/Auth/Form/LoginForm";
+import OtpLoginPage from "../components/common/Auth/otp-login/OtpLoginPage";
 import PublishSurvey from "../components/common/Publish-survey/survey";
 import QuestionList from "../components/common/Questionnaire/question-list";
 import ProtectedRoute from "./ProtectedRoutes";
@@ -87,6 +88,10 @@ const Router = createBrowserRouter(
       children: [
         {
           path: "login",
+          element: <OtpLoginPage />,
+        },
+        {
+          path: "userlogin",
           element: <LoginForm />,
         },
       ],

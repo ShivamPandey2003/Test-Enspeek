@@ -12,7 +12,7 @@ import LoaderSpinner from "../../../global/LoaderSpinner";
 import { useDispatch } from "react-redux";
 import type { AppDispatch } from "../../../../store/store";
 import { Login } from "../../../../store/UserSlice";
-import { ColoredLogo } from "../../../../assets/icons";
+import AuthCard from "./AuthCard";
 
 const LoginForm = () => {
   const [isPasswordVisible, setIsPasswordVisible] = React.useState<boolean>(false);
@@ -71,19 +71,10 @@ const LoginForm = () => {
   };
 
   return (
-    <div className="w-full max-w-[32rem] rounded-[24px] border border-white/30 bg-login-card/95 px-5 py-7 shadow-[0_20px_60px_rgba(27,30,78,0.22)] backdrop-blur-sm sm:px-7 sm:py-9">
-      <div className="mb-6 flex flex-col items-center text-center sm:mb-7">
-        <div className="mb-5 inline-flex w-fit items-center justify-center gap-[5px]">
-          <img src={ColoredLogo} alt="Enspeek" className="h-10 w-auto sm:h-11" />
-          <span className="text-[2rem] font-bold leading-none text-login-primary">
-            Enspeek
-          </span>
-        </div>
-        <h2 className="text-[2rem] font-semibold leading-tight theme-text-strong">
-          Welcome Back!
-        </h2>
-        <p className="mt-1 text-sm text-login-muted">Sign in to your account</p>
-      </div>
+    <AuthCard
+      title="Welcome Back!"
+      subtitle="Sign in to your account"
+    >
       <form className="space-y-4" onSubmit={handleSubmit}>
         <div>
           <Input id="email" variant="login" data-test-id="EMAIL" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" />
@@ -135,7 +126,7 @@ const LoginForm = () => {
         </div>
       </form>
       {isPending && <LoaderSpinner />}
-    </div>
+    </AuthCard>
   );
 };
 

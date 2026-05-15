@@ -142,7 +142,7 @@ export default function PublishSurvey() {
                           className={cn(
                             "relative",
                             highlightActivate &&
-                            "shadow-[0_0_0_6px_rgba(79,86,230,0.12),0_14px_28px_rgba(79,86,230,0.24)]"
+                            "platform-activate-glow"
                           )}
                         >
                           Activate Study

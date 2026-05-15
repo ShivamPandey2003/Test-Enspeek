@@ -224,7 +224,7 @@ export default function BannerSettings({
           <h3 className="crosstab-title mb-3 text-base font-semibold">Question list</h3>
           <div>
             <div
-              className="border border-[#e2e4f1] rounded-lg flex cursor-pointer items-center px-4 py-3 mb-2"
+              className="theme-selection-border rounded-lg border mb-2 flex cursor-pointer items-center px-4 py-3"
               role="button"
               tabIndex={0}
               onClick={toggleAll}
@@ -251,7 +251,7 @@ export default function BannerSettings({
               QListData.map((question: any, idx: number) => (
                 <div
                   key={idx}
-                  className="border border-[#e2e4f1] rounded-lg mb-2 flex cursor-pointer items-center px-4 py-3 last:mb-0"
+                  className="theme-selection-border rounded-lg border mb-2 flex cursor-pointer items-center px-4 py-3 last:mb-0"
                   role="button"
                   tabIndex={0}
                   onClick={() => toggleQuestion(question.qID)}

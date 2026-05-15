@@ -84,7 +84,7 @@ const buildReportViewData = (response: any) => {
         chartData: isCrosstab
           ? (resolvedQuestionData._colorder || []).map((colId: string) => ({
               name: resolvedQuestionData._coloptions?.[colId] ?? colId,
-              color: "#3F72AF",
+              color: "var(--color-chart-series-primary)",
               data: (resolvedQuestionData._roworder || []).map((rowId: string) => {
                 return resolvedQuestionData.data?.[colId]?.[rowId] ?? 0;
               }),
@@ -92,7 +92,7 @@ const buildReportViewData = (response: any) => {
           : [
               {
                 name: "Responses",
-                color: "#3F72AF",
+                color: "var(--color-chart-series-primary)",
                 data: (resolvedQuestionData._roworder || []).map(
                   (rowId: string) => resolvedQuestionData.data?.[rowId] ?? 0
                 ),

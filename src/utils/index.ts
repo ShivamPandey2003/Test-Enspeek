@@ -142,7 +142,7 @@ export const ChartResponseReFactor = (Data: SurveyData) => {
         type: "column",
         name: ChartData._coloptions?.[colKey] ?? colKey,
         data,
-        color: "#3F72AF",
+        color: "var(--color-chart-series-primary)",
       };
     });
   } else {
@@ -155,7 +155,7 @@ export const ChartResponseReFactor = (Data: SurveyData) => {
         type: "column",
         name: "response",
         data: seriesData,
-        color: "#3F72AF",
+        color: "var(--color-chart-series-primary)",
       },
     ];
   }

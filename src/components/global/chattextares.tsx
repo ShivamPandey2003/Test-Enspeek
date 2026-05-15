@@ -146,7 +146,7 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
             : "opacity-0 translate-y-8 scale-95 pointer-events-none",
           isPanelPlacement
             ? "questionnaire-chatbar-panel relative m-4 mt-3 w-auto overflow-hidden rounded-[24px] bg-white"
-            : "absolute bottom-4 left-1/2 w-[min(94%,1120px)] -translate-x-1/2 rounded-[26px] shadow-[0_10px_28px_rgba(31,41,55,0.10),0_2px_8px_rgba(31,41,55,0.05)] md:bottom-6",
+            : "platform-chat-shell absolute bottom-4 left-1/2 w-[min(94%,1120px)] -translate-x-1/2 rounded-[26px] md:bottom-6",
           !isHome && !isPanelPlacement && "w-[min(92%,820px)]"
         )}
       >
@@ -200,8 +200,8 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
               data-test-id="SEND"
               onClick={handleSubmit}
               className={cn(
-                "h-11 w-11 border-0 bg-gradient-to-r from-login-primary to-login-bg-end text-sm font-medium transition-all hover:brightness-95 disabled:opacity-75 shadow-[0_10px_24px_rgba(85,90,230,0.28)]",
-                isPanelPlacement && "h-12 w-12 shadow-[0_12px_28px_rgba(85,90,230,0.24)]"
+                "platform-chat-send h-11 w-11 border-0 bg-gradient-to-r from-login-primary to-login-bg-end text-sm font-medium transition-all hover:brightness-95 disabled:opacity-75",
+                isPanelPlacement && "platform-chat-send-panel h-12 w-12"
               )}
             >
               {isTyping || pending ? (

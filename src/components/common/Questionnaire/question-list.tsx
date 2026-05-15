@@ -156,8 +156,8 @@ export default function QuestionList() {
             <div className="flex min-h-full w-full items-center justify-center px-5 py-4 md:px-6 md:py-5">
               <div className="mx-auto flex w-full max-w-5xl flex-col gap-4">
                 <div className="grid gap-4 xl:grid-cols-[minmax(0,1.16fr)_minmax(280px,0.84fr)] xl:items-stretch">
-                  <div className="questionnaire-card questionnaire-border overflow-hidden rounded-[30px] border shadow-[0_18px_44px_rgba(79,86,230,0.08)]">
-                    <div className="bg-[radial-gradient(circle_at_top_left,_rgba(109,99,255,0.18),_transparent_36%),radial-gradient(circle_at_top_right,_rgba(59,130,246,0.12),_transparent_34%),linear-gradient(180deg,_rgba(255,255,255,0.96)_0%,_rgba(251,250,255,0.98)_100%)] px-5 py-5 md:px-6 md:py-6">
+                  <div className="platform-card-shadow-strong questionnaire-card questionnaire-border overflow-hidden rounded-[30px] border">
+                    <div className="platform-hero-surface px-5 py-5 md:px-6 md:py-6">
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="home-panel-soft-bg home-highlight inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em]">
                           <LuSparkles className="h-3.5 w-3.5" />
@@ -224,7 +224,7 @@ export default function QuestionList() {
                     </div>
                   </div>
 
-                  <div className="questionnaire-card questionnaire-border h-full rounded-[28px] border px-5 py-5 shadow-[0_14px_36px_rgba(79,86,230,0.07)]">
+                  <div className="platform-card-shadow-medium questionnaire-card questionnaire-border h-full rounded-[28px] border px-5 py-5">
                     <div className="flex h-full flex-col">
                       <div className="flex items-center gap-3">
                         <div className="home-panel-soft-bg flex h-10 w-10 items-center justify-center rounded-2xl">

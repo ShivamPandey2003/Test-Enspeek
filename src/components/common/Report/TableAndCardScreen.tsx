@@ -52,9 +52,9 @@ const TableAndCardScreen: FC<TableAndCardScreenProp> = ({
     typeof Object.values(questionData.data || {})[0] === "object";
 
   const chartData = isCrosstab
-    ? (questionData._colorder || []).map((colId: string) => ({
+      ? (questionData._colorder || []).map((colId: string) => ({
         name: questionData._coloptions?.[colId] ?? colId,
-        color: "#3F72AF",
+        color: "var(--color-chart-series-primary)",
         data: (questionData._roworder || []).map(
           (rowId: string) => questionData.data?.[colId]?.[rowId] ?? 0
         ),
@@ -62,7 +62,7 @@ const TableAndCardScreen: FC<TableAndCardScreenProp> = ({
     : [
         {
           name: "Responses",
-          color: "#3F72AF",
+          color: "var(--color-chart-series-primary)",
           data: (questionData._roworder || []).map(
             (rowId: string) => questionData.data?.[rowId] ?? 0
           ),

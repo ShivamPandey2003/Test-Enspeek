@@ -147,7 +147,7 @@ export default function EditTableModal({
     <DynamicModel
       Title={tableLabel}
       description="Update the table details, logic, and row settings, then save the refreshed table configuration."
-      descriptionClassName="text-black [color:#000000]"
+      descriptionClassName="theme-modal-description"
       headerIcon={
         <span className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[var(--color-brand-primary-softest)] text-login-primary">
           <LuTable className="h-5 w-5" />
@@ -172,7 +172,7 @@ export default function EditTableModal({
       }
       onClick={updateTable}
       className="max-w-6xl"
-      bodyClassName="bg-white"
+      bodyClassName="theme-surface"
       buttonVariant="success"
       secondaryAction={
         <Button
