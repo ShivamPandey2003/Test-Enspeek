@@ -1,0 +1,1 @@
+export { useBannerPointerList } from "../query";

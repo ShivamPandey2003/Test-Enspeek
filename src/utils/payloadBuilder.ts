@@ -1,0 +1,35 @@
+export function createNullQuestionObject(
+  studyID: string,
+  newQID: string,
+  qType: string,
+  qText: string,
+  qLabel: string,
+  qText2: string,
+  options: Option[],
+  minSelection: number,
+  maxSelection: number
+): QuestionPayload {
+  return {
+    studyID,
+    newQID,
+    qType,
+    qText,
+    qLabel,
+    qText2,
+    colOptionList: [],
+    rowOptionList: options ? options : [],
+    logic1: null,
+    logic2: "",
+    logic3: "",
+    note1: "",
+    note2: "",
+    note3: "",
+    ri: "",
+    rating: 0,
+    hidden_column: 0,
+    from_output: 0,
+    status: "",
+    "min_selection": minSelection,
+    "max_selection": maxSelection,
+  };
+}
