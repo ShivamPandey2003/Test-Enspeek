@@ -19,7 +19,6 @@ const mapLogic2Skip = (data: Question) => {
     const logicValue = entry[logicType];
     logicMap[logicType] = logicValue;
   });
-
   return logicMap;
 };
 
