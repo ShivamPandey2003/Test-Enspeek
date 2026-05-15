@@ -84,7 +84,6 @@ export const useQuestionnaireRI = (studyID?: string) => {
           studyID,
         }
       );
-
       return res.response;
     },
     enable: !!apiToken && !!studyID && !!qType,
