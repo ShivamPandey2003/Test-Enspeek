@@ -16,42 +16,42 @@ const url = {
   },
 
   userLogin: {
-    endpoint: "/user/login",
+    endpoint: "/uam/login",
     method: "post",
     queryKey: "userLogin",
     mutationKey: "user_login",
   },
 
   verifyCaptcha: {
-    endpoint: "/verify-captcha",
+    endpoint: "/uam/verify-captcha",
     method: "post",
     queryKey: "verifyCaptcha",
     mutationKey: "verify_captcha",
   },
 
   userSignup: {
-    endpoint: "/user/signup",
+    endpoint: "/uam/signup",
     method: "post",
     queryKey: "userSignup",
     mutationKey: "user_signup",
   },
 
   userLoginOtp: {
-    endpoint: "/user/login2",
+    endpoint: "/uam/login",
     method: "post",
     queryKey: "userLoginOtp",
     mutationKey: "user_login_otp",
   },
 
   userResendOtp: {
-    endpoint: "/user/resend-otp",
+    endpoint: "/uam/resend-otp",
     method: "post",
     queryKey: "userResendOtp",
     mutationKey: "user_resend_otp",
   },
 
   userVerifyOtp: {
-    endpoint: "/user/verify-otp",
+    endpoint: "/uam/verify-otp",
     method: "post",
     queryKey: "userVerifyOtp",
     mutationKey: "user_verify_otp",

@@ -1,11 +1,23 @@
 import mutationStructure from "../mutation-template";
 import { apiRequest } from "../../services/apiService";
 import url from "../url";
-import type { LoginOtpResponse, ResendOtpResponse, SignupResponse, VerifyCaptchaResponse, VerifyOtpResponse } from "../../components/common/Auth/otp-login/types";
+import type {
+  LoginOtpResponse,
+  ResendOtpResponse,
+  SignupResponse,
+  VerifyCaptchaResponse,
+  VerifyOtpResponse,
+} from "../../components/common/Auth/otp-login/types";
 import authKeys from "./keys";
 
-const unwrapResponse = <T extends { header?: unknown; code?: number }>(payload: any) => {
-  if (payload?.response && typeof payload.response === "object" && ("header" in payload.response || "code" in payload.response)) {
+const unwrapResponse = <T extends { header?: unknown; code?: number }>(
+  payload: any,
+) => {
+  if (
+    payload?.response &&
+    typeof payload.response === "object" &&
+    ("header" in payload.response || "code" in payload.response)
+  ) {
     return payload.response as T;
   }
 
@@ -21,7 +33,7 @@ export const useVerifyCaptchaMutation = () =>
         url.verifyCaptcha.endpoint,
         {
           captcha_token: captchaToken,
-        }
+        },
       );
 
       return unwrapResponse<VerifyCaptchaResponse>(response);
@@ -39,7 +51,7 @@ export const useSignupOtpMutation = () =>
       const response = await apiRequest(
         url.userSignup.method,
         url.userSignup.endpoint,
-        payload
+        payload,
       );
 
       return unwrapResponse<SignupResponse>(response);
@@ -53,7 +65,7 @@ export const useSendOtpLoginMutation = () =>
       const response = await apiRequest(
         url.userLoginOtp.method,
         url.userLoginOtp.endpoint,
-        payload
+        payload,
       );
 
       return unwrapResponse<LoginOtpResponse>(response);
@@ -67,7 +79,7 @@ export const useResendOtpMutation = (email?: string) =>
       const response = await apiRequest(
         url.userResendOtp.method,
         url.userResendOtp.endpoint,
-        payload
+        payload,
       );
 
       return unwrapResponse<ResendOtpResponse>(response);
@@ -81,9 +93,9 @@ export const useVerifyOtpMutation = (email?: string) =>
       const response = await apiRequest(
         url.userVerifyOtp.method,
         url.userVerifyOtp.endpoint,
-        payload
+        payload,
       );
 
-      return response as VerifyOtpResponse;
+      return response as VerifyOtpResponse ;
     },
   });
