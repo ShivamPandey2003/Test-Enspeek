@@ -88,7 +88,6 @@ const OtpLoginPage = () => {
     if (verifyOtpMutation.isSuccess && verifyOtpMutation.data) {
       const data = verifyOtpMutation.data;
       localStorage.setItem("token", data.response.access_token);
-      console.log(data)
       dispatch(
         Login({
           apiToken: data.response.apitoken,
@@ -106,14 +105,15 @@ const OtpLoginPage = () => {
     }
   }, [dispatch, navigate, verifyOtpMutation.data, verifyOtpMutation.isSuccess]);
 
-  const runCaptchaCheck = async (captchaToken: string) => {
-    const captchaResponse = await verifyCaptchaMutation.mutateAsync(captchaToken);
-    if (!captchaResponse.response?.success) {
-      throw new Error(captchaResponse.header?.message || "Captcha verification failed");
-    }
-  };
+  // const runCaptchaCheck = async (captchaToken: string) => {
+  //   const captchaResponse = await verifyCaptchaMutation.mutateAsync(captchaToken);
+  //   if (!captchaResponse.response?.success) {
+  //     throw new Error(captchaResponse.header?.message || "Captcha verification failed");
+  //   }
+  // };
 
-  const handleSignInSubmit = async (captchaToken: string) => {
+  // captchaToken: string
+  const handleSignInSubmit = async () => {
     const email = signInState.email.trim();
 
     if (!isValidEmail(email)) {
@@ -131,7 +131,8 @@ const OtpLoginPage = () => {
     }
   };
 
-  const handleSignUpSubmit = async (captchaToken: string) => {
+  // captchaToken: string
+  const handleSignUpSubmit = async () => {
     const nextErrors: Partial<SignUpFormState> = {};
     const firstname = signUpState.firstname.trim();
     const lastname = signUpState.lastname.trim();
