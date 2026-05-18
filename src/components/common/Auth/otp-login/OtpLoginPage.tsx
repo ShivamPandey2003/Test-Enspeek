@@ -87,6 +87,8 @@ const OtpLoginPage = () => {
   React.useEffect(() => {
     if (verifyOtpMutation.isSuccess && verifyOtpMutation.data) {
       const data = verifyOtpMutation.data;
+      localStorage.setItem("token", data.response.access_token);
+      console.log(data)
       dispatch(
         Login({
           apiToken: data.response.apitoken,
@@ -122,7 +124,7 @@ const OtpLoginPage = () => {
     setSignInError(undefined);
 
     try {
-      await runCaptchaCheck(captchaToken);
+      // await runCaptchaCheck(captchaToken);
       await sendOtpMutation.mutateAsync({ email });
     } catch (error: any) {
       toast.error(error?.message || "Unable to send OTP");
@@ -152,7 +154,7 @@ const OtpLoginPage = () => {
     }
 
     try {
-      await runCaptchaCheck(captchaToken);
+      // await runCaptchaCheck(captchaToken);
       await signupMutation.mutateAsync({ firstname, lastname, email });
     } catch (error: any) {
       toast.error(error?.message || "Unable to create account");

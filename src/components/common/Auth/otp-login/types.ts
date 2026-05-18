@@ -50,6 +50,7 @@ export type VerifyOtpResponse = {
   code: number;
   message: string;
   response: {
+    access_token: string;
     apitoken: string;
     firstname: string;
     lastname: string;
