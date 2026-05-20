@@ -15,6 +15,7 @@ const Root_layout = () => {
   const isPublishSurvey = location.pathname.startsWith("/publish-survey");
   const isReport = location.pathname.startsWith("/report");
   const isCrosstab = location.pathname.startsWith("/crosstab");
+  const isAdminPanel = location.pathname.startsWith("/user-management");
   const { hasQuestionnaire } = useSelector((state: RootState) => state.study);
   const { isAddingQuestion } = useSelector((state: RootState) => state.trigger);
   const { submitItems } = useSelector((state: RootState) => state.question);
@@ -27,14 +28,14 @@ const Root_layout = () => {
   const isForceShowChat = forceShowChatRoutes.some(route => location.pathname.startsWith(route)
   );
 
-  const showRightChat = (!isHome && isQuestionnaire) || (!isHome && hasQuestionnaire) || (!isHome && isAddingQuestion) || (!isHome && isForceShowChat);
+  const showRightChat = !isAdminPanel && ((!isHome && isQuestionnaire) || (!isHome && hasQuestionnaire) || (!isHome && isAddingQuestion) || (!isHome && isForceShowChat));
   const usePanelChatLayout = isQuestionnaire || isPublishSurvey || isReport || isCrosstab;
   return (
     <div className="h-screen flex flex-col">
       <Header />
       <div className={cn("relative flex flex-1 overflow-hidden", isHome ? "flex-col items-stretch md:flex-row" : "flex-col items-stretch xl:flex-row")}>
-        {!isHome ? <Sidebar /> : <HomeSidebar />}
-        <div className={cn("min-h-0 flex-1 transition-all duration-300 overflow-hidden", isHome ? "h-full w-full" : "h-full", isHome ? "w-full" : usePanelChatLayout ? "w-full xl:w-[68%]" : Boolean(!isHome && !hasQuestionnaire) ? "w-full" : "w-full xl:w-[70%]")}>
+        {!isHome && !isAdminPanel ? <Sidebar /> : isHome ? <HomeSidebar /> : null}
+        <div className={cn("min-h-0 flex-1 transition-all duration-300 overflow-hidden", isHome ? "h-full w-full" : "h-full", isAdminPanel ? "w-full" : isHome ? "w-full" : usePanelChatLayout ? "w-full xl:w-[68%]" : Boolean(!isHome && !hasQuestionnaire) ? "w-full" : "w-full xl:w-[70%]")}>
           <Outlet />
           {(!isHome && (submitItems.length > 0 || isForceShowChat) && !usePanelChatLayout) && <ChatTextArea />}
         </div>

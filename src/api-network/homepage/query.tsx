@@ -37,6 +37,7 @@ export const useHomepageUserInfo = () => {
         dispatch(SyncUserInfo({
             firstName: res.response.firstname ?? user.firstName,
             lastName: res.response.lastname ?? user.lastName,
+            loginType: res.response.loginType ?? res.response.logintype ?? user.loginType,
             userType: res.response.usertype ?? user.userType,
             grp: res.response.grp ?? user.grp,
             suggest_login_password: res.response.suggest_login_password ?? user.suggest_login_password,

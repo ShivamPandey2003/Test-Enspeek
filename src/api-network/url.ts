@@ -504,6 +504,28 @@ const url = {
     queryKey: "reportFilters",
     mutationKey: "report_filters",
   },
+
+  // ################################################# User Management APIs Start #################################################
+  // ################################################# User Management APIs Start #################################################
+  // ################################################# User Management APIs Start #################################################
+  // ################################################# User Management APIs Start #################################################
+  getUserList: {
+    endpoint: "/user/userlist",
+    method: "post",
+    queryKey: "getUserList",
+    mutationKey: "get_user_list",
+  },
+
+  updateUser: {
+    endpoint: "/user/userupdate",
+    method: "post",
+    queryKey: "updateUser",
+    mutationKey: "update_user",
+  },
+  // ################################################# User Management APIs Start #################################################
+  // ################################################# User Management APIs Start #################################################
+  // ################################################# User Management APIs Start #################################################
+  // ################################################# User Management APIs Start #################################################
 } as Record<string, ApiRegistryEntry>;
 
 export default url;

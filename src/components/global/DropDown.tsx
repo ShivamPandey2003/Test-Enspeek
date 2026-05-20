@@ -9,16 +9,18 @@ interface DropdownData {
 }
 interface DropDownProps {
   className?: string;
+  style?: React.CSSProperties;
   Data: DropdownData[];
   showCheckbox?: boolean;
 }
-const DropDown: React.FC<DropDownProps> = ({ className, Data, showCheckbox = false }) => {
+const DropDown: React.FC<DropDownProps> = ({ className, style, Data, showCheckbox = false }) => {
   return (
     <div
       className={cn(
         "home-dropdown absolute right-0 z-50 mt-2 overflow-hidden rounded-2xl border p-1.5 shadow-xl",
         className
       )}
+      style={style}
       role="menu"
     >
       <ul className="space-y-1 text-sm text-gray-700">

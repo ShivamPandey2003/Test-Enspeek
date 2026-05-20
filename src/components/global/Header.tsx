@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { FaSignOutAlt } from "react-icons/fa";
-import { LuChevronDown } from "react-icons/lu";
-import { Link, useLocation } from "react-router";
+import { LuChevronDown, LuUsersRound } from "react-icons/lu";
+import { Link, useLocation, useNavigate } from "react-router";
 import ICON from "../../assets/icons/icon.png";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../../store/store";
@@ -16,8 +16,9 @@ const Header = () => {
   const [logoutModalOpen, setLogoutModalOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { pathname } = useLocation();
+  const navigate = useNavigate();
   const { name } = useSelector((state: RootState) => state.study);
-  const { firstName, lastName } = useSelector((state: RootState) => state.user);
+  const { firstName, lastName, loginType, userType } = useSelector((state: RootState) => state.user);
   const showStudyName = pathname !== "/" && name.trim() !== "";
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
@@ -25,6 +26,9 @@ const Header = () => {
   const dispatch = useDispatch<AppDispatch>();
   const fullName = getFullName(firstName, lastName) || firstName || "User";
   const initials = getInitials(fullName, "U");
+  const canAccessAdminPanel = ["admin", "client"].includes(
+    (loginType || userType || "").toLowerCase()
+  );
 
   const handleLogout = () => {
     localStorage.clear();
@@ -36,6 +40,18 @@ const Header = () => {
   };
 
   const DropdownData = [
+    ...(canAccessAdminPanel
+      ? [
+          {
+            Title: "User Management",
+            Icon: LuUsersRound,
+            onClick: () => {
+              setDropdownOpen(false);
+              navigate("/user-management");
+            },
+          },
+        ]
+      : []),
     {
       Title: "Logout",
       Icon: FaSignOutAlt,
@@ -69,12 +85,12 @@ const Header = () => {
       )}
     >
       <div className="flex min-w-0 flex-1 items-center gap-3">
-        <Link to={"/"}>
+        <Link to={"/"} className="flex shrink-0 items-center gap-3">
           <img src={ICON} alt="Enspeek" className="h-11 w-auto" />
+          <span className="text-[23px] font-extrabold tracking-[-0.03em] text-login-primary">
+            Enspeek
+          </span>
         </Link>
-        <div className="shrink-0 text-[23px] font-extrabold tracking-[-0.03em] text-login-primary">
-          Enspeek
-        </div>
         {showStudyName && (
           <>
             <div className="home-muted shrink-0 mx-2 text-sm font-medium">|</div>

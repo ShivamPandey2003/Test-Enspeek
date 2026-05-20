@@ -87,12 +87,17 @@ const OtpLoginPage = () => {
   React.useEffect(() => {
     if (verifyOtpMutation.isSuccess && verifyOtpMutation.data) {
       const data = verifyOtpMutation.data;
+      const response = data.response as typeof data.response & {
+        loginType?: string;
+        logintype?: string;
+      };
       localStorage.setItem("token", data.response.access_token);
       dispatch(
         Login({
           apiToken: data.response.apitoken,
           firstName: data.response.firstname,
           lastName: data.response.lastname,
+          loginType: response.loginType ?? response.logintype,
           userType: data.response.usertype,
           grp: String(data.response.grp),
           suggest_login_password: 0,

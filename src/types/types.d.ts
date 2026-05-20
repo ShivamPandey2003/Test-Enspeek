@@ -48,6 +48,7 @@ declare type User = {
   apiToken: string;
   firstName: string;
   lastName: string;
+  loginType?: "admin" | "client" | "user" | string;
   userType: "admin" | "user" | string;
   grp: string;
   suggest_login_password: number;
