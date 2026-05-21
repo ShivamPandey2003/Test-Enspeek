@@ -824,14 +824,15 @@ const UserRowActions = ({
       Icon: LuSparkles,
       onClick: () => handleAction("subscription"),
     },
-    {
-      Title:
-        user.plan === "free"
-          ? modalDefinitions.changeToPaidUser.title
-          : modalDefinitions.changeToFreeUser.title,
-      Icon: LuCrown,
-      onClick: () => handleAction("plan"),
-    },
+    ...(user.plan === "free"
+      ? [
+          {
+            Title: modalDefinitions.changeToPaidUser.title,
+            Icon: LuCrown,
+            onClick: () => handleAction("plan"),
+          },
+        ]
+      : []),
   ];
 
   function handleAction(action: AdminPanelActionType) {
@@ -965,12 +966,32 @@ const ConfirmationModalBody = ({
 }) => {
   const definition = modalDefinitions[getUserActionDefinitionKey(action, user)];
   const actionText = definition.confirmationAction ?? definition.title.toLowerCase();
+  const confirmationMessage =
+    action === "plan"
+      ? {
+          targetPlan: user.plan === "free" ? "Paid" : "Free",
+        }
+      : null;
 
   return (
     <div className="space-y-4">
       <p className="theme-text-default text-[15px] leading-6">
-        Are you sure you want to {actionText}{" "}
-        <span className="font-semibold text-login-primary">{user.name}</span>?
+        {confirmationMessage ? (
+          <>
+            Are you sure you want to change{" "}
+            <span className="font-bold text-login-primary">{user.name}</span>{" "}
+            to a{" "}
+            <span className="font-bold text-login-primary">
+              {confirmationMessage.targetPlan}
+            </span>{" "}
+            user?
+          </>
+        ) : (
+          <>
+            Are you sure you want to {actionText}{" "}
+            <span className="font-semibold text-login-primary">{user.name}</span>?
+          </>
+        )}
       </p>
       <ModalInfoBlock icon={<LuBadgeCheck className="h-4 w-4 text-login-primary" />}>
         Type <span className="font-semibold text-login-primary">{keyword}</span>{" "}

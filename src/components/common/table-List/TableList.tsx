@@ -127,7 +127,7 @@ const isTableReady =
               <LuLoaderCircle size={34} className="animate-spin text-action" />
             </div>
           ) : (
-            <table className="w-full table-fixed divide-y home-border-soft">
+            <table className="w-full table-fixed">
               <colgroup>
                 <col className="w-[48%]" />
                 {bannerPoints.map((header: BannerPoint) => (
@@ -143,7 +143,7 @@ const isTableReady =
                   {bannerPoints.map((header: BannerPoint) => (
                     <th
                       key={header.pointID}
-                      className="px-6 py-3 text-center crosstab-muted border-l home-border-soft"
+                      className="px-6 py-3 text-center crosstab-muted"
                     >
                       <div>{header.title}</div>
                       <div className="text-[var(--color-questionnaire-stop)]">{header.alpha}</div>
@@ -151,7 +151,7 @@ const isTableReady =
                   ))}
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y home-border-soft">
+              <tbody className="bg-white">
                 <tr>
                   <td className="px-6 py-4 text-sm font-semibold crosstab-title">
                     Base
@@ -159,7 +159,7 @@ const isTableReady =
                   {bannerPoints.map((seq: BannerPoint) => (
                     <td
                       key={seq.pointID}
-                      className="px-6 py-4 text-center text-sm font-bold crosstab-title border-l home-border-soft"
+                      className="px-6 py-4 text-center text-sm font-bold crosstab-title"
                     >
                       {baseData[seq.pointID as keyof typeof baseData] ?? 0}
                     </td>
@@ -178,7 +178,7 @@ const isTableReady =
                       return (
                         <td
                           key={seqData.pointID}
-                          className="px-6 py-4 text-center text-sm home-text border-l home-border-soft"
+                          className="px-6 py-4 text-center text-sm home-text"
                         >
                           {value[seqData.pointID as keyof typeof value]}
                         </td>
