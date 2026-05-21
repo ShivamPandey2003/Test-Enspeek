@@ -504,6 +504,35 @@ const url = {
     queryKey: "reportFilters",
     mutationKey: "report_filters",
   },
+
+  // ################################################# User Management APIs Start #################################################
+  // ################################################# User Management APIs Start #################################################
+  // ################################################# User Management APIs Start #################################################
+  // ################################################# User Management APIs Start #################################################
+  getUserList: {
+    endpoint: "/admin/userlist",
+    method: "post",
+    queryKey: "getUserList",
+    mutationKey: "get_user_list",
+  },
+
+  getAdminList: {
+    endpoint: "/admin/adminlist",
+    method: "post",
+    queryKey: "getAdminList",
+    mutationKey: "get_admin_list",
+  },
+
+  updateUser: {
+    endpoint: "/admin/update-user",
+    method: "post",
+    queryKey: "updateUser",
+    mutationKey: "update_user",
+  },
+  // ################################################# User Management APIs End #################################################
+  // ################################################# User Management APIs End #################################################
+  // ################################################# User Management APIs End #################################################
+  // ################################################# User Management APIs End #################################################
 } as Record<string, ApiRegistryEntry>;
 
 export default url;

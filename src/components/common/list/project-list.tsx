@@ -95,7 +95,7 @@ export default function ProjectListing() {
                       type="button"
                       varinat="outline"
                       size="sm"
-                      onClick={() => openChatWithMessage("count of in progress studies")}
+                      onClick={() => openChatWithMessage("Count of in progress studies")}
                       className="max-w-full rounded-full home-muted shadow-sm hover:border-login-primary/30 hover:bg-login-primary/5"
                     >
                       Try:
@@ -118,16 +118,16 @@ export default function ProjectListing() {
                             openChatWithMessage(prompt.message);
                           }
                         }}
-                        className="home-panel-soft-bg home-border-soft group h-full min-h-[108px] w-full items-center justify-start rounded-[20px] px-4 py-3 text-left transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+                        className="home-panel-soft-bg home-border-soft group h-full min-h-[108px] w-full items-center justify-start whitespace-normal rounded-[20px] px-4 py-3 text-left leading-normal transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
                       >
                         <span className="home-dropdown-icon-wrap flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl">
                           {prompt.icon}
                         </span>
-                        <span className="min-w-0 flex-1 self-center">
+                        <span className="min-w-0 flex-1 self-center whitespace-normal">
                           <span className="home-heading block text-sm font-semibold">
                             {prompt.label}
                           </span>
-                          <span className="home-muted mt-0.5 line-clamp-2 block text-sm leading-5">
+                          <span className="home-muted mt-0.5 line-clamp-2 block whitespace-normal break-words text-sm leading-5">
                             {prompt.description}
                           </span>
                         </span>

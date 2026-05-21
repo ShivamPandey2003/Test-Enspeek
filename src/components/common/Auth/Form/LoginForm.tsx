@@ -36,6 +36,7 @@ const LoginForm = () => {
           apiToken: data.apitoken,
           firstName: data.firstname,
           lastName: data.lastname,
+          loginType: data.loginType ?? data.logintype,
           userType: data.usertype,
         }),
       );

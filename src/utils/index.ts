@@ -1,10 +1,15 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import type { UserProps } from "../components/common/UserManagement/UserCard";
+import type { AdminPanelUser } from "../api-network/admin-panel/query";
 import { toast } from "sonner";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
+}
+
+export function toNumber(value: unknown, fallback = 0) {
+  const parsedValue = Number(value);
+  return Number.isFinite(parsedValue) ? parsedValue : fallback;
 }
 
 function toTitleCase(value?: string) {
@@ -51,11 +56,11 @@ export function getInitials(name?: string, fallback = "U") {
   return `${parts[0][0] ?? ""}${parts[parts.length - 1][0] ?? ""}`.toUpperCase();
 }
 
-export function searchUsers(users: UserProps[], query: string): UserProps[] {
+export function searchUsers(users: AdminPanelUser[], query: string): AdminPanelUser[] {
   const lowerQuery = query.toLowerCase().trim();
 
   return users.filter((user) =>
-    [user.name, user.email, user.role].some((field) =>
+    [user.name, user.email, user.plan, user.status].some((field) =>
       field.toLowerCase().includes(lowerQuery)
     )
   );

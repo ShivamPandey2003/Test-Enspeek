@@ -1,20 +1,33 @@
-import React from 'react'
-import UserCard, { type UserProps } from './UserCard'
+import React, { useState } from "react";
+import type { AdminPanelUser } from "../../../api-network/admin-panel/query";
+import UserCard, { type AdminPanelActionType } from "./UserCard";
 
 interface UserDisplayProps {
-    userData: UserProps[]
+  userData: AdminPanelUser[];
+  onAction: (user: AdminPanelUser, action: AdminPanelActionType) => void;
 }
 
-const UserDisplay:React.FC<UserDisplayProps> = ({userData}) => {
+const UserDisplay: React.FC<UserDisplayProps> = ({ userData, onAction }) => {
+  const [openDropdownUserId, setOpenDropdownUserId] = useState<string | null>(null);
+
   return (
-    <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4'>
-        {
-            userData.map((user, index)=>(
-                <UserCard key={index} {...user}/>
-            ))
-        }
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+      {userData.map((user) => (
+        <UserCard
+          key={user.id}
+          user={user}
+          isDropdownOpen={openDropdownUserId === user.id}
+          onDropdownToggle={() =>
+            setOpenDropdownUserId((currentId) =>
+              currentId === user.id ? null : user.id
+            )
+          }
+          onDropdownClose={() => setOpenDropdownUserId(null)}
+          onAction={onAction}
+        />
+      ))}
     </div>
-  )
-}
+  );
+};
 
-export default UserDisplay
+export default UserDisplay;

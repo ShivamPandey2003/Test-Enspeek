@@ -1,4 +1,5 @@
 import React from "react";
+import { LuClock3 } from "react-icons/lu";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
@@ -18,6 +19,20 @@ const RESEND_COOLDOWN_SECONDS = 30;
 const isValidEmail = (value: string) =>
   /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
 
+const showToastWhenNeeded = (error: any, fallback: string) => {
+  if (error?.hasToast) return;
+
+  toast.error(error?.message || fallback);
+};
+
+const isApprovalPendingResponse = (response: unknown) =>
+  Boolean(
+    response &&
+      typeof response === "object" &&
+      "code" in response &&
+      Number((response as { code?: number }).code) === 403
+  );
+
 const OtpLoginPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
@@ -36,6 +51,8 @@ const OtpLoginPage = () => {
   const [otp, setOtp] = React.useState<string[]>(Array.from({ length: OTP_LENGTH }, () => ""));
   const [otpError, setOtpError] = React.useState<string>();
   const [pendingEmail, setPendingEmail] = React.useState("");
+  const [signupPendingApproval, setSignupPendingApproval] = React.useState(false);
+  const [approvalPendingSource, setApprovalPendingSource] = React.useState<"signin" | "signup">("signup");
   const [resendSecondsLeft, setResendSecondsLeft] = React.useState(0);
 
   React.useEffect(() => {
@@ -52,19 +69,19 @@ const OtpLoginPage = () => {
 
   const verifyCaptchaMutation = useVerifyCaptchaMutation();
   const signupMutation = useSignupOtpMutation();
-  React.useEffect(() => {
-    if (signupMutation.isSuccess && signupMutation.data) {
-      toast.success(signupMutation.data.header?.message || "User registered successfully");
-      setMode("signin");
-      setStep("form");
-      setSignInState({ email: signUpState.email });
-      setSignUpErrors({});
-    }
-  }, [signUpState.email, signupMutation.data, signupMutation.isSuccess]);
 
   const sendOtpMutation = useSendOtpLoginMutation();
   React.useEffect(() => {
     if (sendOtpMutation.isSuccess && sendOtpMutation.variables) {
+      if (isApprovalPendingResponse(sendOtpMutation.data)) {
+        setPendingEmail(sendOtpMutation.variables.email);
+        setApprovalPendingSource("signin");
+        setSignupPendingApproval(true);
+        setStep("form");
+        setMode("signin");
+        return;
+      }
+
       toast.success(sendOtpMutation.data?.header?.message || "OTP sent successfully");
       setPendingEmail(sendOtpMutation.variables.email);
       setOtp(Array.from({ length: OTP_LENGTH }, () => ""));
@@ -87,17 +104,34 @@ const OtpLoginPage = () => {
   React.useEffect(() => {
     if (verifyOtpMutation.isSuccess && verifyOtpMutation.data) {
       const data = verifyOtpMutation.data;
+      const response = data.response as typeof data.response & {
+        loginType?: string;
+        logintype?: string;
+        is_approved?: number;
+      };
+      if (response.is_approved === 0) {
+        toast.info("Your account is still awaiting approval. You will receive an email once it is approved.");
+        setStep("form");
+        setMode("signin");
+        return;
+      }
       localStorage.setItem("token", data.response.access_token);
+      sessionStorage.setItem(
+        `enspeek-show-free-plan-modal:${data.response.apitoken}`,
+        "1"
+      );
       dispatch(
         Login({
           apiToken: data.response.apitoken,
           firstName: data.response.firstname,
           lastName: data.response.lastname,
+          loginType: response.loginType ?? response.logintype,
           userType: data.response.usertype,
           grp: String(data.response.grp),
           suggest_login_password: 0,
           updated_on: "",
           enabled: data.response.enabled,
+          planInfoSynced: false,
         })
       );
       toast.success("Login successful!");
@@ -127,7 +161,7 @@ const OtpLoginPage = () => {
       // await runCaptchaCheck(captchaToken);
       await sendOtpMutation.mutateAsync({ email });
     } catch (error: any) {
-      toast.error(error?.message || "Unable to send OTP");
+      showToastWhenNeeded(error, "Unable to send OTP");
     }
   };
 
@@ -156,9 +190,18 @@ const OtpLoginPage = () => {
 
     try {
       // await runCaptchaCheck(captchaToken);
-      await signupMutation.mutateAsync({ firstname, lastname, email });
+      const signupResponse = await signupMutation.mutateAsync({
+        firstname,
+        lastname,
+        email,
+      });
+      toast.success(signupResponse.header?.message || "User registered successfully");
+      setApprovalPendingSource("signup");
+      setSignupPendingApproval(true);
+      setStep("form");
+      setSignUpErrors({});
     } catch (error: any) {
-      toast.error(error?.message || "Unable to create account");
+      showToastWhenNeeded(error, "Unable to create account");
     }
   };
 
@@ -178,7 +221,7 @@ const OtpLoginPage = () => {
       });
     } catch (error: any) {
       setOtpError(error?.message || "Invalid OTP");
-      toast.error(error?.message || "Unable to verify OTP");
+      showToastWhenNeeded(error, "Unable to verify OTP");
     }
   };
 
@@ -213,7 +256,7 @@ const OtpLoginPage = () => {
         email: pendingEmail || signInState.email.trim(),
       });
     } catch (error: any) {
-      toast.error(error?.message || "Unable to resend OTP");
+      showToastWhenNeeded(error, "Unable to resend OTP");
     }
   };
 
@@ -221,7 +264,7 @@ const OtpLoginPage = () => {
     <AuthCard
       compact={step === "form" && mode === "signup"}
       topSlot={
-        step === "form" ? (
+        step === "form" && !signupPendingApproval ? (
           <div className="mb-4 inline-flex rounded-full bg-[var(--color-login-input)] p-1">
             <Button
               type="button"
@@ -244,16 +287,44 @@ const OtpLoginPage = () => {
           </div>
         ) : undefined
       }
-      title={step === "otp" ? "Verify your email" : mode === "signin" ? "OTP Login" : "Create your account"}
+      title={
+        signupPendingApproval
+          ? approvalPendingSource === "signin"
+            ? "Account Request Under Review"
+            : "Account Request Submitted"
+          : step === "otp"
+            ? "Verify your email"
+            : mode === "signin"
+              ? "OTP Login"
+              : "Create your account"
+      }
       subtitle={
-        step === "otp"
+        signupPendingApproval
+          ? "Your account is awaiting approval."
+          : step === "otp"
           ? "Finish login with the one-time password"
           : mode === "signin"
             ? "Use your email to receive a one-time password"
             : "Register first, then sign in with OTP"
       }
       footer={
-        step === "otp" ? (
+        signupPendingApproval ? (
+          <p className="text-sm text-login-muted">
+            Already approved?{" "}
+            <button
+              type="button"
+              className="cursor-pointer font-semibold text-login-primary underline-offset-4 hover:underline"
+              onClick={() => {
+                setSignupPendingApproval(false);
+                setApprovalPendingSource("signup");
+                setMode("signin");
+                setSignInState({ email: pendingEmail || signUpState.email });
+              }}
+            >
+              Sign in
+            </button>
+          </p>
+        ) : step === "otp" ? (
           <Button
             type="button"
             varinat="link"
@@ -291,7 +362,12 @@ const OtpLoginPage = () => {
         )
       }
     >
-      {step === "otp" ? (
+      {signupPendingApproval ? (
+        <SignupApprovalPendingMessage
+          email={pendingEmail || signUpState.email}
+          source={approvalPendingSource}
+        />
+      ) : step === "otp" ? (
         <OtpForm
           email={pendingEmail || signInState.email}
           otp={otp}
@@ -332,5 +408,32 @@ const OtpLoginPage = () => {
     </AuthCard>
   );
 };
+
+const SignupApprovalPendingMessage = ({
+  email,
+  source,
+}: {
+  email: string;
+  source: "signin" | "signup";
+}) => (
+  <div className="rounded-2xl border border-[color:var(--color-brand-primary)]/20 bg-[var(--color-login-input)] px-5 py-5 text-center">
+    <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-login-primary/10 text-login-primary">
+      <LuClock3 className="h-6 w-6" />
+    </div>
+    <p className="theme-text-strong mt-4 text-[16px] font-semibold">
+      Your account request is under review.
+    </p>
+    <p className="mt-2 text-sm leading-6 text-login-muted">
+      {source === "signin"
+        ? "Your account request is currently under review. You will be able to sign in once your account has been approved by the admin."
+        : "Thank you for registering with Enspeek. Your request has been received and is currently awaiting approval. Once approved, you will receive an email confirmation and can sign in successfully."}
+    </p>
+    {email ? (
+      <p className="mt-3 truncate text-sm font-semibold text-login-primary">
+        {email}
+      </p>
+    ) : null}
+  </div>
+);
 
 export default OtpLoginPage;

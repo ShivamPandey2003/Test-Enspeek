@@ -29,6 +29,15 @@ export type ModalDefinition = {
   submittingLabel?: string;
   cancelLabel?: string;
   maxWidthClass?: string;
+  confirmationKeyword?: string;
+  confirmationAction?: string;
+  validationMessages?: {
+    wholeNumbers?: string;
+    promptGreaterThanUsed?: string;
+    studiesGreaterThanUsed?: string;
+    questionsGreaterThanUsed?: string;
+    changeAtLeastOneLimit?: string;
+  };
 };
 
 export const modalDefinitions: Record<string, ModalDefinition> = {
@@ -272,6 +281,100 @@ export const modalDefinitions: Record<string, ModalDefinition> = {
     submitLabel: "Close",
     cancelLabel: "Close",
     maxWidthClass: "max-w-5xl",
+  },
+  activateUser: {
+    id: "activateUser",
+    title: "Activate User",
+    tone: "primary",
+    icon: LuBadgeCheck,
+    submitLabel: "Submit",
+    submittingLabel: "Submitting...",
+    cancelLabel: "Cancel",
+    maxWidthClass: "max-w-lg",
+    confirmationKeyword: "activate",
+    confirmationAction: "activate",
+  },
+  deactivateUser: {
+    id: "deactivateUser",
+    title: "Deactivate User",
+    tone: "primary",
+    icon: LuBadgeCheck,
+    submitLabel: "Submit",
+    submittingLabel: "Submitting...",
+    cancelLabel: "Cancel",
+    maxWidthClass: "max-w-lg",
+    confirmationKeyword: "deactivate",
+    confirmationAction: "deactivate",
+  },
+  changeToPaidUser: {
+    id: "changeToPaidUser",
+    title: "Change To Paid User",
+    tone: "primary",
+    icon: LuUsers,
+    submitLabel: "Submit",
+    submittingLabel: "Submitting...",
+    cancelLabel: "Cancel",
+    maxWidthClass: "max-w-lg",
+    confirmationKeyword: "paid",
+    confirmationAction: "change to paid",
+  },
+  changeToFreeUser: {
+    id: "changeToFreeUser",
+    title: "Change To Free User",
+    tone: "primary",
+    icon: LuUsers,
+    submitLabel: "Submit",
+    submittingLabel: "Submitting...",
+    cancelLabel: "Cancel",
+    maxWidthClass: "max-w-lg",
+    confirmationKeyword: "free",
+    confirmationAction: "change to free",
+  },
+  verifyUser: {
+    id: "verifyUser",
+    title: "Verify User",
+    tone: "primary",
+    icon: LuBadgeCheck,
+    submitLabel: "Submit",
+    submittingLabel: "Submitting...",
+    cancelLabel: "Cancel",
+    maxWidthClass: "max-w-lg",
+    confirmationKeyword: "verify",
+    confirmationAction: "verify",
+  },
+  removeUserVerification: {
+    id: "removeUserVerification",
+    title: "Remove Verification",
+    tone: "primary",
+    icon: LuBadgeCheck,
+    submitLabel: "Submit",
+    submittingLabel: "Submitting...",
+    cancelLabel: "Cancel",
+    maxWidthClass: "max-w-lg",
+    confirmationKeyword: "unverify",
+    confirmationAction: "remove verification for",
+  },
+  updateUserSubscription: {
+    id: "updateUserSubscription",
+    title: "Update Subscription",
+    description:
+      "Enter the new limit. The entered value will become the updated limit.",
+    tone: "primary",
+    icon: LuSettings2,
+    submitLabel: "Update Subscription",
+    submittingLabel: "Submitting...",
+    cancelLabel: "Cancel",
+    maxWidthClass: "max-w-2xl",
+    validationMessages: {
+      wholeNumbers: "Updated limits must be whole numbers.",
+      promptGreaterThanUsed:
+        "Updated prompt limit must be greater than prompts already used.",
+      studiesGreaterThanUsed:
+        "Updated study creation limit must be greater than studies already created.",
+      questionsGreaterThanUsed:
+        "Updated question generation limit must be greater than questions already generated.",
+      changeAtLeastOneLimit: "Please change at least one subscription limit.",
+    },
   },
 };
 
