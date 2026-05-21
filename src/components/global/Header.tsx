@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { FaSignOutAlt } from "react-icons/fa";
-import { LuChevronDown, LuUsersRound } from "react-icons/lu";
+import { LuChevronDown, LuCrown, LuGift, LuUsersRound } from "react-icons/lu";
 import { Link, useLocation, useNavigate } from "react-router";
 import ICON from "../../assets/icons/icon.png";
 import { useDispatch, useSelector } from "react-redux";
@@ -10,15 +10,27 @@ import DropDown from "./DropDown";
 import Modal from "../ui/Modal";
 import { cn, getFullName, getInitials } from "../../utils";
 import Button from "../ui/Button";
+import ModalScaffold from "../ui/modal/ModalScaffold";
 
 const Header = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [logoutModalOpen, setLogoutModalOpen] = useState(false);
+  const [manualPlanLimitModalOpen, setManualPlanLimitModalOpen] = useState(false);
+  const [dismissedFreePlanModal, setDismissedFreePlanModal] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { name } = useSelector((state: RootState) => state.study);
-  const { firstName, lastName, loginType, userType } = useSelector((state: RootState) => state.user);
+  const user = useSelector((state: RootState) => state.user);
+  const {
+    firstName,
+    lastName,
+    loginType,
+    userType,
+    planType,
+    planInfoSynced,
+    apiToken,
+  } = user;
   const showStudyName = pathname !== "/" && name.trim() !== "";
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
@@ -26,9 +38,24 @@ const Header = () => {
   const dispatch = useDispatch<AppDispatch>();
   const fullName = getFullName(firstName, lastName) || firstName || "User";
   const initials = getInitials(fullName, "U");
-  const canAccessAdminPanel = ["admin", "client"].includes(
-    (loginType || userType || "").toLowerCase()
+  const canAccessAdminPanel = ["admin", "client"].includes((loginType || userType || "").toLowerCase());
+  const isAdminLogin = (loginType || userType || "").toLowerCase() === "admin";
+  const isPlanInfoVisible = Boolean(planInfoSynced && !isAdminLogin);
+  const isFreeUser = Number(planType) === 0;
+  const isPaidUser = Number(planType) === 1;
+  const PlanIcon = isPaidUser ? LuCrown : LuGift;
+  const shouldShowFreePlanAfterLogin = Boolean(
+    apiToken &&
+    sessionStorage.getItem(`enspeek-show-free-plan-modal:${apiToken}`) === "1"
   );
+  const shouldAutoOpenFreePlanModal = Boolean(
+    isPlanInfoVisible &&
+    isFreeUser &&
+    shouldShowFreePlanAfterLogin &&
+    !dismissedFreePlanModal
+  );
+  const isPlanLimitModalOpen =
+    manualPlanLimitModalOpen || shouldAutoOpenFreePlanModal;
 
   const handleLogout = () => {
     localStorage.clear();
@@ -42,15 +69,15 @@ const Header = () => {
   const DropdownData = [
     ...(canAccessAdminPanel
       ? [
-          {
-            Title: "User Management",
-            Icon: LuUsersRound,
-            onClick: () => {
-              setDropdownOpen(false);
-              navigate("/user-management");
-            },
+        {
+          Title: "User Management",
+          Icon: LuUsersRound,
+          onClick: () => {
+            setDropdownOpen(false);
+            navigate("/user-management");
           },
-        ]
+        },
+      ]
       : []),
     {
       Title: "Logout",
@@ -76,6 +103,15 @@ const Header = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  const closePlanLimitModal = () => {
+    setManualPlanLimitModalOpen(false);
+
+    if (shouldAutoOpenFreePlanModal && apiToken) {
+      sessionStorage.removeItem(`enspeek-show-free-plan-modal:${apiToken}`);
+      setDismissedFreePlanModal(true);
+    }
+  };
 
   return (
     <div
@@ -105,6 +141,25 @@ const Header = () => {
           className="flex cursor-pointer items-center gap-3"
           onClick={toggleDropdown}
         >
+          {isPlanInfoVisible && (isFreeUser || isPaidUser) ? (
+            <button
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation();
+                setManualPlanLimitModalOpen(true);
+              }}
+              className={cn(
+                "flex h-9 w-9 items-center justify-center rounded-full border shadow-sm transition-colors",
+                isPaidUser
+                  ? "border-[color:var(--color-brand-primary)]/25 bg-[var(--color-brand-primary-softest)] text-login-primary hover:bg-login-primary/10"
+                  : "border-[color:var(--color-brand-primary)]/20 bg-white text-login-primary hover:bg-[var(--color-brand-primary-softest)]"
+              )}
+              aria-label={isPaidUser ? "View paid plan usage" : "View free plan usage limits"}
+              title={isPaidUser ? "Paid plan usage" : "Free plan usage limits"}
+            >
+              <PlanIcon className="h-[18px] w-[18px]" />
+            </button>
+          ) : null}
           {fullName && (
             <span className="home-heading text-[14px] font-semibold capitalize">
               {fullName}
@@ -153,8 +208,123 @@ const Header = () => {
           </div>
         </div>
       </Modal>
+      <PlanLimitsModal
+        isOpen={isPlanLimitModalOpen}
+        onClose={closePlanLimitModal}
+        user={user}
+      />
     </div>
   );
 };
+
+const PlanLimitsModal = ({
+  isOpen,
+  onClose,
+  user,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  user: User;
+}) => {
+  const planType = Number(user.planType);
+  const isPaidUser = planType === 1;
+  const Icon = isPaidUser ? LuCrown : LuGift;
+  const title = isPaidUser ? "Paid Plan Usage" : "Free Plan Usage Limits";
+  const description = isPaidUser
+    ? "These values show your current usage across your paid plan allowance."
+    : "You're on the Free Plan. Here’s your included allowance for studies, prompts, and question generation.";
+
+  return (
+    <ModalScaffold
+      isOpen={isOpen}
+      onClose={onClose}
+      className="max-w-2xl"
+      title={title}
+      icon={<Icon className="h-5 w-5" />}
+      description={description}
+      footerRight={
+        <Button type="button" varinat="cancel" onClick={onClose}>
+          Cancel
+        </Button>
+      }
+    >
+      <div className="grid gap-2">
+        <div className="hidden grid-cols-[minmax(0,1fr)_300px] items-center gap-3 px-4 sm:grid">
+          <div />
+          <div className="grid grid-cols-3 gap-2 text-center">
+            <span className="text-[12px] font-extrabold uppercase tracking-[0.08em] text-black">
+              Used
+            </span>
+            <span className="text-[12px] font-extrabold uppercase tracking-[0.08em] text-black">
+              Allowed
+            </span>
+            <span className="text-[12px] font-extrabold uppercase tracking-[0.08em] text-black">
+              Remaining
+            </span>
+          </div>
+        </div>
+        <PlanLimitRow
+          label="Studies"
+          used={user.createdStudies ?? 0}
+          allowed={user.allowedStudies ?? 0}
+          usedLabel="created"
+        />
+        <PlanLimitRow
+          label="Prompts"
+          used={user.usedPrompt ?? 0}
+          allowed={user.allowedPrompt ?? 0}
+          usedLabel="used"
+        />
+        <PlanLimitRow
+          label="Questions"
+          used={user.createdQuestions ?? 0}
+          allowed={user.allowedQuestions ?? 0}
+          usedLabel="created"
+        />
+      </div>
+    </ModalScaffold>
+  );
+};
+
+const PlanLimitRow = ({
+  label,
+  used,
+  allowed,
+  usedLabel,
+}: {
+  label: string;
+  used: number;
+  allowed: number;
+  usedLabel: string;
+}) => {
+  const remaining = Math.max(allowed - used, 0);
+
+  return (
+    <div className="rounded-md border border-[color:var(--color-brand-primary)]/16 bg-white px-4 py-3">
+      <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_300px] sm:items-center">
+        <div className="min-w-0">
+          <p className="text-[15px] font-bold text-login-primary">{label}</p>
+          <p className="home-muted mt-0.5 text-sm">
+            {used} {usedLabel} of {allowed} allowed
+          </p>
+        </div>
+        <div className="grid grid-cols-3 gap-2 text-center">
+          <PlanMetric mobileLabel="Used" value={used} />
+          <PlanMetric mobileLabel="Allowed" value={allowed} />
+          <PlanMetric mobileLabel="Remaining" value={remaining} />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const PlanMetric = ({ mobileLabel, value }: { mobileLabel: string; value: number }) => (
+  <div className="rounded-md bg-[var(--color-surface-soft)] px-3 py-2">
+    <span className="home-heading block text-sm font-bold">{value}</span>
+    <span className="mt-0.5 block text-[11px] font-extrabold uppercase tracking-[0.08em] text-black sm:hidden">
+      {mobileLabel}
+    </span>
+  </div>
+);
 
 export default Header;

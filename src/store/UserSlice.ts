@@ -11,10 +11,18 @@ const initialState: User = saved ? decrypt(saved) : {
   lastName: "",
   loginType: "",
   userType: "",
+  planType: undefined,
   grp: "",
   suggest_login_password: 0,
   updated_on: "",
   enabled: 0,
+  planInfoSynced: false,
+  createdStudies: 0,
+  allowedStudies: 0,
+  usedPrompt: 0,
+  allowedPrompt: 0,
+  createdQuestions: 0,
+  allowedQuestions: 0,
 };
 
 const userSlice = createSlice({
@@ -34,10 +42,18 @@ const userSlice = createSlice({
         lastName: "",
         loginType: "",
         userType: "",
+        planType: undefined,
         grp: "",
         suggest_login_password: 0,
         updated_on: "",
         enabled: 0,
+        planInfoSynced: false,
+        createdStudies: 0,
+        allowedStudies: 0,
+        usedPrompt: 0,
+        allowedPrompt: 0,
+        createdQuestions: 0,
+        allowedQuestions: 0,
       };
     },
     SyncUserInfo: (state, action: PayloadAction<Partial<User>>) => {

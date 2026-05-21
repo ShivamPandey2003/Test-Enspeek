@@ -50,10 +50,18 @@ declare type User = {
   lastName: string;
   loginType?: "admin" | "client" | "user" | string;
   userType: "admin" | "user" | string;
+  planType?: 0 | 1 | number;
   grp: string;
   suggest_login_password: number;
   updated_on: string;
   enabled: number;
+  planInfoSynced?: boolean;
+  createdStudies?: number;
+  allowedStudies?: number;
+  usedPrompt?: number;
+  allowedPrompt?: number;
+  createdQuestions?: number;
+  allowedQuestions?: number;
 };
 
 declare type Study = {

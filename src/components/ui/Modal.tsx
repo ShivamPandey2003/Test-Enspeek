@@ -1,4 +1,5 @@
 import React from "react";
+import { createPortal } from "react-dom";
 import { cn } from "../../utils";
 
 const Modal: React.FC<{
@@ -15,9 +16,9 @@ const Modal: React.FC<{
 }) => {
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-[120] flex items-center justify-center"
+      className="fixed inset-0 z-[500] flex items-center justify-center"
       aria-modal="true"
       role="dialog"
     >
@@ -32,7 +33,8 @@ const Modal: React.FC<{
       >
         {children}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

@@ -1,4 +1,6 @@
 import queryStructure from "../query-template";
+import { apiRequest } from "../../services/apiService";
+import url from "../url";
 import adminPanelKeys from "./keys";
 
 export type AdminPanelPlan = "free" | "paid";
@@ -69,81 +71,36 @@ const normalizeUser = (user: AdminPanelUserApiResponse): AdminPanelUser => {
   };
 };
 
-const dummyUserList: AdminPanelUserApiResponse[] = [
-  {
-    firstname: "Aakash",
-    lastname: "Bohra",
-    email: "aakash.bohra@knowledgeexcel.com",
-    is_active: true,
-    user_type: 0,
-    is_approved: 0,
-    createdstudies: 3,
-    allowedstudies: 10,
-    used_prompt: 20,
-    allowed_prompt: 100,
-    created_questions: 5,
-    allowed_questions: 20,
-  },
-  {
-    firstname: "Priya",
-    lastname: "Sharma",
-    email: "priya.sharma@enspeek.com",
-    is_active: false,
-    user_type: 1,
-    is_approved: 1,
-    createdstudies: 6,
-    allowedstudies: 18,
-    used_prompt: 42,
-    allowed_prompt: 150,
-    created_questions: 14,
-    allowed_questions: 60,
-  },
-  {
-    firstname: "Research",
-    lastname: "Manager",
-    email: "research.manager@enspeek.com",
-    is_active: true,
-    user_type: 0,
-    is_approved: 1,
-    createdstudies: 1,
-    allowedstudies: 8,
-    used_prompt: 12,
-    allowed_prompt: 80,
-    created_questions: 8,
-    allowed_questions: 40,
-  },
-  {
-    firstname: "Sample",
-    lastname: "Buyer",
-    email: "sample.buyer@enspeek.com",
-    is_active: true,
-    user_type: 1,
-    is_approved: 0,
-    createdstudies: 8,
-    allowedstudies: 25,
-    used_prompt: 67,
-    allowed_prompt: 200,
-    created_questions: 31,
-    allowed_questions: 120,
-  },
-  {
-    firstname: "Insight",
-    lastname: "Analyst",
-    email: "insight.analyst@enspeek.com",
-    is_active: false,
-    user_type: 0,
-    is_approved: 0,
-    createdstudies: 0,
-    allowedstudies: 5,
-    used_prompt: 4,
-    allowed_prompt: 50,
-    created_questions: 2,
-    allowed_questions: 25,
-  },
-];
+type AdminPanelUserListResponse = {
+  response?: AdminPanelUserApiResponse[] | { response?: AdminPanelUserApiResponse[] };
+};
+
+const getUsersFromResponse = (response?: AdminPanelUserListResponse) => {
+  if (Array.isArray(response?.response)) {
+    return response.response;
+  }
+
+  if (
+    response?.response &&
+    !Array.isArray(response.response) &&
+    Array.isArray(response.response.response)
+  ) {
+    return response.response.response;
+  }
+
+  return [];
+};
 
 export const useAdminPanelUsers = () => {
-  const fetchUsers = async () => dummyUserList.map(normalizeUser);
+  const fetchUsers = async () => {
+    const response = await apiRequest(
+      url.getUserList.method,
+      url.getUserList.endpoint,
+      {}
+    );
+
+    return getUsersFromResponse(response).map(normalizeUser);
+  };
 
   const { data, isLoading, error } = queryStructure({
     queryKey: adminPanelKeys.users(),
