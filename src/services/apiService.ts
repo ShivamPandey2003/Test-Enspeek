@@ -55,6 +55,8 @@ const handleSessionExpiration = (): void => {
 };
 
 const getApiErrorMessage = (error: any, fallback: string) =>
+  error?.data?.detail ||
+  error?.response?.data?.detail ||
   error?.data?.message ||
   error?.data?.header?.message ||
   error?.response?.data?.message ||
@@ -109,6 +111,10 @@ export const apiRequest = async (
     if (responseType === "json") {
       if (response?.data?.code === 200) {
         return response.data;
+      } else if (response?.data?.detail) {
+        const message = response.data.detail;
+        toast.error(message);
+        throw createToastedError(message);
       } else if (response?.data?.code === 401) {
         toast.error("Session expired, logging out.");
         handleSessionExpiration();
@@ -142,6 +148,10 @@ export const apiRequest = async (
     if (error?.status === 401) {
       toast.error("Session expired, logging out.");
       handleSessionExpiration();
+    } else if (error?.data?.detail || error?.response?.data?.detail) {
+      const message = getApiErrorMessage(error, "Unable to complete this request.");
+      toast.error(message);
+      throw createToastedError(message);
     } else if (error.response?.status === 403 || error?.status === 403 || error?.data?.code === 403) {
       if (shouldSkipAuth(url)) {
         return error?.data || error?.response?.data;
