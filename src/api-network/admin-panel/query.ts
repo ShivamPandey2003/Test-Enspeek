@@ -2,6 +2,7 @@ import queryStructure from "../query-template";
 import { apiRequest } from "../../services/apiService";
 import url from "../url";
 import adminPanelKeys from "./keys";
+import { toNumber } from "../../utils";
 
 export type AdminPanelPlan = "free" | "paid";
 export type AdminPanelStatus = "active" | "inactive";
@@ -40,11 +41,6 @@ export type AdminPanelUser = {
   allowedPrompt: number;
   createdQuestions: number;
   allowedQuestions: number;
-};
-
-const toNumber = (value: unknown) => {
-  const parsedValue = Number(value);
-  return Number.isFinite(parsedValue) ? parsedValue : 0;
 };
 
 const toDisplayName = (firstName: string, lastName: string, email: string) => {

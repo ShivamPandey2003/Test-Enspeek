@@ -464,7 +464,7 @@ declare type DynamicModalProps = BaseModalControlProps & {
   footerContent?: React.ReactNode;
   secondaryAction?: React.ReactNode;
   secondaryActionPosition?: "before" | "after";
-  buttonVariant?: import("../components/ui/Button").ButtonProps["varinat"];
+  buttonVariant?: import("../components/ui/Button").ButtonProps["variant"];
 };
 
 declare type LogicModalProps = BaseModalControlProps & {

@@ -42,8 +42,6 @@ const UserCard: FC<UserCardProps> = ({
     user.status === "active"
       ? modalDefinitions.deactivateUser.title
       : modalDefinitions.activateUser.title;
-  const dropdownItemCount = user.isApproved ? 4 : 1;
-
   const handleAction = (action: AdminPanelActionType) => {
     onDropdownClose();
     onAction(user, action);
@@ -54,13 +52,20 @@ const UserCard: FC<UserCardProps> = ({
     if (!rect) return;
 
     const dropdownWidth = 286;
-    const dropdownHeight = Math.min(300, 12 + dropdownItemCount * 54);
+    const dropdownHeight =
+      dropdownRef.current?.getBoundingClientRect().height ?? 0;
     const viewportPadding = 12;
     const bottomSpace = window.innerHeight - rect.bottom;
-    const shouldOpenUp = bottomSpace < dropdownHeight;
-    const top = shouldOpenUp
-      ? Math.max(viewportPadding, rect.top - dropdownHeight - 8)
-      : Math.min(rect.bottom + 8, window.innerHeight - dropdownHeight - viewportPadding);
+    const shouldOpenUp = dropdownHeight > 0 && bottomSpace < dropdownHeight;
+    const top =
+      shouldOpenUp
+        ? Math.max(viewportPadding, rect.top - dropdownHeight - 8)
+        : dropdownHeight > 0
+          ? Math.min(
+              rect.bottom + 8,
+              window.innerHeight - dropdownHeight - viewportPadding
+            )
+          : rect.bottom + 8;
     const left = Math.min(
       window.innerWidth - dropdownWidth - viewportPadding,
       Math.max(viewportPadding, rect.right - dropdownWidth)

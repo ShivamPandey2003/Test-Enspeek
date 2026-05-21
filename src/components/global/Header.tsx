@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { FaSignOutAlt } from "react-icons/fa";
-import { LuChevronDown, LuCrown, LuGift, LuUsersRound } from "react-icons/lu";
+import { LuChevronDown, LuCrown, LuGift, LuLoaderCircle, LuUsersRound } from "react-icons/lu";
 import { Link, useLocation, useNavigate } from "react-router";
 import ICON from "../../assets/icons/icon.png";
 import { useDispatch, useSelector } from "react-redux";
@@ -11,15 +12,19 @@ import Modal from "../ui/Modal";
 import { cn, getFullName, getInitials } from "../../utils";
 import Button from "../ui/Button";
 import ModalScaffold from "../ui/modal/ModalScaffold";
+import homepageKeys from "../../api-network/homepage/keys";
+import { syncHomepageUserInfo } from "../../api-network/homepage/query";
 
 const Header = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [logoutModalOpen, setLogoutModalOpen] = useState(false);
   const [manualPlanLimitModalOpen, setManualPlanLimitModalOpen] = useState(false);
+  const [isPlanInfoRefreshing, setIsPlanInfoRefreshing] = useState(false);
   const [dismissedFreePlanModal, setDismissedFreePlanModal] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { pathname } = useLocation();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { name } = useSelector((state: RootState) => state.study);
   const user = useSelector((state: RootState) => state.user);
   const {
@@ -114,6 +119,22 @@ const Header = () => {
     }
   };
 
+  const openPlanLimitModal = async () => {
+    if (isPlanInfoRefreshing) return;
+
+    setIsPlanInfoRefreshing(true);
+
+    try {
+      await queryClient.fetchQuery({
+        queryKey: homepageKeys.userInfo(),
+        queryFn: () => syncHomepageUserInfo(user, dispatch),
+      });
+    } finally {
+      setIsPlanInfoRefreshing(false);
+      setManualPlanLimitModalOpen(true);
+    }
+  };
+
   return (
     <div
       className={cn(
@@ -154,10 +175,11 @@ const Header = () => {
               type="button"
               onClick={(event) => {
                 event.stopPropagation();
-                setManualPlanLimitModalOpen(true);
+                openPlanLimitModal();
               }}
+              disabled={isPlanInfoRefreshing}
               className={cn(
-                "flex h-9 w-9 items-center justify-center rounded-full border shadow-sm transition-colors",
+                "flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border shadow-sm transition-colors disabled:cursor-wait disabled:opacity-70",
                 isPaidUser
                   ? "border-[color:var(--color-brand-primary)]/25 bg-[var(--color-brand-primary-softest)] text-login-primary hover:bg-login-primary/10"
                   : "border-[color:var(--color-brand-primary)]/20 bg-white text-login-primary hover:bg-[var(--color-brand-primary-softest)]"
@@ -165,7 +187,11 @@ const Header = () => {
               aria-label={isPaidUser ? "View paid plan usage" : "View free plan usage limits"}
               title={isPaidUser ? "Paid plan usage" : "Free plan usage limits"}
             >
-              <PlanIcon className="h-[18px] w-[18px]" />
+              {isPlanInfoRefreshing ? (
+                <LuLoaderCircle className="h-[18px] w-[18px] animate-spin" />
+              ) : (
+                <PlanIcon className="h-[18px] w-[18px]" />
+              )}
             </button>
           ) : null}
           {fullName && (
@@ -237,10 +263,9 @@ const PlanLimitsModal = ({
   const planType = Number(user.planType);
   const isPaidUser = planType === 1;
   const Icon = isPaidUser ? LuCrown : LuGift;
-  const title = isPaidUser ? "Paid Plan Usage" : "Free Plan Usage Limits";
-  const description = isPaidUser
-    ? "These values show your current usage across your paid plan allowance."
-    : "You're on the Free Plan. Here’s your included allowance for studies, prompts, and question generation.";
+  const planLabel = isPaidUser ? "Paid Plan" : "Free Plan";
+  const title = "Your Plan Usage Limits";
+  const description = `You're on the ${planLabel}. Here's your included allowance for studies, prompts, and question addition.`;
 
   return (
     <ModalScaffold

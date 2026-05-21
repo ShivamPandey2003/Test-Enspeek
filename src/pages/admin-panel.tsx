@@ -459,7 +459,7 @@ export default function AdminPanelPage() {
         footerLeft={
           <Button
             type="button"
-            varinat="cancel"
+            variant="cancel"
             onClick={closeActionModal}
             disabled={updateUserMutation.isPending}
           >
@@ -469,7 +469,7 @@ export default function AdminPanelPage() {
         footerRight={
           <Button
             type="button"
-            varinat="theme"
+            variant="theme"
             onClick={handleSubmit}
             disabled={isSubmitDisabled}
           >
@@ -844,13 +844,20 @@ const UserRowActions = ({
     if (!rect) return;
 
     const dropdownWidth = 286;
-    const dropdownHeight = Math.min(300, 12 + actions.length * 54);
+    const dropdownHeight =
+      dropdownRef.current?.getBoundingClientRect().height ?? 0;
     const viewportPadding = 12;
     const bottomSpace = window.innerHeight - rect.bottom;
-    const shouldOpenUp = bottomSpace < dropdownHeight;
-    const top = shouldOpenUp
-      ? Math.max(viewportPadding, rect.top - dropdownHeight - 8)
-      : Math.min(rect.bottom + 8, window.innerHeight - dropdownHeight - viewportPadding);
+    const shouldOpenUp = dropdownHeight > 0 && bottomSpace < dropdownHeight;
+    const top =
+      shouldOpenUp
+        ? Math.max(viewportPadding, rect.top - dropdownHeight - 8)
+        : dropdownHeight > 0
+          ? Math.min(
+              rect.bottom + 8,
+              window.innerHeight - dropdownHeight - viewportPadding
+            )
+          : rect.bottom + 8;
     const left = Math.min(
       window.innerWidth - dropdownWidth - viewportPadding,
       Math.max(viewportPadding, rect.right - dropdownWidth)
@@ -893,7 +900,7 @@ const UserRowActions = ({
       <Button
         ref={buttonRef}
         type="button"
-        varinat="ghost"
+        variant="ghost"
         size="icon"
         className="h-9 w-9 rounded-full"
         tooltip="User actions"
