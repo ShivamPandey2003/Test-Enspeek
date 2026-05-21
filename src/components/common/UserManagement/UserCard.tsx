@@ -42,6 +42,7 @@ const UserCard: FC<UserCardProps> = ({
     user.status === "active"
       ? modalDefinitions.deactivateUser.title
       : modalDefinitions.activateUser.title;
+  const dropdownItemCount = user.isApproved ? 4 : 1;
 
   const handleAction = (action: AdminPanelActionType) => {
     onDropdownClose();
@@ -53,7 +54,7 @@ const UserCard: FC<UserCardProps> = ({
     if (!rect) return;
 
     const dropdownWidth = 286;
-    const dropdownHeight = 300;
+    const dropdownHeight = Math.min(300, 12 + dropdownItemCount * 54);
     const viewportPadding = 12;
     const bottomSpace = window.innerHeight - rect.bottom;
     const shouldOpenUp = bottomSpace < dropdownHeight;
@@ -161,14 +162,17 @@ const UserCard: FC<UserCardProps> = ({
               </Button>
               {isDropdownOpen
                 ? createPortal(
-                    <div ref={dropdownRef}>
+                    <div
+                      ref={dropdownRef}
+                      className="fixed z-[300] w-[286px]"
+                      style={{
+                        top: dropdownPosition.top,
+                        left: dropdownPosition.left,
+                      }}
+                    >
                       <DropDown
                         Data={DropDownData}
-                        className="fixed right-auto z-[300] mt-0 w-[286px]"
-                        style={{
-                          top: dropdownPosition.top,
-                          left: dropdownPosition.left,
-                        }}
+                        className="relative right-auto z-[300] mt-0 w-full"
                       />
                     </div>,
                     document.body
