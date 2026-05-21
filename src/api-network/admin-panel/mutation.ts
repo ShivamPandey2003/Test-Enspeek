@@ -10,7 +10,7 @@ export type AdminPanelUpdateUserPayload = {
   is_approved?: 0 | 1;
   allowedstudies?: number;
   allowed_prompt?: number;
-  allowed_question?: number;
+  allowed_questions?: number;
 };
 
 export const useUpdateAdminPanelUserMutation = () =>

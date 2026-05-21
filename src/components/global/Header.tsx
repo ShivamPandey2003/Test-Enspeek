@@ -32,13 +32,14 @@ const Header = () => {
     apiToken,
   } = user;
   const showStudyName = pathname !== "/" && name.trim() !== "";
+  const isUserManagementPage = pathname.startsWith("/user-management");
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
   };
   const dispatch = useDispatch<AppDispatch>();
   const fullName = getFullName(firstName, lastName) || firstName || "User";
   const initials = getInitials(fullName, "U");
-  const canAccessAdminPanel = ["admin", "client"].includes((loginType || userType || "").toLowerCase());
+  const canAccessAdminPanel = ["admin"].includes((loginType || userType || "").toLowerCase());
   const isAdminLogin = (loginType || userType || "").toLowerCase() === "admin";
   const isPlanInfoVisible = Boolean(planInfoSynced && !isAdminLogin);
   const isFreeUser = Number(planType) === 0;
@@ -67,7 +68,7 @@ const Header = () => {
   };
 
   const DropdownData = [
-    ...(canAccessAdminPanel
+    ...(canAccessAdminPanel && !isUserManagementPage
       ? [
         {
           Title: "User Management",
@@ -136,6 +137,13 @@ const Header = () => {
           </>
         )}
       </div>
+      {isUserManagementPage ? (
+        <div className="pointer-events-none absolute left-1/2 hidden -translate-x-1/2 items-center justify-center md:flex">
+          <h1 className="home-heading text-[18px] font-bold">
+            User Management
+          </h1>
+        </div>
+      ) : null}
       <div className="relative flex shrink-0 items-center" ref={dropdownRef}>
         <div
           className="flex cursor-pointer items-center gap-3"

@@ -358,13 +358,13 @@ export const modalDefinitions: Record<string, ModalDefinition> = {
     id: "updateUserSubscription",
     title: "Update Subscription",
     description:
-      "Updated limits must be greater than what the user has already consumed.",
+      "Enter the new limit. The entered value will become the updated limit.",
     tone: "primary",
     icon: LuSettings2,
     submitLabel: "Update Subscription",
     submittingLabel: "Submitting...",
     cancelLabel: "Cancel",
-    maxWidthClass: "max-w-4xl",
+    maxWidthClass: "max-w-2xl",
     validationMessages: {
       wholeNumbers: "Updated limits must be whole numbers.",
       promptGreaterThanUsed:

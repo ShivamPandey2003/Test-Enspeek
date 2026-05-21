@@ -510,14 +510,21 @@ const url = {
   // ################################################# User Management APIs Start #################################################
   // ################################################# User Management APIs Start #################################################
   getUserList: {
-    endpoint: "/user/userlist",
+    endpoint: "/admin/userlist",
     method: "post",
     queryKey: "getUserList",
     mutationKey: "get_user_list",
   },
 
+  getAdminList: {
+    endpoint: "/admin/adminlist",
+    method: "post",
+    queryKey: "getAdminList",
+    mutationKey: "get_admin_list",
+  },
+
   updateUser: {
-    endpoint: "/user/userupdate",
+    endpoint: "/admin/update-user",
     method: "post",
     queryKey: "updateUser",
     mutationKey: "update_user",

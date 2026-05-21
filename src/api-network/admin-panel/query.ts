@@ -10,6 +10,8 @@ export type AdminPanelUserApiResponse = {
   firstname?: string;
   lastname?: string;
   email: string;
+  created_at?: string;
+  last_login?: string;
   is_active?: boolean;
   user_type?: 0 | 1 | number;
   is_approved?: 0 | 1 | number;
@@ -27,6 +29,8 @@ export type AdminPanelUser = {
   lastName: string;
   name: string;
   email: string;
+  createdAt: string;
+  lastLogin: string;
   status: AdminPanelStatus;
   plan: AdminPanelPlan;
   isApproved: boolean;
@@ -59,6 +63,8 @@ const normalizeUser = (user: AdminPanelUserApiResponse): AdminPanelUser => {
     lastName,
     name: toDisplayName(firstName, lastName, email),
     email,
+    createdAt: user.created_at ?? "",
+    lastLogin: user.last_login ?? "",
     status: user.is_active ? "active" : "inactive",
     plan: Number(user.user_type) === 1 ? "paid" : "free",
     isApproved: Number(user.is_approved) === 1,
@@ -71,11 +77,11 @@ const normalizeUser = (user: AdminPanelUserApiResponse): AdminPanelUser => {
   };
 };
 
-type AdminPanelUserListResponse = {
+type AdminPanelListResponse = {
   response?: AdminPanelUserApiResponse[] | { response?: AdminPanelUserApiResponse[] };
 };
 
-const getUsersFromResponse = (response?: AdminPanelUserListResponse) => {
+const getUsersFromResponse = (response?: AdminPanelListResponse) => {
   if (Array.isArray(response?.response)) {
     return response.response;
   }
@@ -91,24 +97,49 @@ const getUsersFromResponse = (response?: AdminPanelUserListResponse) => {
   return [];
 };
 
-export const useAdminPanelUsers = () => {
-  const fetchUsers = async () => {
-    const response = await apiRequest(
-      url.getUserList.method,
-      url.getUserList.endpoint,
-      {}
-    );
+const fetchAdminPanelList = async (
+  method: "get" | "post" | "put" | "delete",
+  endpoint: string
+) => {
+  const response = await apiRequest(method, endpoint, {});
 
-    return getUsersFromResponse(response).map(normalizeUser);
+  return getUsersFromResponse(response).map(normalizeUser);
+};
+
+export const useAdminPanelUsers = (enable = true) => {
+  const fetchUsers = async () => {
+    return fetchAdminPanelList(
+      url.getUserList.method,
+      url.getUserList.endpoint
+    );
   };
 
   const { data, isLoading, error } = queryStructure({
     queryKey: adminPanelKeys.users(),
     queryFn: fetchUsers,
-    enable: true,
+    enable,
   });
 
   const users = (data ?? []) as AdminPanelUser[];
 
   return { users, isLoading, error };
+};
+
+export const useAdminPanelAdmins = (enable = true) => {
+  const fetchAdmins = async () => {
+    return fetchAdminPanelList(
+      url.getAdminList.method,
+      url.getAdminList.endpoint
+    );
+  };
+
+  const { data, isLoading, error } = queryStructure({
+    queryKey: adminPanelKeys.admins(),
+    queryFn: fetchAdmins,
+    enable,
+  });
+
+  const admins = (data ?? []) as AdminPanelUser[];
+
+  return { admins, isLoading, error };
 };

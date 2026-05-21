@@ -19,6 +19,20 @@ const RESEND_COOLDOWN_SECONDS = 30;
 const isValidEmail = (value: string) =>
   /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
 
+const showToastWhenNeeded = (error: any, fallback: string) => {
+  if (error?.hasToast) return;
+
+  toast.error(error?.message || fallback);
+};
+
+const isApprovalPendingResponse = (response: unknown) =>
+  Boolean(
+    response &&
+      typeof response === "object" &&
+      "code" in response &&
+      Number((response as { code?: number }).code) === 403
+  );
+
 const OtpLoginPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
@@ -38,6 +52,7 @@ const OtpLoginPage = () => {
   const [otpError, setOtpError] = React.useState<string>();
   const [pendingEmail, setPendingEmail] = React.useState("");
   const [signupPendingApproval, setSignupPendingApproval] = React.useState(false);
+  const [approvalPendingSource, setApprovalPendingSource] = React.useState<"signin" | "signup">("signup");
   const [resendSecondsLeft, setResendSecondsLeft] = React.useState(0);
 
   React.useEffect(() => {
@@ -58,6 +73,15 @@ const OtpLoginPage = () => {
   const sendOtpMutation = useSendOtpLoginMutation();
   React.useEffect(() => {
     if (sendOtpMutation.isSuccess && sendOtpMutation.variables) {
+      if (isApprovalPendingResponse(sendOtpMutation.data)) {
+        setPendingEmail(sendOtpMutation.variables.email);
+        setApprovalPendingSource("signin");
+        setSignupPendingApproval(true);
+        setStep("form");
+        setMode("signin");
+        return;
+      }
+
       toast.success(sendOtpMutation.data?.header?.message || "OTP sent successfully");
       setPendingEmail(sendOtpMutation.variables.email);
       setOtp(Array.from({ length: OTP_LENGTH }, () => ""));
@@ -137,7 +161,7 @@ const OtpLoginPage = () => {
       // await runCaptchaCheck(captchaToken);
       await sendOtpMutation.mutateAsync({ email });
     } catch (error: any) {
-      toast.error(error?.message || "Unable to send OTP");
+      showToastWhenNeeded(error, "Unable to send OTP");
     }
   };
 
@@ -172,11 +196,12 @@ const OtpLoginPage = () => {
         email,
       });
       toast.success(signupResponse.header?.message || "User registered successfully");
+      setApprovalPendingSource("signup");
       setSignupPendingApproval(true);
       setStep("form");
       setSignUpErrors({});
     } catch (error: any) {
-      toast.error(error?.message || "Unable to create account");
+      showToastWhenNeeded(error, "Unable to create account");
     }
   };
 
@@ -196,7 +221,7 @@ const OtpLoginPage = () => {
       });
     } catch (error: any) {
       setOtpError(error?.message || "Invalid OTP");
-      toast.error(error?.message || "Unable to verify OTP");
+      showToastWhenNeeded(error, "Unable to verify OTP");
     }
   };
 
@@ -231,7 +256,7 @@ const OtpLoginPage = () => {
         email: pendingEmail || signInState.email.trim(),
       });
     } catch (error: any) {
-      toast.error(error?.message || "Unable to resend OTP");
+      showToastWhenNeeded(error, "Unable to resend OTP");
     }
   };
 
@@ -264,7 +289,9 @@ const OtpLoginPage = () => {
       }
       title={
         signupPendingApproval
-          ? "Account Request Submitted"
+          ? approvalPendingSource === "signin"
+            ? "Account Request Under Review"
+            : "Account Request Submitted"
           : step === "otp"
             ? "Verify your email"
             : mode === "signin"
@@ -289,8 +316,9 @@ const OtpLoginPage = () => {
               className="cursor-pointer font-semibold text-login-primary underline-offset-4 hover:underline"
               onClick={() => {
                 setSignupPendingApproval(false);
+                setApprovalPendingSource("signup");
                 setMode("signin");
-                setSignInState({ email: signUpState.email });
+                setSignInState({ email: pendingEmail || signUpState.email });
               }}
             >
               Sign in
@@ -335,7 +363,10 @@ const OtpLoginPage = () => {
       }
     >
       {signupPendingApproval ? (
-        <SignupApprovalPendingMessage email={signUpState.email} />
+        <SignupApprovalPendingMessage
+          email={pendingEmail || signUpState.email}
+          source={approvalPendingSource}
+        />
       ) : step === "otp" ? (
         <OtpForm
           email={pendingEmail || signInState.email}
@@ -378,7 +409,13 @@ const OtpLoginPage = () => {
   );
 };
 
-const SignupApprovalPendingMessage = ({ email }: { email: string }) => (
+const SignupApprovalPendingMessage = ({
+  email,
+  source,
+}: {
+  email: string;
+  source: "signin" | "signup";
+}) => (
   <div className="rounded-2xl border border-[color:var(--color-brand-primary)]/20 bg-[var(--color-login-input)] px-5 py-5 text-center">
     <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-login-primary/10 text-login-primary">
       <LuClock3 className="h-6 w-6" />
@@ -387,9 +424,9 @@ const SignupApprovalPendingMessage = ({ email }: { email: string }) => (
       Your account request is under review.
     </p>
     <p className="mt-2 text-sm leading-6 text-login-muted">
-      Thank you for registering with Enspeek. Your request has been received
-      and is currently awaiting approval. Once approved, you will receive an
-      email confirmation and can sign in successfully.
+      {source === "signin"
+        ? "Your account request is currently under review. You will be able to sign in once your account has been approved by the admin."
+        : "Thank you for registering with Enspeek. Your request has been received and is currently awaiting approval. Once approved, you will receive an email confirmation and can sign in successfully."}
     </p>
     {email ? (
       <p className="mt-3 truncate text-sm font-semibold text-login-primary">
