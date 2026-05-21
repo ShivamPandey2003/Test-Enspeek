@@ -39,6 +39,7 @@ const SignInForm: React.FC<SignInFormProps> = ({ email, emailError, isPending, o
           onChange={(event) => onEmailChange(event.target.value)}
           placeholder="Email"
           autoComplete="email"
+          className="border border-[color:var(--color-brand-primary)]/50"
         />
         {emailError ? (
           <p className="mt-1 text-sm text-[var(--color-core-danger)]">{emailError}</p>

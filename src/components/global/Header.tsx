@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { FaSignOutAlt } from "react-icons/fa";
-import { LuChevronDown, LuCrown, LuGift, LuLoaderCircle, LuUsersRound } from "react-icons/lu";
+import { LuChevronDown, LuLoaderCircle, LuUsersRound, LuSettings, LuHouse } from "react-icons/lu";
 import { Link, useLocation, useNavigate } from "react-router";
 import ICON from "../../assets/icons/icon.png";
 import { useDispatch, useSelector } from "react-redux";
@@ -49,7 +49,7 @@ const Header = () => {
   const isPlanInfoVisible = Boolean(planInfoSynced && !isAdminLogin);
   const isFreeUser = Number(planType) === 0;
   const isPaidUser = Number(planType) === 1;
-  const PlanIcon = isPaidUser ? LuCrown : LuGift;
+  const PlanIcon = LuSettings
   const shouldShowFreePlanAfterLogin = Boolean(
     apiToken &&
     sessionStorage.getItem(`enspeek-show-free-plan-modal:${apiToken}`) === "1"
@@ -170,6 +170,20 @@ const Header = () => {
           className="flex cursor-pointer items-center gap-3"
           onClick={toggleDropdown}
         >
+          {isUserManagementPage ? (
+            <button
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation();
+                navigate("/");
+              }}
+              className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-[color:var(--color-brand-primary)]/20 bg-white text-login-primary shadow-sm transition-colors hover:bg-[var(--color-brand-primary-softest)]"
+              aria-label="Go to home"
+              title="Home"
+            >
+              <LuHouse className="h-[18px] w-[18px]" />
+            </button>
+          ) : null}
           {isPlanInfoVisible && (isFreeUser || isPaidUser) ? (
             <button
               type="button"
@@ -262,7 +276,7 @@ const PlanLimitsModal = ({
 }) => {
   const planType = Number(user.planType);
   const isPaidUser = planType === 1;
-  const Icon = isPaidUser ? LuCrown : LuGift;
+  const Icon = LuSettings
   const planLabel = isPaidUser ? "Paid Plan" : "Free Plan";
   const title = "Your Plan Usage Limits";
   const description = `You're on the ${planLabel}. Here's your included allowance for studies, prompts, and question addition.`;
