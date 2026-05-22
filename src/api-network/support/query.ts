@@ -14,6 +14,7 @@ export type SupportAssistanceType = {
 };
 
 export type SupportTicketApiResponse = {
+  ticket_id?: string | number;
   ticket_number?: string | number;
   ticketNumber?: string | number;
   ticket_no?: string | number;
@@ -36,6 +37,7 @@ export type SupportTicketApiResponse = {
   admin_subject?: string;
   admin_message?: string;
   response_message?: string;
+  is_resolved?: 0 | 1 | number | boolean;
   created_at?: string;
   updated_at?: string;
 };
@@ -67,6 +69,7 @@ export type SupportTicket = {
   email: string;
   status: string;
   assistanceTypes: string[];
+  assistanceTypeText: string;
   message: string;
   subject: string;
   adminMessage: string;
@@ -126,7 +129,7 @@ const getTicketUserName = (ticket: SupportTicketApiResponse) => {
   const lastName = ticket.lastname ?? ticket.lastName ?? "";
   const fullName = directName || [firstName, lastName].filter(Boolean).join(" ");
 
-  return fullName.trim() ? toTitleCaseName(fullName.trim()) : "-";
+  return fullName.trim() ? toTitleCaseName(fullName.trim()) : "";
 };
 
 const normalizeRequestInfo = (
@@ -158,22 +161,26 @@ const normalizeRequestInfo = (
 
 const normalizeTicket = (ticket: SupportTicketApiResponse): SupportTicket => {
   const ticketNumber =
+    ticket.ticket_id ??
     ticket.ticket_number ??
     ticket.ticketNumber ??
     ticket.ticket_no ??
     ticket.id ??
     "";
   const id = String(ticket.id ?? ticketNumber);
+  const assistanceTypes = toStringArray(
+    ticket.assistance_type ?? ticket.assistance_types ?? ticket.assistance
+  );
+  const isResolved = Number(ticket.is_resolved) === 1;
 
   return {
     id,
-    ticketNumber: String(ticketNumber || id || "-"),
+    ticketNumber: String(ticketNumber || id || ""),
     name: getTicketUserName(ticket),
-    email: ticket.email ?? "-",
-    status: ticket.status ?? "open",
-    assistanceTypes: toStringArray(
-      ticket.assistance_type ?? ticket.assistance_types ?? ticket.assistance
-    ),
+    email: ticket.email ?? "",
+    status: ticket.status ?? (isResolved ? "resolved" : "open"),
+    assistanceTypes,
+    assistanceTypeText: assistanceTypes.join(", "),
     message: ticket.message ?? ticket.request ?? ticket.description ?? "",
     subject: ticket.subject ?? ticket.admin_subject ?? "",
     adminMessage: ticket.admin_message ?? ticket.response_message ?? "",

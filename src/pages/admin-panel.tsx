@@ -186,9 +186,13 @@ export default function AdminPanelPage() {
     return tickets.filter((ticket) =>
       [
         ticket.ticketNumber,
+        ticket.name,
         ticket.email,
         ticket.status,
+        ticket.assistanceTypeText,
         ticket.message,
+        ticket.createdAt,
+        ticket.updatedAt,
         ticket.assistanceTypes.join(" "),
       ].some((value) => value.toLowerCase().includes(query))
     );
@@ -766,7 +770,7 @@ const UserManagementTable = ({
           ].map((heading) => (
             <TableHeading
               key={heading}
-              align={heading === "Name" || heading === "Email" ? "left" : "center"}
+              align={heading === "Email" ? "left" : "center"}
               className={getUserTableColumnClassName(heading)}
             >
               {heading}
@@ -784,7 +788,7 @@ const UserManagementTable = ({
               <TableData align="center" className="font-semibold text-[var(--color-text-strong)]">
                 {index + 1}.
               </TableData>
-              <TableData className="min-w-[120px] max-w-[120px] font-semibold text-[var(--color-text-strong)]">
+              <TableData align="center" className="min-w-[120px] max-w-[120px] font-semibold text-[var(--color-text-strong)]">
                 <span className="block max-w-[120px] truncate" title={user.name}>
                   {user.name}
                 </span>
@@ -845,7 +849,7 @@ const AdminManagementTable = ({
           {["S.No.", "Name", "Email", "Created At", "Last Login"].map((heading) => (
             <TableHeading
               key={heading}
-              align={heading === "Name" || heading === "Email" ? "left" : "center"}
+              align={heading === "Email" ? "left" : "center"}
               className={
                 heading === "Name"
                   ? "min-w-[120px] max-w-[120px]"
@@ -869,7 +873,7 @@ const AdminManagementTable = ({
               <TableData align="center" className="font-semibold text-[var(--color-text-strong)]">
                 {index + 1}.
               </TableData>
-              <TableData className="min-w-[120px] max-w-[120px] font-semibold text-[var(--color-text-strong)]">
+              <TableData align="center" className="min-w-[120px] max-w-[120px] font-semibold text-[var(--color-text-strong)]">
                 <span className="block max-w-[120px] truncate" title={admin.name}>
                   {admin.name}
                 </span>
@@ -901,23 +905,44 @@ const TicketManagementTable = ({
   emptyMessage: string;
 }) => (
   <ManagementTableShell>
-    <table className="w-full min-w-[760px] border-separate border-spacing-0 text-sm">
+    <table className="w-full min-w-[1180px] border-separate border-spacing-0 text-sm">
       <thead className="sticky top-0 z-20">
         <tr className="home-surface">
-          {["S.No.", "Ticket Number", "Name", "Email", "Status", "Actions"].map((heading) => (
+          {[
+            "S.No.",
+            "Ticket",
+            "Name",
+            "Email",
+            "Type Of Request",
+            "Description",
+            "Status",
+            "Created At",
+            "Updated At",
+            "Actions",
+          ].map((heading) => (
             <TableHeading
               key={heading}
-              align={heading === "Name" || heading === "Email" ? "left" : "center"}
+              align={
+                ["Email", "Type Of Request", "Description"].includes(heading)
+                  ? "left"
+                  : "center"
+              }
               className={
                 heading === "Email"
                   ? "min-w-[260px]"
-                  : heading === "Ticket Number"
+                  : heading === "Ticket"
                     ? "min-w-[150px]"
                     : heading === "Name"
                       ? "min-w-[120px] max-w-[120px]"
-                      : heading === "S.No."
-                        ? "min-w-[70px]"
-                        : undefined
+                      : heading === "Type Of Request"
+                        ? "min-w-[190px] max-w-[190px]"
+                        : heading === "Description"
+                          ? "min-w-[260px] max-w-[260px]"
+                          : heading === "Created At" || heading === "Updated At"
+                            ? "min-w-[120px]"
+                            : heading === "S.No."
+                              ? "min-w-[70px]"
+                              : undefined
               }
             >
               {heading}
@@ -935,12 +960,12 @@ const TicketManagementTable = ({
               className="group cursor-pointer border-b home-border-soft transition-colors hover:bg-[var(--color-brand-primary-softest)]/45"
             >
               <TableData align="center" className="font-semibold text-[var(--color-text-strong)]">
-                {index + 1}
+                {index + 1}.
               </TableData>
               <TableData align="center" className="font-bold text-login-primary">
                 {ticket.ticketNumber}
               </TableData>
-              <TableData className="min-w-[120px] max-w-[120px] font-semibold text-[var(--color-text-strong)]">
+              <TableData align="center" className="min-w-[120px] max-w-[120px] font-semibold text-[var(--color-text-strong)]">
                 <span className="block max-w-[120px] truncate" title={ticket.name}>
                   {ticket.name}
                 </span>
@@ -948,11 +973,22 @@ const TicketManagementTable = ({
               <TableData className="min-w-[260px] font-medium text-[var(--color-text-strong)]">
                 {ticket.email}
               </TableData>
+              <TableData className="min-w-[190px] max-w-[190px] font-medium text-[var(--color-text-strong)]">
+                <TwoLineText
+                  value={ticket.assistanceTypeText}
+                  title={ticket.assistanceTypeText}
+                />
+              </TableData>
+              <TableData className="min-w-[260px] max-w-[260px] font-medium text-[var(--color-text-strong)]">
+                <TwoLineText value={ticket.message} title={ticket.message} />
+              </TableData>
               <TableData align="center">
                 <StatusPill tone={getTicketStatusTone(ticket.status)}>
                   {ticket.status}
                 </StatusPill>
               </TableData>
+              <TableData align="center">{formatDateTime(ticket.createdAt)}</TableData>
+              <TableData align="center">{formatDateTime(ticket.updatedAt)}</TableData>
               <TableData align="center">
                 <TicketRowActions
                   ticket={ticket}
@@ -963,7 +999,7 @@ const TicketManagementTable = ({
             </tr>
           ))
         ) : (
-          <EmptyTableRow colSpan={6} message={emptyMessage} />
+          <EmptyTableRow colSpan={10} message={emptyMessage} />
         )}
       </tbody>
     </table>
@@ -1058,6 +1094,20 @@ const getTableEmptyMessage = (
 const LimitText = ({ used, allowed }: { used: number; allowed: number }) => (
   <span className="font-bold text-[var(--color-text-strong)]">
     {used}/{allowed}
+  </span>
+);
+
+const TwoLineText = ({ value, title }: { value: string; title: string }) => (
+  <span
+    className="block overflow-hidden leading-5"
+    title={title}
+    style={{
+      display: "-webkit-box",
+      WebkitLineClamp: 2,
+      WebkitBoxOrient: "vertical",
+    }}
+  >
+    {value}
   </span>
 );
 
@@ -1382,7 +1432,7 @@ const TicketRowActions = ({
 };
 
 const formatDateTime = (value: string) => {
-  if (!value) return "-";
+  if (!value) return "";
 
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
@@ -1473,7 +1523,7 @@ const TicketDetailModalBody = ({
   <div className="space-y-5">
     <div className="rounded-xl border border-[color:var(--color-brand-primary)]/16 bg-[var(--color-brand-primary-softest)]/35 p-4">
       <div className="grid gap-3 sm:grid-cols-3">
-        <TicketMetaItem label="Ticket Number" value={ticket.ticketNumber} />
+        <TicketMetaItem label="Ticket" value={ticket.ticketNumber} />
         <TicketMetaItem label="Email" value={ticket.email} />
         <TicketMetaItem label="Status" value={ticket.status} />
       </div>

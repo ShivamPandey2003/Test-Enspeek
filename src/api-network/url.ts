@@ -530,13 +530,6 @@ const url = {
     mutationKey: "update_user",
   },
 
-  resolveSupportTicket: {
-    endpoint: "/admin/support-ticket/resolve",
-    method: "post",
-    queryKey: "resolveSupportTicket",
-    mutationKey: "resolve_support_ticket",
-  },
-
   supportList: {
     endpoint: "uam/assistance_type",
     method: "post",
@@ -559,10 +552,24 @@ const url = {
   },
 
   getSupportTickets: {
-    endpoint: "/admin/support-tickets",
+    endpoint: "admin/assistance-list",
     method: "post",
     queryKey: "getSupportTickets",
     mutationKey: "get_support_tickets",
+  },
+
+  adminAssistanceReply: {
+    endpoint: "admin/email-reply",
+    method: "post",
+    queryKey: "getSupportTickets",
+    mutationKey: "get_support_tickets",
+  },
+
+  resolveSupportTicket: {
+    endpoint: "/admin/support-ticket/resolve",
+    method: "post",
+    queryKey: "resolveSupportTicket",
+    mutationKey: "resolve_support_ticket",
   },
   // ################################################# User Management APIs End #################################################
   // ################################################# User Management APIs End #################################################
