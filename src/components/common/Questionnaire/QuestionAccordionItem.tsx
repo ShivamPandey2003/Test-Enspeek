@@ -106,7 +106,7 @@ const QuestionAccordionItem: React.FC<QuestionAccordionItem> = ({
               onClick={openLogicModal}
             >
               <LuGitBranchPlus className="h-4 w-4" />
-              <span>Add/Edit Logic</span>
+              <span>Add / Edit Logic</span>
             </button>
             <span
               className={cn(

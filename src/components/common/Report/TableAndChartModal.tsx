@@ -3,7 +3,6 @@ import DynamicModel from "../../global/DynamicModel";
 import QuestionCard from "../Report/QuestionCard";
 import SingleSelectChart from "../Report/Charts";
 import TableForm from "../Report/TableForm";
-import ModalInstruction from "../../ui/ModalInstruction";
 import { PRIMARY_CHART_COLOR } from "../../../utils/chartColors";
 import { modalDefinitions } from "../../../config/modalDefinitions";
 
@@ -113,9 +112,6 @@ const TableAndChartModal: React.FC<TableAndChartModalProps> = ({
       ButtonText={definition.submitLabel!}
       onClick={onClose}
     >
-      <ModalInstruction>
-        Review the expanded {type === "chart" ? "chart" : "table"} view for this report question.
-      </ModalInstruction>
       {type === "chart" ? (
         <QuestionCard title={questionData.label} qId={qid}>
            {questionData.external === 1 && questionData.external_link ? (

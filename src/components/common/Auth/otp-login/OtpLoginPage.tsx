@@ -96,6 +96,7 @@ const OtpLoginPage = () => {
     if (resendOtpMutation.isSuccess) {
       toast.success(resendOtpMutation.data?.header?.message || "OTP resent successfully");
       setResendSecondsLeft(RESEND_COOLDOWN_SECONDS);
+      setOtp(Array.from({ length: OTP_LENGTH }, () => ""));
       setOtpError(undefined);
     }
   }, [resendOtpMutation.data, resendOtpMutation.isSuccess]);
