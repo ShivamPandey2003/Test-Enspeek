@@ -165,8 +165,11 @@ export default function AdminPanelPage() {
   };
 
   const updateCachedUser = (updatedUser: AdminPanelUser) => {
+    const queryKey =
+      activeTab === "users" ? adminPanelKeys.users() : adminPanelKeys.admins();
+
     queryClient.setQueryData<AdminPanelUser[]>(
-      adminPanelKeys.users(),
+      queryKey,
       (existingUsers = []) =>
         existingUsers.map((user) =>
           user.email === updatedUser.email ? updatedUser : user

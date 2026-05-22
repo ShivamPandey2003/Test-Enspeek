@@ -129,9 +129,11 @@ const Header = () => {
         queryKey: homepageKeys.userInfo(),
         queryFn: () => syncHomepageUserInfo(user, dispatch),
       });
+      setManualPlanLimitModalOpen(true);
+    } catch {
+      // API service handles the visible error state.
     } finally {
       setIsPlanInfoRefreshing(false);
-      setManualPlanLimitModalOpen(true);
     }
   };
 
