@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { FaSignOutAlt } from "react-icons/fa";
-import { LuChevronDown, LuLoaderCircle, LuUsersRound, LuSettings, LuHouse } from "react-icons/lu";
+import { LuChevronDown, LuCircleHelp, LuLoaderCircle, LuUsersRound, LuSettings, LuHouse } from "react-icons/lu";
 import { Link, useLocation, useNavigate } from "react-router";
 import ICON from "../../assets/icons/icon.png";
 import { useDispatch, useSelector } from "react-redux";
@@ -189,18 +189,18 @@ const Header = () => {
             </button>
           ) : null}
           {!isAdminLogin ? (
-            <Button
+            <button
               type="button"
-              variant="secondary"
-              size="sm"
-              className="h-9 rounded-full px-4 text-login-primary"
+              className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-[color:var(--color-brand-primary)]/20 bg-white text-login-primary shadow-sm transition-colors hover:bg-[var(--color-brand-primary-softest)]"
+              aria-label="Support"
+              title="Request for Assistance"
               onClick={(event) => {
                 event.stopPropagation();
                 setSupportModalOpen(true);
               }}
             >
-              Support
-            </Button>
+              <LuCircleHelp className="h-[18px] w-[18px]" />
+            </button>
           ) : null}
           {isPlanInfoVisible && (isFreeUser || isPaidUser) ? (
             <button
@@ -226,11 +226,6 @@ const Header = () => {
               )}
             </button>
           ) : null}
-          {fullName && (
-            <span className="home-heading text-[14px] font-semibold capitalize">
-              {fullName}
-            </span>
-          )}
           <div
             title={fullName}
             data-test-id="PROFILE"

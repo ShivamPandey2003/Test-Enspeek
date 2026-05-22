@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { toast } from "sonner";
 import {
   LuBadgeCheck,
   LuChevronDown,
-  LuLifeBuoy,
   LuLoaderCircle,
   LuX,
 } from "react-icons/lu";
@@ -14,6 +14,10 @@ import ModalScaffold from "../../ui/modal/ModalScaffold";
 import Textarea from "../../ui/Textarea";
 import { useRequestSupportMutation } from "../../../api-network/support/mutation";
 import { useSupportAssistanceTypes, useSupportRequestInfo } from "../../../api-network/support/query";
+import {
+  modalDefinitions,
+  renderModalIcon,
+} from "../../../config/modalDefinitions";
 import { cn } from "../../../utils";
 
 type SupportRequestModalProps = {
@@ -30,8 +34,14 @@ export default function SupportRequestModal({
   const [selectedCodes, setSelectedCodes] = useState<string[]>([]);
   const [message, setMessage] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [dropdownPosition, setDropdownPosition] = useState({
+    top: 0,
+    left: 0,
+    width: 0,
+  });
   const [submittedTicketId, setSubmittedTicketId] = useState("");
   const supportTypeRef = useRef<HTMLDivElement | null>(null);
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
   const hasShownLimitToastRef = useRef(false);
   const {
     requestInfo,
@@ -61,6 +71,8 @@ export default function SupportRequestModal({
   );
   const isSubmitting = requestSupportMutation.isPending;
   const isSubmitted = Boolean(submittedTicketId);
+  const reviewTicketId = submittedTicketId || requestInfo?.ticketId || "";
+  const showReviewState = isSubmitted || hasOpenRequest;
   const isSubmitDisabled =
     isSubmitted ||
     hasOpenRequest ||
@@ -68,30 +80,23 @@ export default function SupportRequestModal({
     isSubmitting ||
     selectedCodes.length === 0 ||
     message.trim().length === 0;
-  const modalDescription = hasOpenRequest ? (
-    <>
-      <span className="font-bold text-login-primary">
-        Ticket {requestInfo?.ticketId}
-      </span>{" "}
-      is currently under review. You can submit a new request once this ticket
-      is resolved.
-    </>
-  ) : isSubmitted ? (
-    <>
-      <span className="font-bold text-login-primary">
-        Ticket {submittedTicketId}
-      </span>{" "}
-      is now under review. Our support team will respond by email.
-    </>
-  ) : (
+  const modalDescription = showReviewState ? undefined : (
     "Tell us what you need help with, and our support team will review your request."
   );
+  const definition = modalDefinitions.requestSupport;
 
   useEffect(() => {
     if (!isDropdownOpen) return;
 
+    updateDropdownPosition();
+
     const handlePointerDown = (event: MouseEvent) => {
-      if (supportTypeRef.current?.contains(event.target as Node)) {
+      const target = event.target as Node;
+
+      if (
+        supportTypeRef.current?.contains(target) ||
+        dropdownRef.current?.contains(target)
+      ) {
         return;
       }
 
@@ -99,11 +104,29 @@ export default function SupportRequestModal({
     };
 
     document.addEventListener("mousedown", handlePointerDown);
+    window.addEventListener("resize", updateDropdownPosition);
+    window.addEventListener("scroll", updateDropdownPosition, true);
 
     return () => {
       document.removeEventListener("mousedown", handlePointerDown);
+      window.removeEventListener("resize", updateDropdownPosition);
+      window.removeEventListener("scroll", updateDropdownPosition, true);
     };
-  }, [isDropdownOpen]);
+  }, [isDropdownOpen, selectedItems.length]);
+
+  const updateDropdownPosition = () => {
+    const triggerRect = supportTypeRef.current?.getBoundingClientRect();
+
+    if (!triggerRect) return;
+
+    const spacing = 8;
+
+    setDropdownPosition({
+      top: triggerRect.bottom + spacing,
+      left: triggerRect.left,
+      width: triggerRect.width,
+    });
+  };
 
   const closeModal = () => {
     if (isSubmitting) return;
@@ -143,7 +166,7 @@ export default function SupportRequestModal({
     if (hasShownLimitToastRef.current) return;
 
     toast.warning(
-      `Support details cannot exceed ${SUPPORT_MESSAGE_MAX_LENGTH} characters.`
+      `Assistance description cannot exceed ${SUPPORT_MESSAGE_MAX_LENGTH} characters.`
     );
     hasShownLimitToastRef.current = true;
   };
@@ -173,12 +196,12 @@ export default function SupportRequestModal({
     <ModalScaffold
       isOpen={isOpen}
       onClose={closeModal}
-      className="max-w-xl"
-      title="Request Support"
-      icon={<LuLifeBuoy className="h-5 w-5" />}
+      className={definition.maxWidthClass ?? "max-w-2xl"}
+      title={definition.title}
+      icon={renderModalIcon(definition.icon)}
       description={modalDescription}
       closeDisabled={isSubmitting}
-      bodyClassName="space-y-5"
+      bodyClassName="space-y-5 !pt-3"
       footerLeft={
         <Button
           type="button"
@@ -186,11 +209,11 @@ export default function SupportRequestModal({
           disabled={isSubmitting}
           onClick={closeModal}
         >
-          Cancel
+          {definition.cancelLabel ?? "Cancel"}
         </Button>
       }
       footerRight={
-        !isSubmitted ? (
+        !showReviewState ? (
           <Button
             type="button"
             variant="theme"
@@ -200,16 +223,16 @@ export default function SupportRequestModal({
             {isSubmitting ? (
               <>
                 <span className="modal-spinner" />
-                Submitting...
+                {definition.submittingLabel ?? "Submitting..."}
               </>
             ) : (
-              "Request Support"
+              definition.submitLabel ?? "Request Assistance"
             )}
           </Button>
         ) : null
       }
     >
-      {isSubmitted ? (
+      {showReviewState ? (
         <div className="rounded-xl border border-[color:var(--color-brand-primary)]/20 bg-[var(--color-brand-primary-softest)]/45 p-5 text-center">
           <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-white text-login-primary shadow-sm">
             <LuBadgeCheck className="h-6 w-6" />
@@ -217,19 +240,24 @@ export default function SupportRequestModal({
           <h3 className="mt-4 text-[18px] font-bold text-[var(--color-text-strong)]">
             Your request is under review
           </h3>
-          <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-[var(--color-text-muted)]">
+          <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-black">
             We received your support request. Our support team will review it
             and respond to you by email.
           </p>
-          {submittedTicketId ? (
+          {hasOpenRequest ? (
+            <p className="mx-auto mt-1 max-w-md text-sm leading-6 text-black">
+              You can submit a new request once this ticket is resolved.
+            </p>
+          ) : null}
+          {reviewTicketId ? (
             <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-bold text-login-primary shadow-sm">
-              Ticket ID: {submittedTicketId}
+              Ticket ID: {reviewTicketId}
             </div>
           ) : null}
         </div>
       ) : null}
 
-      {isCheckingRequestInfo && !isSubmitted ? (
+      {isCheckingRequestInfo && !showReviewState ? (
         <div className="flex min-h-[220px] flex-col items-center justify-center gap-3 text-center">
           <LuLoaderCircle className="h-7 w-7 animate-spin text-login-primary" />
           <div>
@@ -243,14 +271,17 @@ export default function SupportRequestModal({
         </div>
       ) : null}
 
-      {!isSubmitted && !isCheckingRequestInfo ? (
+      {!showReviewState && !isCheckingRequestInfo ? (
         <>
-      <ModalField label="Select Type Of Support" required>
+      <ModalField label="Type of request" required>
         <div className="relative" ref={supportTypeRef}>
           <button
             type="button"
             disabled={isSubmitting || hasOpenRequest || isCheckingRequestInfo}
-            onClick={() => setIsDropdownOpen((currentValue) => !currentValue)}
+            onClick={() => {
+              setIsDropdownOpen((currentValue) => !currentValue);
+              window.requestAnimationFrame(updateDropdownPosition);
+            }}
             className={cn(
               "flex min-h-[52px] w-full items-center gap-2 rounded-lg border border-[var(--color-border-default)] bg-white px-3 py-2 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--color-brand-primary)]/25",
               isDropdownOpen &&
@@ -302,8 +333,16 @@ export default function SupportRequestModal({
             />
           </button>
 
-          {isDropdownOpen ? (
-            <div className="absolute left-0 right-0 top-full z-[320] mt-2 max-h-64 overflow-auto rounded-xl border border-[var(--color-border-default)] bg-white p-1.5 shadow-xl">
+          {isDropdownOpen ? createPortal(
+            <div
+              ref={dropdownRef}
+              className="fixed z-[650] rounded-xl border border-[var(--color-border-default)] bg-white p-1.5 shadow-xl"
+              style={{
+                top: dropdownPosition.top,
+                left: dropdownPosition.left,
+                width: dropdownPosition.width,
+              }}
+            >
               {isLoading ? (
                 <div className="flex items-center gap-2 px-3 py-3 text-sm font-semibold text-[var(--color-text-muted)]">
                   <LuLoaderCircle className="h-4 w-4 animate-spin" />
@@ -335,7 +374,8 @@ export default function SupportRequestModal({
                   No assistance types found.
                 </p>
               )}
-            </div>
+            </div>,
+            document.body
           ) : null}
         </div>
       </ModalField>
@@ -344,7 +384,7 @@ export default function SupportRequestModal({
         label={
           <span className="flex w-full items-center justify-between gap-3">
             <span>
-              Please Describe Additional Details
+              Description
               <span className="text-red-500"> *</span>
             </span>
             <span className="text-xs font-bold text-[var(--color-text-muted)]">

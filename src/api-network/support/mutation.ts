@@ -46,7 +46,7 @@ export const useRequestSupportMutation = () =>
       );
 
       if (!response) {
-        throw new Error("Unable to request support.");
+        throw new Error("Unable to request assistance.");
       }
 
       return response;
