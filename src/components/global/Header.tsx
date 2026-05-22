@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { FaSignOutAlt } from "react-icons/fa";
 import { LuChevronDown, LuCircleHelp, LuLoaderCircle, LuUsersRound, LuSettings, LuHouse } from "react-icons/lu";
-import { Link, useLocation, useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import ICON from "../../assets/icons/icon.png";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../../store/store";
@@ -147,12 +147,18 @@ const Header = () => {
       )}
     >
       <div className="flex min-w-0 flex-1 items-center gap-3">
-        <Link to={"/"} className="flex shrink-0 items-center gap-3">
+        <a
+          href="https://enspeek.ai/"
+          target="_blank"
+          rel="noopener noreferrer"
+          title="Visit website"
+          className="flex shrink-0 items-center gap-3"
+        >
           <img src={ICON} alt="Enspeek" className="h-11 w-auto" />
           <span className="text-[23px] font-extrabold tracking-[-0.03em] text-login-primary">
             Enspeek
           </span>
-        </Link>
+        </a>
         {showStudyName && (
           <>
             <div className="home-muted shrink-0 mx-2 text-sm font-medium">|</div>
