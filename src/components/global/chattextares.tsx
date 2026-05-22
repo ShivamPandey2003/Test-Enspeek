@@ -168,6 +168,7 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
                 size="icon"
                 tooltip="Quick Commands"
                 className="home-dropdown-icon-wrap h-10 w-10 shrink-0 rounded-full shadow-sm hover:opacity-90"
+              disabled
               >
                 <CiCircleList className="w-5 h-5" />
               </Button>

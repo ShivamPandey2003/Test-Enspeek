@@ -14,6 +14,7 @@ import Error from "../components/global/Error";
 import BannerDesign_page from "../pages/BannerDesign.page";
 import { ErrorBoundary } from "react-error-boundary";
 import TableList_page from "../pages/TableList.page";
+import AdminPanelPage from "../pages/admin-panel";
 import { Suspense } from "react";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { cn } from "../utils";
@@ -79,6 +80,10 @@ const Router = createBrowserRouter(
         {
           path: "report",
           element: <Report_page />,
+        },
+        {
+          path: "user-management",
+          element: <ProtectedRoute element={<AdminPanelPage />} adminOnly />,
         },
       ],
     },

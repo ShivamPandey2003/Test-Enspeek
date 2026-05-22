@@ -27,7 +27,9 @@ const DynamicModel: React.FC<DynamicModalProps> = ({
 
   const resolvedButtonVariant = buttonVariant
     ? buttonVariant
-    : ButtonText.toLowerCase().includes("delete")
+    : ButtonText.toLowerCase() === "close"
+      ? "cancel"
+      : ButtonText.toLowerCase().includes("delete")
       ? "danger"
       : /(save|update|submit)/i.test(ButtonText)
         ? "success"

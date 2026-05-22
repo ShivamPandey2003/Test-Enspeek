@@ -13,7 +13,7 @@ const buttonToneVariants = cva(
   "",
   {
     variants: {
-      varinat: {
+      variant: {
         default: "bg-[var(--color-brand-primary)] text-[var(--color-core-text-inverse)] shadow-sm hover:bg-[var(--color-brand-primary-hover)] focus-visible:ring-2 focus-visible:ring-[color:var(--color-brand-primary)]/20",
         theme: "bg-[var(--color-brand-primary)] text-[var(--color-core-text-inverse)] shadow-sm hover:bg-[var(--color-brand-primary-hover)] focus-visible:ring-2 focus-visible:ring-[color:var(--color-brand-primary)]/20",
         success: "bg-[var(--color-study-activated)] text-[var(--color-core-text-inverse)] shadow-sm hover:brightness-95 focus-visible:ring-2 focus-visible:ring-[color:var(--color-study-activated)]/20",
@@ -29,7 +29,7 @@ const buttonToneVariants = cva(
       },
     },
     defaultVariants: {
-      varinat: "default",
+      variant: "default",
     },
   }
 );
@@ -49,11 +49,14 @@ const buttonSizeVariants = cva("", {
   },
 });
 
+type ButtonVariant = VariantProps<typeof buttonToneVariants>["variant"];
+
 export interface ButtonProps
   extends ButtonHTMLAttributes<HTMLButtonElement>,
   VariantProps<typeof buttonToneVariants>,
   VariantProps<typeof buttonSizeVariants> {
   children: ReactNode;
+  varinat?: ButtonVariant;
   tooltip?: string;
   tooltipPosition?: TooltipPosition;
   tooltipDelay?: number;
@@ -62,6 +65,7 @@ export interface ButtonProps
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
   children,
   varinat,
+  variant,
   size,
   className,
   tooltip,
@@ -76,7 +80,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
       data-tooltip-delay={tooltip ? tooltipDelay : undefined}
       className={cn(
       buttonBaseClasses,
-      buttonToneVariants({ varinat }),
+      buttonToneVariants({ variant: variant ?? varinat }),
       buttonSizeVariants({ size }),
       className
     )}
