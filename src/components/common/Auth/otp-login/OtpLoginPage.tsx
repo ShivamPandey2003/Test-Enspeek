@@ -305,7 +305,7 @@ const OtpLoginPage = () => {
           : step === "otp"
           ? "Finish login with the one-time password"
           : mode === "signin"
-            ? "Use your email to receive a one-time password"
+            ? "Use email to receive a one-time password"
             : "Register first, then sign in with OTP"
       }
       footer={

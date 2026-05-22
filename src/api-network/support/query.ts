@@ -18,6 +18,12 @@ export type SupportTicketApiResponse = {
   ticketNumber?: string | number;
   ticket_no?: string | number;
   id?: string | number;
+  firstname?: string;
+  firstName?: string;
+  lastname?: string;
+  lastName?: string;
+  name?: string;
+  user_name?: string;
   email?: string;
   status?: string;
   assistance_type?: string[] | string;
@@ -57,6 +63,7 @@ export type SupportRequestInfo = {
 export type SupportTicket = {
   id: string;
   ticketNumber: string;
+  name: string;
   email: string;
   status: string;
   assistanceTypes: string[];
@@ -104,6 +111,24 @@ const normalizeAssistanceType = (
   code: item.code?.trim() || item.show?.trim() || "",
 });
 
+const toTitleCaseName = (value: string) =>
+  value.replace(/\S+/g, (word) => {
+    const [firstCharacter = "", ...remainingCharacters] = word;
+
+    return `${firstCharacter.toUpperCase()}${remainingCharacters
+      .join("")
+      .toLowerCase()}`;
+  });
+
+const getTicketUserName = (ticket: SupportTicketApiResponse) => {
+  const directName = ticket.name ?? ticket.user_name ?? "";
+  const firstName = ticket.firstname ?? ticket.firstName ?? "";
+  const lastName = ticket.lastname ?? ticket.lastName ?? "";
+  const fullName = directName || [firstName, lastName].filter(Boolean).join(" ");
+
+  return fullName.trim() ? toTitleCaseName(fullName.trim()) : "-";
+};
+
 const normalizeRequestInfo = (
   requestInfo?: SupportRequestInfoApiResponse | null
 ): SupportRequestInfo | null => {
@@ -143,6 +168,7 @@ const normalizeTicket = (ticket: SupportTicketApiResponse): SupportTicket => {
   return {
     id,
     ticketNumber: String(ticketNumber || id || "-"),
+    name: getTicketUserName(ticket),
     email: ticket.email ?? "-",
     status: ticket.status ?? "open",
     assistanceTypes: toStringArray(

@@ -904,16 +904,20 @@ const TicketManagementTable = ({
     <table className="w-full min-w-[760px] border-separate border-spacing-0 text-sm">
       <thead className="sticky top-0 z-20">
         <tr className="home-surface">
-          {["Ticket Number", "Email", "Status", "Actions"].map((heading) => (
+          {["S.No.", "Ticket Number", "Name", "Email", "Status", "Actions"].map((heading) => (
             <TableHeading
               key={heading}
-              align={heading === "Email" ? "left" : "center"}
+              align={heading === "Name" || heading === "Email" ? "left" : "center"}
               className={
                 heading === "Email"
                   ? "min-w-[260px]"
                   : heading === "Ticket Number"
                     ? "min-w-[150px]"
-                    : undefined
+                    : heading === "Name"
+                      ? "min-w-[120px] max-w-[120px]"
+                      : heading === "S.No."
+                        ? "min-w-[70px]"
+                        : undefined
               }
             >
               {heading}
@@ -923,15 +927,23 @@ const TicketManagementTable = ({
       </thead>
       <tbody>
         {tickets.length > 0 ? (
-          tickets.map((ticket) => (
+          tickets.map((ticket, index) => (
             <tr
               key={ticket.id}
               title={`Open ticket ${ticket.ticketNumber}`}
               onClick={() => onView(ticket)}
               className="group cursor-pointer border-b home-border-soft transition-colors hover:bg-[var(--color-brand-primary-softest)]/45"
             >
+              <TableData align="center" className="font-semibold text-[var(--color-text-strong)]">
+                {index + 1}
+              </TableData>
               <TableData align="center" className="font-bold text-login-primary">
                 {ticket.ticketNumber}
+              </TableData>
+              <TableData className="min-w-[120px] max-w-[120px] font-semibold text-[var(--color-text-strong)]">
+                <span className="block max-w-[120px] truncate" title={ticket.name}>
+                  {ticket.name}
+                </span>
               </TableData>
               <TableData className="min-w-[260px] font-medium text-[var(--color-text-strong)]">
                 {ticket.email}
@@ -951,7 +963,7 @@ const TicketManagementTable = ({
             </tr>
           ))
         ) : (
-          <EmptyTableRow colSpan={4} message={emptyMessage} />
+          <EmptyTableRow colSpan={6} message={emptyMessage} />
         )}
       </tbody>
     </table>

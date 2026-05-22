@@ -210,12 +210,7 @@ const Header = () => {
                 openPlanLimitModal();
               }}
               disabled={isPlanInfoRefreshing}
-              className={cn(
-                "flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border shadow-sm transition-colors disabled:cursor-wait disabled:opacity-70",
-                isPaidUser
-                  ? "border-[color:var(--color-brand-primary)]/25 bg-[var(--color-brand-primary-softest)] text-login-primary hover:bg-login-primary/10"
-                  : "border-[color:var(--color-brand-primary)]/20 bg-white text-login-primary hover:bg-[var(--color-brand-primary-softest)]"
-              )}
+              className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-[color:var(--color-brand-primary)]/20 bg-white text-login-primary shadow-sm transition-colors hover:bg-[var(--color-brand-primary-softest)] disabled:cursor-wait disabled:opacity-70"
               aria-label={isPaidUser ? "View paid plan usage" : "View free plan usage limits"}
               title={isPaidUser ? "Paid plan usage" : "Free plan usage limits"}
             >

@@ -45,8 +45,17 @@ export type AdminPanelUser = {
 
 const toDisplayName = (firstName: string, lastName: string, email: string) => {
   const fullName = [firstName, lastName].filter(Boolean).join(" ").trim();
-  return fullName || email;
+  return fullName ? toTitleCaseName(fullName) : email;
 };
+
+const toTitleCaseName = (value: string) =>
+  value.replace(/\S+/g, (word) => {
+    const [firstCharacter = "", ...remainingCharacters] = word;
+
+    return `${firstCharacter.toUpperCase()}${remainingCharacters
+      .join("")
+      .toLowerCase()}`;
+  });
 
 const normalizeUser = (user: AdminPanelUserApiResponse): AdminPanelUser => {
   const firstName = user.firstname?.trim() ?? "";
