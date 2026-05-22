@@ -14,11 +14,13 @@ import Button from "../ui/Button";
 import ModalScaffold from "../ui/modal/ModalScaffold";
 import homepageKeys from "../../api-network/homepage/keys";
 import { syncHomepageUserInfo } from "../../api-network/homepage/query";
+import SupportRequestModal from "../common/support/SupportRequestModal";
 
 const Header = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [logoutModalOpen, setLogoutModalOpen] = useState(false);
   const [manualPlanLimitModalOpen, setManualPlanLimitModalOpen] = useState(false);
+  const [supportModalOpen, setSupportModalOpen] = useState(false);
   const [isPlanInfoRefreshing, setIsPlanInfoRefreshing] = useState(false);
   const [dismissedFreePlanModal, setDismissedFreePlanModal] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -186,6 +188,20 @@ const Header = () => {
               <LuHouse className="h-[18px] w-[18px]" />
             </button>
           ) : null}
+          {!isAdminLogin ? (
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              className="h-9 rounded-full px-4 text-login-primary"
+              onClick={(event) => {
+                event.stopPropagation();
+                setSupportModalOpen(true);
+              }}
+            >
+              Support
+            </Button>
+          ) : null}
           {isPlanInfoVisible && (isFreeUser || isPaidUser) ? (
             <button
               type="button"
@@ -262,6 +278,10 @@ const Header = () => {
         isOpen={isPlanLimitModalOpen}
         onClose={closePlanLimitModal}
         user={user}
+      />
+      <SupportRequestModal
+        isOpen={supportModalOpen}
+        onClose={() => setSupportModalOpen(false)}
       />
     </div>
   );

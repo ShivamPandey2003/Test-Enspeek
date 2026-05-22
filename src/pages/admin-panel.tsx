@@ -8,6 +8,7 @@ import {
   LuBadgeX,
   LuCrown,
   LuEllipsisVertical,
+  LuEye,
   LuInfo,
   LuSparkles,
   LuUsersRound,
@@ -34,8 +35,19 @@ import ModalInfoBlock from "../components/ui/modal/ModalInfoBlock";
 import ModalScaffold from "../components/ui/modal/ModalScaffold";
 import PageContentShell from "../components/ui/PageContentShell";
 import PageSubheader from "../components/ui/PageSubheader";
+import Textarea from "../components/ui/Textarea";
 import { cn, handleKeyPress } from "../utils";
 import DropDown from "../components/global/DropDown";
+import {
+  type SupportTicket,
+  useSupportTickets,
+} from "../api-network/support/query";
+import {
+  getSupportResponseMessage,
+  type ResolveSupportTicketPayload,
+  useResolveSupportTicketMutation,
+} from "../api-network/support/mutation";
+import supportKeys from "../api-network/support/keys";
 
 type ActionModalState = {
   user: AdminPanelUser;
@@ -48,7 +60,11 @@ type SubscriptionFormState = {
   allowedQuestions: string;
 };
 
-type AdminPanelTab = "users" | "admins";
+type AdminPanelTab = "users" | "admins" | "tickets";
+type TicketModalState = {
+  ticket: SupportTicket;
+  mode: "view" | "resolve";
+} | null;
 
 const toPositiveInteger = (value: string) => {
   if (!/^\d+$/.test(value.trim())) return null;
@@ -92,7 +108,10 @@ export default function AdminPanelPage() {
   const [activeTab, setActiveTab] = useState<AdminPanelTab>("users");
   const [search, setSearch] = useState("");
   const [actionModal, setActionModal] = useState<ActionModalState>(null);
+  const [ticketModal, setTicketModal] = useState<TicketModalState>(null);
   const [keywordValue, setKeywordValue] = useState("");
+  const [ticketResponseSubject, setTicketResponseSubject] = useState("");
+  const [ticketResponseMessage, setTicketResponseMessage] = useState("");
   const [subscriptionForm, setSubscriptionForm] = useState<SubscriptionFormState>({
     allowedPrompt: "",
     allowedStudies: "",
@@ -109,10 +128,25 @@ export default function AdminPanelPage() {
     isLoading: isAdminsLoading,
     error: adminsError,
   } = useAdminPanelAdmins(activeTab === "admins");
+  const {
+    tickets,
+    isLoading: isTicketsLoading,
+    error: ticketsError,
+  } = useSupportTickets(activeTab === "tickets");
   const updateUserMutation = useUpdateAdminPanelUserMutation();
+  const resolveTicketMutation = useResolveSupportTicketMutation();
   const isUsersTab = activeTab === "users";
-  const activeError = isUsersTab ? usersError : adminsError;
-  const isActiveListLoading = isUsersTab ? isUsersLoading : isAdminsLoading;
+  const isAdminsTab = activeTab === "admins";
+  const activeError = isUsersTab
+    ? usersError
+    : isAdminsTab
+      ? adminsError
+      : ticketsError;
+  const isActiveListLoading = isUsersTab
+    ? isUsersLoading
+    : isAdminsTab
+      ? isAdminsLoading
+      : isTicketsLoading;
 
   const filteredUsers = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -144,6 +178,22 @@ export default function AdminPanelPage() {
     );
   }, [admins, search]);
 
+  const filteredTickets = useMemo(() => {
+    const query = search.trim().toLowerCase();
+
+    if (!query) return tickets;
+
+    return tickets.filter((ticket) =>
+      [
+        ticket.ticketNumber,
+        ticket.email,
+        ticket.status,
+        ticket.message,
+        ticket.assistanceTypes.join(" "),
+      ].some((value) => value.toLowerCase().includes(query))
+    );
+  }, [search, tickets]);
+
   const openActionModal = (
     user: AdminPanelUser,
     action: AdminPanelActionType
@@ -162,6 +212,20 @@ export default function AdminPanelPage() {
 
     setActionModal(null);
     setKeywordValue("");
+  };
+
+  const openTicketModal = (ticket: SupportTicket, mode: "view" | "resolve") => {
+    setTicketModal({ ticket, mode });
+    setTicketResponseSubject(ticket.subject);
+    setTicketResponseMessage(ticket.adminMessage);
+  };
+
+  const closeTicketModal = () => {
+    if (resolveTicketMutation.isPending) return;
+
+    setTicketModal(null);
+    setTicketResponseSubject("");
+    setTicketResponseMessage("");
   };
 
   const updateCachedUser = (updatedUser: AdminPanelUser) => {
@@ -187,6 +251,53 @@ export default function AdminPanelPage() {
         toast.success(`${updatedUser.name} updated successfully.`);
         setActionModal(null);
         setKeywordValue("");
+      },
+    });
+  };
+
+  const updateCachedTicket = (updatedTicket: SupportTicket) => {
+    queryClient.setQueryData<SupportTicket[]>(
+      supportKeys.tickets(),
+      (existingTickets = []) =>
+        existingTickets.map((ticket) =>
+          ticket.id === updatedTicket.id ? updatedTicket : ticket
+        )
+    );
+  };
+
+  const handleTicketSubmit = () => {
+    if (!ticketModal) return;
+
+    const subject = ticketResponseSubject.trim();
+    const message = ticketResponseMessage.trim();
+
+    if (!subject || !message) {
+      toast.warning("Please enter subject and response message.");
+      return;
+    }
+
+    const payload: ResolveSupportTicketPayload = {
+      ticket_number: ticketModal.ticket.ticketNumber,
+      subject,
+      message,
+      status: "resolved",
+    };
+
+    resolveTicketMutation.mutate(payload, {
+      onSuccess: (response) => {
+        updateCachedTicket({
+          ...ticketModal.ticket,
+          subject,
+          adminMessage: message,
+          status: "resolved",
+        });
+        toast.success(
+          getSupportResponseMessage(
+            response,
+            "Support ticket updated successfully."
+          )
+        );
+        closeTicketModal();
       },
     });
   };
@@ -411,7 +522,13 @@ export default function AdminPanelPage() {
             <Input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder={isUsersTab ? "Search users..." : "Search admins..."}
+              placeholder={
+                isUsersTab
+                  ? "Search users..."
+                  : isAdminsTab
+                    ? "Search admins..."
+                    : "Search tickets..."
+              }
               className="home-text h-full border-0 bg-transparent px-2 text-sm home-chat-placeholder focus:outline-none focus-visible:ring-0"
             />
           </div>
@@ -425,7 +542,7 @@ export default function AdminPanelPage() {
         {isActiveListLoading ? (
           <div className="flex min-h-[260px] items-center justify-center">
             <div className="home-muted text-sm font-semibold">
-              Loading {isUsersTab ? "users" : "admins"}...
+              Loading {isUsersTab ? "users" : isAdminsTab ? "admins" : "tickets"}...
             </div>
           </div>
         ) : isUsersTab ? (
@@ -434,10 +551,17 @@ export default function AdminPanelPage() {
             onAction={openActionModal}
             emptyMessage={getTableEmptyMessage(activeError, "users")}
           />
-        ) : (
+        ) : isAdminsTab ? (
           <AdminManagementTable
             admins={activeError ? [] : filteredAdmins}
             emptyMessage={getTableEmptyMessage(activeError, "admins")}
+          />
+        ) : (
+          <TicketManagementTable
+            tickets={activeError ? [] : filteredTickets}
+            onView={(ticket) => openTicketModal(ticket, "view")}
+            onResolve={(ticket) => openTicketModal(ticket, "resolve")}
+            emptyMessage={getTableEmptyMessage(activeError, "tickets")}
           />
         )}
       </PageContentShell>
@@ -514,6 +638,61 @@ export default function AdminPanelPage() {
           )
         ) : null}
       </ModalScaffold>
+
+      <ModalScaffold
+        isOpen={Boolean(ticketModal)}
+        onClose={closeTicketModal}
+        className={modalDefinitions.supportTicketDetails.maxWidthClass}
+        title={
+          ticketModal?.mode === "resolve"
+            ? "Resolve Support Ticket"
+            : modalDefinitions.supportTicketDetails.title
+        }
+        icon={renderModalIcon(modalDefinitions.supportTicketDetails.icon)}
+        closeDisabled={resolveTicketMutation.isPending}
+        footerLeft={
+          <Button
+            type="button"
+            variant="cancel"
+            onClick={closeTicketModal}
+            disabled={resolveTicketMutation.isPending}
+          >
+            Cancel
+          </Button>
+        }
+        footerRight={
+          <Button
+            type="button"
+            variant="theme"
+            onClick={handleTicketSubmit}
+            disabled={
+              resolveTicketMutation.isPending ||
+              !ticketResponseSubject.trim() ||
+              !ticketResponseMessage.trim()
+            }
+          >
+            {resolveTicketMutation.isPending ? (
+              <>
+                <span className="modal-spinner" />
+                {modalDefinitions.supportTicketDetails.submittingLabel}
+              </>
+            ) : (
+              modalDefinitions.supportTicketDetails.submitLabel
+            )}
+          </Button>
+        }
+      >
+        {ticketModal ? (
+          <TicketDetailModalBody
+            ticket={ticketModal.ticket}
+            subject={ticketResponseSubject}
+            message={ticketResponseMessage}
+            onSubjectChange={setTicketResponseSubject}
+            onMessageChange={setTicketResponseMessage}
+            onSubmit={handleTicketSubmit}
+          />
+        ) : null}
+      </ModalScaffold>
     </div>
   );
 }
@@ -528,6 +707,7 @@ const AdminPanelTabs = ({
   const tabs: Array<{ label: string; value: AdminPanelTab }> = [
     { label: "Users", value: "users" },
     { label: "Admins", value: "admins" },
+    { label: "Tickets", value: "tickets" },
   ];
 
   return (
@@ -602,7 +782,7 @@ const UserManagementTable = ({
               className="group border-b home-border-soft transition-colors hover:bg-[var(--color-brand-primary-softest)]/45"
             >
               <TableData align="center" className="font-semibold text-[var(--color-text-strong)]">
-                {index + 1}
+                {index + 1}.
               </TableData>
               <TableData className="min-w-[120px] max-w-[120px] font-semibold text-[var(--color-text-strong)]">
                 <span className="block max-w-[120px] truncate" title={user.name}>
@@ -687,7 +867,7 @@ const AdminManagementTable = ({
               className="group border-b home-border-soft transition-colors hover:bg-[var(--color-brand-primary-softest)]/45"
             >
               <TableData align="center" className="font-semibold text-[var(--color-text-strong)]">
-                {index + 1}
+                {index + 1}.
               </TableData>
               <TableData className="min-w-[120px] max-w-[120px] font-semibold text-[var(--color-text-strong)]">
                 <span className="block max-w-[120px] truncate" title={admin.name}>
@@ -703,6 +883,75 @@ const AdminManagementTable = ({
           ))
         ) : (
           <EmptyTableRow colSpan={5} message={emptyMessage} />
+        )}
+      </tbody>
+    </table>
+  </ManagementTableShell>
+);
+
+const TicketManagementTable = ({
+  tickets,
+  onView,
+  onResolve,
+  emptyMessage,
+}: {
+  tickets: SupportTicket[];
+  onView: (ticket: SupportTicket) => void;
+  onResolve: (ticket: SupportTicket) => void;
+  emptyMessage: string;
+}) => (
+  <ManagementTableShell>
+    <table className="w-full min-w-[760px] border-separate border-spacing-0 text-sm">
+      <thead className="sticky top-0 z-20">
+        <tr className="home-surface">
+          {["Ticket Number", "Email", "Status", "Actions"].map((heading) => (
+            <TableHeading
+              key={heading}
+              align={heading === "Email" ? "left" : "center"}
+              className={
+                heading === "Email"
+                  ? "min-w-[260px]"
+                  : heading === "Ticket Number"
+                    ? "min-w-[150px]"
+                    : undefined
+              }
+            >
+              {heading}
+            </TableHeading>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {tickets.length > 0 ? (
+          tickets.map((ticket) => (
+            <tr
+              key={ticket.id}
+              title={`Open ticket ${ticket.ticketNumber}`}
+              onClick={() => onView(ticket)}
+              className="group cursor-pointer border-b home-border-soft transition-colors hover:bg-[var(--color-brand-primary-softest)]/45"
+            >
+              <TableData align="center" className="font-bold text-login-primary">
+                {ticket.ticketNumber}
+              </TableData>
+              <TableData className="min-w-[260px] font-medium text-[var(--color-text-strong)]">
+                {ticket.email}
+              </TableData>
+              <TableData align="center">
+                <StatusPill tone={getTicketStatusTone(ticket.status)}>
+                  {ticket.status}
+                </StatusPill>
+              </TableData>
+              <TableData align="center">
+                <TicketRowActions
+                  ticket={ticket}
+                  onView={onView}
+                  onResolve={onResolve}
+                />
+              </TableData>
+            </tr>
+          ))
+        ) : (
+          <EmptyTableRow colSpan={4} message={emptyMessage} />
         )}
       </tbody>
     </table>
@@ -779,7 +1028,10 @@ const EmptyTableRow = ({ colSpan, message }: { colSpan: number; message: string 
   </tr>
 );
 
-const getTableEmptyMessage = (error: unknown, label: "users" | "admins") => {
+const getTableEmptyMessage = (
+  error: unknown,
+  label: "users" | "admins" | "tickets"
+) => {
   if (error instanceof globalThis.Error) {
     return error.message;
   }
@@ -824,6 +1076,26 @@ const StatusPill = ({
       {children}
     </span>
   );
+};
+
+const getTicketStatusTone = (
+  status: string
+): "primary" | "success" | "danger" | "warning" | "neutral" => {
+  const normalizedStatus = status.toLowerCase();
+
+  if (["resolved", "closed", "completed"].includes(normalizedStatus)) {
+    return "success";
+  }
+
+  if (["rejected", "failed", "cancelled"].includes(normalizedStatus)) {
+    return "danger";
+  }
+
+  if (["pending", "in progress", "open"].includes(normalizedStatus)) {
+    return "warning";
+  }
+
+  return "neutral";
 };
 
 const UserRowActions = ({
@@ -971,6 +1243,132 @@ const UserRowActions = ({
   );
 };
 
+const TicketRowActions = ({
+  ticket,
+  onView,
+  onResolve,
+}: {
+  ticket: SupportTicket;
+  onView: (ticket: SupportTicket) => void;
+  onResolve: (ticket: SupportTicket) => void;
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
+  const buttonRef = useRef<HTMLButtonElement | null>(null);
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
+  const actions: DropdownData[] = [
+    {
+      Title: "View Ticket",
+      Icon: LuEye,
+      onClick: () => {
+        setIsOpen(false);
+        onView(ticket);
+      },
+    },
+    {
+      Title: "Resolve",
+      Icon: LuBadgeCheck,
+      onClick: () => {
+        setIsOpen(false);
+        onResolve(ticket);
+      },
+    },
+  ];
+
+  const updateDropdownPosition = () => {
+    const rect = buttonRef.current?.getBoundingClientRect();
+    if (!rect) return;
+
+    const dropdownWidth = 220;
+    const dropdownHeight =
+      dropdownRef.current?.getBoundingClientRect().height ?? 0;
+    const viewportPadding = 12;
+    const bottomSpace = window.innerHeight - rect.bottom;
+    const shouldOpenUp = dropdownHeight > 0 && bottomSpace < dropdownHeight;
+    const top =
+      shouldOpenUp
+        ? Math.max(viewportPadding, rect.top - dropdownHeight - 8)
+        : dropdownHeight > 0
+          ? Math.min(
+              rect.bottom + 8,
+              window.innerHeight - dropdownHeight - viewportPadding
+            )
+          : rect.bottom + 8;
+    const left = Math.min(
+      window.innerWidth - dropdownWidth - viewportPadding,
+      Math.max(viewportPadding, rect.right - dropdownWidth)
+    );
+
+    setDropdownPosition({ top, left });
+  };
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    updateDropdownPosition();
+
+    const handlePointerDown = (event: MouseEvent) => {
+      const target = event.target as Node;
+
+      if (
+        dropdownRef.current?.contains(target) ||
+        buttonRef.current?.contains(target)
+      ) {
+        return;
+      }
+
+      setIsOpen(false);
+    };
+
+    window.addEventListener("resize", updateDropdownPosition);
+    window.addEventListener("scroll", updateDropdownPosition, true);
+    document.addEventListener("mousedown", handlePointerDown);
+
+    return () => {
+      window.removeEventListener("resize", updateDropdownPosition);
+      window.removeEventListener("scroll", updateDropdownPosition, true);
+      document.removeEventListener("mousedown", handlePointerDown);
+    };
+  }, [isOpen]);
+
+  return (
+    <div onClick={(event) => event.stopPropagation()}>
+      <Button
+        ref={buttonRef}
+        type="button"
+        variant="ghost"
+        size="icon"
+        className="h-9 w-9 rounded-full"
+        tooltip="Ticket actions"
+        onClick={() => {
+          updateDropdownPosition();
+          setIsOpen((currentValue) => !currentValue);
+        }}
+      >
+        <LuEllipsisVertical className="h-4 w-4" />
+      </Button>
+      {isOpen
+        ? createPortal(
+            <div
+              ref={dropdownRef}
+              className="fixed z-[300] w-[220px]"
+              style={{
+                top: dropdownPosition.top,
+                left: dropdownPosition.left,
+              }}
+            >
+              <DropDown
+                Data={actions}
+                className="relative right-auto z-[300] mt-0 w-full"
+              />
+            </div>,
+            document.body
+          )
+        : null}
+    </div>
+  );
+};
+
 const formatDateTime = (value: string) => {
   if (!value) return "-";
 
@@ -1044,6 +1442,83 @@ const ConfirmationModalBody = ({
     </div>
   );
 };
+
+const TicketDetailModalBody = ({
+  ticket,
+  subject,
+  message,
+  onSubjectChange,
+  onMessageChange,
+  onSubmit,
+}: {
+  ticket: SupportTicket;
+  subject: string;
+  message: string;
+  onSubjectChange: (value: string) => void;
+  onMessageChange: (value: string) => void;
+  onSubmit: () => void;
+}) => (
+  <div className="space-y-5">
+    <div className="rounded-xl border border-[color:var(--color-brand-primary)]/16 bg-[var(--color-brand-primary-softest)]/35 p-4">
+      <div className="grid gap-3 sm:grid-cols-3">
+        <TicketMetaItem label="Ticket Number" value={ticket.ticketNumber} />
+        <TicketMetaItem label="Email" value={ticket.email} />
+        <TicketMetaItem label="Status" value={ticket.status} />
+      </div>
+      {ticket.assistanceTypes.length > 0 ? (
+        <div className="mt-4">
+          <p className="modal-label mb-2">Requested Assistance</p>
+          <div className="flex flex-wrap gap-2">
+            {ticket.assistanceTypes.map((item) => (
+              <span
+                key={item}
+                className="rounded-full bg-white px-3 py-1 text-xs font-bold text-login-primary shadow-sm"
+              >
+                {item}
+              </span>
+            ))}
+          </div>
+        </div>
+      ) : null}
+      <div className="mt-4">
+        <p className="modal-label mb-2">User Request</p>
+        <div className="min-h-[100px] rounded-lg border border-[color:var(--color-brand-primary)]/14 bg-white p-3 text-sm leading-6 text-[var(--color-text-strong)]">
+          {ticket.message || "No request details provided."}
+        </div>
+      </div>
+    </div>
+
+    <div className="grid gap-4">
+      <ModalField label="Response Subject" required>
+        <Input
+          variant="modal"
+          value={subject}
+          onChange={(event) => onSubjectChange(event.target.value)}
+          onKeyDown={(event) => handleKeyPress(event, onSubmit)}
+          placeholder="Enter response subject"
+        />
+      </ModalField>
+      <ModalField label="Response Message" required>
+        <Textarea
+          variant="modal"
+          value={message}
+          onChange={(event) => onMessageChange(event.target.value)}
+          placeholder="Write the response that will be sent to the user."
+          className="min-h-[150px] resize-y"
+        />
+      </ModalField>
+    </div>
+  </div>
+);
+
+const TicketMetaItem = ({ label, value }: { label: string; value: string }) => (
+  <div className="min-w-0">
+    <p className="modal-label">{label}</p>
+    <p className="mt-1 truncate text-sm font-bold text-[var(--color-text-strong)]" title={value}>
+      {value || "-"}
+    </p>
+  </div>
+);
 
 const SubscriptionModalBody = ({
   user,
