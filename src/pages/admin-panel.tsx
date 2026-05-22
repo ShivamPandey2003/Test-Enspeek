@@ -568,6 +568,7 @@ const UserManagementTable = ({
       <thead className="sticky top-0 z-20">
         <tr className="home-surface">
           {[
+            "S.No.",
             "Name",
             "Email",
             "Subscription",
@@ -582,7 +583,8 @@ const UserManagementTable = ({
           ].map((heading) => (
             <TableHeading
               key={heading}
-              align={heading === "Name" ? "left" : "center"}
+              align={heading === "Name" || heading === "Email" ? "left" : "center"}
+              className={getUserTableColumnClassName(heading)}
             >
               {heading}
             </TableHeading>
@@ -591,15 +593,20 @@ const UserManagementTable = ({
       </thead>
       <tbody>
         {users.length > 0 ? (
-          users.map((user) => (
+          users.map((user, index) => (
             <tr
               key={user.email}
               className="group border-b home-border-soft transition-colors hover:bg-[var(--color-brand-primary-softest)]/45"
             >
-              <TableData className="font-semibold text-[var(--color-text-strong)]">
-                {user.name}
+              <TableData align="center" className="font-semibold text-[var(--color-text-strong)]">
+                {index + 1}
               </TableData>
-              <TableData align="center" className="font-medium text-[var(--color-text-strong)]">
+              <TableData className="min-w-[120px] max-w-[120px] font-semibold text-[var(--color-text-strong)]">
+                <span className="block max-w-[120px] truncate" title={user.name}>
+                  {user.name}
+                </span>
+              </TableData>
+              <TableData className="min-w-[260px] font-medium text-[var(--color-text-strong)]">
                 {user.email}
               </TableData>
               <TableData align="center">
@@ -634,7 +641,7 @@ const UserManagementTable = ({
             </tr>
           ))
         ) : (
-          <EmptyTableRow colSpan={11} message={emptyMessage} />
+          <EmptyTableRow colSpan={12} message={emptyMessage} />
         )}
       </tbody>
     </table>
@@ -652,10 +659,17 @@ const AdminManagementTable = ({
     <table className="w-full min-w-[760px] border-separate border-spacing-0 text-sm">
       <thead className="sticky top-0 z-20">
         <tr className="home-surface">
-          {["Name", "Email", "Created At", "Last Login"].map((heading) => (
+          {["S.No.", "Name", "Email", "Created At", "Last Login"].map((heading) => (
             <TableHeading
               key={heading}
-              align={heading === "Name" ? "left" : "center"}
+              align={heading === "Name" || heading === "Email" ? "left" : "center"}
+              className={
+                heading === "Name"
+                  ? "min-w-[120px] max-w-[120px]"
+                  : heading === "S.No."
+                  ? "min-w-[70px]"
+                  : undefined
+              }
             >
               {heading}
             </TableHeading>
@@ -664,15 +678,20 @@ const AdminManagementTable = ({
       </thead>
       <tbody>
         {admins.length > 0 ? (
-          admins.map((admin) => (
+          admins.map((admin, index) => (
             <tr
               key={admin.email}
               className="group border-b home-border-soft transition-colors hover:bg-[var(--color-brand-primary-softest)]/45"
             >
-              <TableData className="font-semibold text-[var(--color-text-strong)]">
-                {admin.name}
+              <TableData align="center" className="font-semibold text-[var(--color-text-strong)]">
+                {index + 1}
               </TableData>
-              <TableData align="center" className="font-medium text-[var(--color-text-strong)]">
+              <TableData className="min-w-[120px] max-w-[120px] font-semibold text-[var(--color-text-strong)]">
+                <span className="block max-w-[120px] truncate" title={admin.name}>
+                  {admin.name}
+                </span>
+              </TableData>
+              <TableData className="min-w-[260px] font-medium text-[var(--color-text-strong)]">
                 {admin.email}
               </TableData>
               <TableData align="center">{formatDateTime(admin.createdAt)}</TableData>
@@ -680,7 +699,7 @@ const AdminManagementTable = ({
             </tr>
           ))
         ) : (
-          <EmptyTableRow colSpan={4} message={emptyMessage} />
+          <EmptyTableRow colSpan={5} message={emptyMessage} />
         )}
       </tbody>
     </table>
@@ -693,17 +712,33 @@ const ManagementTableShell = ({ children }: { children: React.ReactNode }) => (
   </div>
 );
 
+const getUserTableColumnClassName = (heading: string) => {
+  if (heading === "S.No.") return "min-w-[70px]";
+  if (heading === "Name") return "min-w-[120px] max-w-[120px]";
+  if (heading === "Email") return "min-w-[260px]";
+  if (heading === "Subscription" || heading === "Verification") {
+    return "min-w-[130px]";
+  }
+  if (heading === "Created At" || heading === "Last Login") {
+    return "min-w-[120px]";
+  }
+  return undefined;
+};
+
 const TableHeading = ({
   children,
   align = "left",
+  className,
 }: {
   children: React.ReactNode;
   align?: "left" | "center";
+  className?: string;
 }) => (
   <th
     className={cn(
-      "border-b border-[color:var(--color-brand-primary)] bg-login-primary px-4 py-3 text-[12px] font-extrabold uppercase tracking-[0.08em] text-white",
-      align === "center" ? "text-center" : "text-left"
+      "whitespace-nowrap border-b border-[color:var(--color-brand-primary)] bg-login-primary px-3 py-3 text-[12px] font-extrabold uppercase tracking-[0.08em] text-white",
+      align === "center" ? "text-center" : "text-left",
+      className
     )}
   >
     {children}
@@ -721,7 +756,7 @@ const TableData = ({
 }) => (
   <td
     className={cn(
-      "border-b home-border-soft px-4 py-3 home-heading",
+      "border-b home-border-soft px-1 py-1 home-heading",
       align === "center" ? "text-center" : "text-left",
       className
     )}
@@ -804,36 +839,35 @@ const UserRowActions = ({
     user.status === "active"
       ? modalDefinitions.deactivateUser.title
       : modalDefinitions.activateUser.title;
-  const actions: DropdownData[] = [
-    {
-      Title: statusActionLabel,
-      Icon: user.status === "active" ? LuBadgeX : LuBadgeCheck,
-      onClick: () => handleAction("status"),
-    },
-    ...(!user.isApproved
-      ? [
-          {
-            Title: modalDefinitions.verifyUser.title,
-            Icon: LuBadgeCheck,
-            onClick: () => handleAction("verification"),
-          },
-        ]
-      : []),
-    {
-      Title: modalDefinitions.updateUserSubscription.title,
-      Icon: LuSparkles,
-      onClick: () => handleAction("subscription"),
-    },
-    ...(user.plan === "free"
-      ? [
-          {
-            Title: modalDefinitions.changeToPaidUser.title,
-            Icon: LuCrown,
-            onClick: () => handleAction("plan"),
-          },
-        ]
-      : []),
-  ];
+  const actions: DropdownData[] = user.isApproved
+    ? [
+        {
+          Title: statusActionLabel,
+          Icon: user.status === "active" ? LuBadgeX : LuBadgeCheck,
+          onClick: () => handleAction("status"),
+        },
+        {
+          Title: modalDefinitions.updateUserSubscription.title,
+          Icon: LuSparkles,
+          onClick: () => handleAction("subscription"),
+        },
+        ...(user.plan === "free"
+          ? [
+              {
+                Title: modalDefinitions.changeToPaidUser.title,
+                Icon: LuCrown,
+                onClick: () => handleAction("plan"),
+              },
+            ]
+          : []),
+      ]
+    : [
+        {
+          Title: modalDefinitions.verifyUser.title,
+          Icon: LuBadgeCheck,
+          onClick: () => handleAction("verification"),
+        },
+      ];
 
   function handleAction(action: AdminPanelActionType) {
     setIsOpen(false);
@@ -944,8 +978,6 @@ const formatDateTime = (value: string) => {
     month: "short",
     day: "2-digit",
     year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
   }).format(date);
 };
 
