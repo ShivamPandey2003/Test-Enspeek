@@ -3,7 +3,7 @@ import { apiRequest } from "../../services/apiService";
 import url from "../url";
 
 export type RequestSupportPayload = {
-  assistance_type: string[];
+  assistance_type: string;
   message: string;
   apiToken?: string;
 };
@@ -21,20 +21,45 @@ export type RequestSupportResponse = {
   };
 };
 
-export type ResolveSupportTicketPayload = {
-  ticket_number: string;
-  subject: string;
-  message: string;
-  status?: string;
+export type AssistanceReplyPayload = {
   apiToken?: string;
+  email: string;
+  subject: string;
+  body: string;
+  ticket_id: string;
 };
 
-const getResponseMessage = (response: any, fallback: string) =>
-  response?.header?.message ||
-  response?.message ||
-  response?.response?.header?.message ||
-  response?.response?.message ||
-  fallback;
+type SupportMutationMessageResponse = {
+  header?: {
+    message?: string;
+  };
+  message?: string;
+  response?: {
+    header?: {
+      message?: string;
+    };
+    message?: string;
+  };
+};
+
+const getSupportMutationMessageResponse = (
+  response: unknown
+): SupportMutationMessageResponse =>
+  response && typeof response === "object"
+    ? (response as SupportMutationMessageResponse)
+    : {};
+
+const getResponseMessage = (response: unknown, fallback: string) => {
+  const normalizedResponse = getSupportMutationMessageResponse(response);
+
+  return (
+    normalizedResponse.header?.message ||
+    normalizedResponse.message ||
+    normalizedResponse.response?.header?.message ||
+    normalizedResponse.response?.message ||
+    fallback
+  );
+};
 
 export const useRequestSupportMutation = () =>
   mutationStructure<RequestSupportResponse, Error, RequestSupportPayload>({
@@ -53,17 +78,17 @@ export const useRequestSupportMutation = () =>
     },
   });
 
-export const useResolveSupportTicketMutation = () =>
-  mutationStructure<unknown, Error, ResolveSupportTicketPayload>({
+export const useAssistanceReplyMutation = () =>
+  mutationStructure<unknown, Error, AssistanceReplyPayload>({
     mutationFn: async (payload) => {
       const response = await apiRequest(
-        url.resolveSupportTicket.method,
-        url.resolveSupportTicket.endpoint,
+        url.assistanceReply.method,
+        url.assistanceReply.endpoint,
         payload
       );
 
       if (!response) {
-        throw new Error("Unable to update support ticket.");
+        throw new Error("Unable to send support ticket reply.");
       }
 
       return response;

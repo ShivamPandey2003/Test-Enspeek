@@ -14,6 +14,7 @@ import {
   LuSettings2,
   LuShare2,
   LuTable,
+  LuTicketCheck,
   LuTrash2,
   LuUsers,
 } from "react-icons/lu";
@@ -392,11 +393,11 @@ export const modalDefinitions: Record<string, ModalDefinition> = {
     id: "supportTicketDetails",
     title: "Support Ticket Details",
     tone: "primary",
-    icon: LuCircleHelp,
-    submitLabel: "Submit Response",
-    submittingLabel: "Submitting...",
+    icon: LuTicketCheck,
+    submitLabel: "Send Email",
+    submittingLabel: "Sending...",
     cancelLabel: "Cancel",
-    maxWidthClass: "max-w-3xl",
+    maxWidthClass: "max-w-4xl",
   },
 };
 

@@ -23,6 +23,8 @@ export type SupportTicketApiResponse = {
   firstName?: string;
   lastname?: string;
   lastName?: string;
+  full_name?: string;
+  fullName?: string;
   name?: string;
   user_name?: string;
   email?: string;
@@ -45,8 +47,8 @@ export type SupportTicketApiResponse = {
 export type SupportRequestInfoApiResponse = {
   ticket_id?: string;
   ticket_number?: string;
-  assistance_types?: SupportAssistanceTypeApiResponse[];
-  assistance_type?: SupportAssistanceTypeApiResponse[];
+  assistance_types?: SupportAssistanceTypeApiResponse[] | string;
+  assistance_type?: SupportAssistanceTypeApiResponse[] | string;
   message?: string;
   is_resolved?: 0 | 1 | number | boolean;
   created_at?: string;
@@ -114,6 +116,19 @@ const normalizeAssistanceType = (
   code: item.code?.trim() || item.show?.trim() || "",
 });
 
+const normalizeAssistanceTypeList = (
+  value: SupportAssistanceTypeApiResponse[] | string | undefined
+) => {
+  if (Array.isArray(value)) {
+    return value.map(normalizeAssistanceType).filter((item) => item.code);
+  }
+
+  return toStringArray(value).map((item) => ({
+    label: item,
+    code: item,
+  }));
+};
+
 const toTitleCaseName = (value: string) =>
   value.replace(/\S+/g, (word) => {
     const [firstCharacter = "", ...remainingCharacters] = word;
@@ -124,7 +139,8 @@ const toTitleCaseName = (value: string) =>
   });
 
 const getTicketUserName = (ticket: SupportTicketApiResponse) => {
-  const directName = ticket.name ?? ticket.user_name ?? "";
+  const directName =
+    ticket.full_name ?? ticket.fullName ?? ticket.name ?? ticket.user_name ?? "";
   const firstName = ticket.firstname ?? ticket.firstName ?? "";
   const lastName = ticket.lastname ?? ticket.lastName ?? "";
   const fullName = directName || [firstName, lastName].filter(Boolean).join(" ");
@@ -145,13 +161,9 @@ const normalizeRequestInfo = (
 
   return {
     ticketId,
-    assistanceTypes: (
-      requestInfo.assistance_types ??
-      requestInfo.assistance_type ??
-      []
-    )
-      .map(normalizeAssistanceType)
-      .filter((item) => item.code),
+    assistanceTypes: normalizeAssistanceTypeList(
+      requestInfo.assistance_types ?? requestInfo.assistance_type
+    ),
     message: requestInfo.message ?? "",
     isResolved: Number(requestInfo.is_resolved) === 1,
     createdAt: requestInfo.created_at ?? "",

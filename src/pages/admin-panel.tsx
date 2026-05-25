@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { useSelector } from "react-redux";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { HiSearch } from "react-icons/hi";
@@ -43,11 +44,17 @@ import {
   useSupportTickets,
 } from "../api-network/support/query";
 import {
+  type AssistanceReplyPayload,
   getSupportResponseMessage,
-  type ResolveSupportTicketPayload,
-  useResolveSupportTicketMutation,
+  useAssistanceReplyMutation,
 } from "../api-network/support/mutation";
 import supportKeys from "../api-network/support/keys";
+import {
+  ADMIN_PANEL_TAB_LABELS,
+  type AdminPanelTabId,
+  getUserAccessConfig,
+} from "../config/userAccess";
+import type { RootState } from "../store/store";
 
 type ActionModalState = {
   user: AdminPanelUser;
@@ -60,7 +67,7 @@ type SubscriptionFormState = {
   allowedQuestions: string;
 };
 
-type AdminPanelTab = "users" | "admins" | "tickets";
+type AdminPanelTab = AdminPanelTabId;
 type TicketModalState = {
   ticket: SupportTicket;
   mode: "view" | "resolve";
@@ -118,25 +125,35 @@ export default function AdminPanelPage() {
     allowedQuestions: "",
   });
   const queryClient = useQueryClient();
+  const user = useSelector((state: RootState) => state.user);
+  const userAccess = getUserAccessConfig(user.loginType, user.userType);
+  const visibleTabs = userAccess.adminPanelTabs;
+  const firstVisibleTab = visibleTabs[0] ?? "users";
+  const effectiveActiveTab = visibleTabs.includes(activeTab)
+    ? activeTab
+    : firstVisibleTab;
+  const canViewUsersTab = visibleTabs.includes("users");
+  const canViewAdminsTab = visibleTabs.includes("admins");
+  const canViewTicketsTab = visibleTabs.includes("tickets");
   const {
     users,
     isLoading: isUsersLoading,
     error: usersError,
-  } = useAdminPanelUsers(activeTab === "users");
+  } = useAdminPanelUsers(effectiveActiveTab === "users" && canViewUsersTab);
   const {
     admins,
     isLoading: isAdminsLoading,
     error: adminsError,
-  } = useAdminPanelAdmins(activeTab === "admins");
+  } = useAdminPanelAdmins(effectiveActiveTab === "admins" && canViewAdminsTab);
   const {
     tickets,
     isLoading: isTicketsLoading,
     error: ticketsError,
-  } = useSupportTickets(activeTab === "tickets");
+  } = useSupportTickets(effectiveActiveTab === "tickets" && canViewTicketsTab);
   const updateUserMutation = useUpdateAdminPanelUserMutation();
-  const resolveTicketMutation = useResolveSupportTicketMutation();
-  const isUsersTab = activeTab === "users";
-  const isAdminsTab = activeTab === "admins";
+  const assistanceReplyMutation = useAssistanceReplyMutation();
+  const isUsersTab = effectiveActiveTab === "users";
+  const isAdminsTab = effectiveActiveTab === "admins";
   const activeError = isUsersTab
     ? usersError
     : isAdminsTab
@@ -147,6 +164,13 @@ export default function AdminPanelPage() {
     : isAdminsTab
       ? isAdminsLoading
       : isTicketsLoading;
+
+  useEffect(() => {
+    if (visibleTabs.length > 0 && !visibleTabs.includes(activeTab)) {
+      setActiveTab(firstVisibleTab);
+      setSearch("");
+    }
+  }, [activeTab, firstVisibleTab, visibleTabs]);
 
   const filteredUsers = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -225,7 +249,7 @@ export default function AdminPanelPage() {
   };
 
   const closeTicketModal = () => {
-    if (resolveTicketMutation.isPending) return;
+    if (assistanceReplyMutation.isPending) return;
 
     setTicketModal(null);
     setTicketResponseSubject("");
@@ -234,7 +258,7 @@ export default function AdminPanelPage() {
 
   const updateCachedUser = (updatedUser: AdminPanelUser) => {
     const queryKey =
-      activeTab === "users" ? adminPanelKeys.users() : adminPanelKeys.admins();
+      effectiveActiveTab === "users" ? adminPanelKeys.users() : adminPanelKeys.admins();
 
     queryClient.setQueryData<AdminPanelUser[]>(
       queryKey,
@@ -280,14 +304,15 @@ export default function AdminPanelPage() {
       return;
     }
 
-    const payload: ResolveSupportTicketPayload = {
-      ticket_number: ticketModal.ticket.ticketNumber,
+    const payload: AssistanceReplyPayload = {
+      apiToken: user.apiToken,
+      email: ticketModal.ticket.email,
       subject,
-      message,
-      status: "resolved",
+      body: message,
+      ticket_id: ticketModal.ticket.ticketNumber,
     };
 
-    resolveTicketMutation.mutate(payload, {
+    assistanceReplyMutation.mutate(payload, {
       onSuccess: (response) => {
         updateCachedTicket({
           ...ticketModal.ticket,
@@ -513,7 +538,8 @@ export default function AdminPanelPage() {
       <PageSubheader
         left={
           <AdminPanelTabs
-            activeTab={activeTab}
+            activeTab={effectiveActiveTab}
+            tabs={visibleTabs}
             onChange={(tab) => {
               setActiveTab(tab);
               setSearch("");
@@ -564,7 +590,6 @@ export default function AdminPanelPage() {
           <TicketManagementTable
             tickets={activeError ? [] : filteredTickets}
             onView={(ticket) => openTicketModal(ticket, "view")}
-            onResolve={(ticket) => openTicketModal(ticket, "resolve")}
             emptyMessage={getTableEmptyMessage(activeError, "tickets")}
           />
         )}
@@ -648,18 +673,23 @@ export default function AdminPanelPage() {
         onClose={closeTicketModal}
         className={modalDefinitions.supportTicketDetails.maxWidthClass}
         title={
-          ticketModal?.mode === "resolve"
-            ? "Resolve Support Ticket"
+          ticketModal
+            ? (
+                <span>
+                  {modalDefinitions.supportTicketDetails.title} -{" "}
+                  {ticketModal.ticket.ticketNumber}
+                </span>
+              )
             : modalDefinitions.supportTicketDetails.title
         }
         icon={renderModalIcon(modalDefinitions.supportTicketDetails.icon)}
-        closeDisabled={resolveTicketMutation.isPending}
+        closeDisabled={assistanceReplyMutation.isPending}
         footerLeft={
           <Button
             type="button"
             variant="cancel"
             onClick={closeTicketModal}
-            disabled={resolveTicketMutation.isPending}
+            disabled={assistanceReplyMutation.isPending}
           >
             Cancel
           </Button>
@@ -670,12 +700,12 @@ export default function AdminPanelPage() {
             variant="theme"
             onClick={handleTicketSubmit}
             disabled={
-              resolveTicketMutation.isPending ||
+              assistanceReplyMutation.isPending ||
               !ticketResponseSubject.trim() ||
               !ticketResponseMessage.trim()
             }
           >
-            {resolveTicketMutation.isPending ? (
+            {assistanceReplyMutation.isPending ? (
               <>
                 <span className="modal-spinner" />
                 {modalDefinitions.supportTicketDetails.submittingLabel}
@@ -703,21 +733,22 @@ export default function AdminPanelPage() {
 
 const AdminPanelTabs = ({
   activeTab,
+  tabs,
   onChange,
 }: {
   activeTab: AdminPanelTab;
+  tabs: AdminPanelTab[];
   onChange: (tab: AdminPanelTab) => void;
 }) => {
-  const tabs: Array<{ label: string; value: AdminPanelTab }> = [
-    { label: "Users", value: "users" },
-    { label: "Admins", value: "admins" },
-    { label: "Tickets", value: "tickets" },
-  ];
+  const tabItems = tabs.map((value) => ({
+    label: ADMIN_PANEL_TAB_LABELS[value],
+    value,
+  }));
 
   return (
     <div className="flex min-w-0 items-center gap-3">
       <div className="inline-flex items-end gap-0 leading-none">
-        {tabs.map((tab) => {
+        {tabItems.map((tab) => {
           const isActive = activeTab === tab.value;
 
           return (
@@ -874,7 +905,7 @@ const AdminManagementTable = ({
                 {index + 1}.
               </TableData>
               <TableData align="center" className="min-w-[120px] max-w-[120px] font-semibold text-[var(--color-text-strong)]">
-                <span className="block max-w-[120px] truncate" title={admin.name}>
+                <span className="mx-auto block max-w-[120px] truncate text-center" title={admin.name}>
                   {admin.name}
                 </span>
               </TableData>
@@ -896,12 +927,10 @@ const AdminManagementTable = ({
 const TicketManagementTable = ({
   tickets,
   onView,
-  onResolve,
   emptyMessage,
 }: {
   tickets: SupportTicket[];
   onView: (ticket: SupportTicket) => void;
-  onResolve: (ticket: SupportTicket) => void;
   emptyMessage: string;
 }) => (
   <ManagementTableShell>
@@ -923,7 +952,7 @@ const TicketManagementTable = ({
             <TableHeading
               key={heading}
               align={
-                ["Email", "Type Of Request", "Description"].includes(heading)
+                ["Email", "Description"].includes(heading)
                   ? "left"
                   : "center"
               }
@@ -973,7 +1002,7 @@ const TicketManagementTable = ({
               <TableData className="min-w-[260px] font-medium text-[var(--color-text-strong)]">
                 {ticket.email}
               </TableData>
-              <TableData className="min-w-[190px] max-w-[190px] font-medium text-[var(--color-text-strong)]">
+              <TableData align="center" className="min-w-[190px] max-w-[190px] font-medium text-[var(--color-text-strong)]">
                 <TwoLineText
                   value={ticket.assistanceTypeText}
                   title={ticket.assistanceTypeText}
@@ -984,7 +1013,7 @@ const TicketManagementTable = ({
               </TableData>
               <TableData align="center">
                 <StatusPill tone={getTicketStatusTone(ticket.status)}>
-                  {ticket.status}
+                  {formatStatusLabel(ticket.status)}
                 </StatusPill>
               </TableData>
               <TableData align="center">{formatDateTime(ticket.createdAt)}</TableData>
@@ -993,7 +1022,6 @@ const TicketManagementTable = ({
                 <TicketRowActions
                   ticket={ticket}
                   onView={onView}
-                  onResolve={onResolve}
                 />
               </TableData>
             </tr>
@@ -1138,6 +1166,17 @@ const StatusPill = ({
       {children}
     </span>
   );
+};
+
+const formatStatusLabel = (status: string) => {
+  const normalizedStatus = status.trim();
+
+  if (!normalizedStatus) return "-";
+
+  return normalizedStatus
+    .split(/\s+/)
+    .map((word) => `${word.charAt(0).toUpperCase()}${word.slice(1).toLowerCase()}`)
+    .join(" ");
 };
 
 const getTicketStatusTone = (
@@ -1308,11 +1347,9 @@ const UserRowActions = ({
 const TicketRowActions = ({
   ticket,
   onView,
-  onResolve,
 }: {
   ticket: SupportTicket;
   onView: (ticket: SupportTicket) => void;
-  onResolve: (ticket: SupportTicket) => void;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
@@ -1325,14 +1362,6 @@ const TicketRowActions = ({
       onClick: () => {
         setIsOpen(false);
         onView(ticket);
-      },
-    },
-    {
-      Title: "Resolve",
-      Icon: LuBadgeCheck,
-      onClick: () => {
-        setIsOpen(false);
-        onResolve(ticket);
       },
     },
   ];
@@ -1520,52 +1549,48 @@ const TicketDetailModalBody = ({
   onMessageChange: (value: string) => void;
   onSubmit: () => void;
 }) => (
-  <div className="space-y-5">
-    <div className="rounded-xl border border-[color:var(--color-brand-primary)]/16 bg-[var(--color-brand-primary-softest)]/35 p-4">
-      <div className="grid gap-3 sm:grid-cols-3">
-        <TicketMetaItem label="Ticket" value={ticket.ticketNumber} />
+  <div className="space-y-6">
+    <h3 className="questionnaire-heading text-[21px] font-bold tracking-[-0.01em]">
+      Requested Assistance
+    </h3>
+    <div className="rounded-xl border border-[color:var(--color-brand-primary)]/16 bg-[var(--color-brand-primary-softest)]/35 p-5">
+      <div className="flex flex-wrap items-center gap-x-10 gap-y-2">
         <TicketMetaItem label="Email" value={ticket.email} />
-        <TicketMetaItem label="Status" value={ticket.status} />
+        <TicketMetaItem label="Status" value={formatStatusLabel(ticket.status)} />
       </div>
-      {ticket.assistanceTypes.length > 0 ? (
-        <div className="mt-4">
-          <p className="modal-label mb-2">Requested Assistance</p>
-          <div className="flex flex-wrap gap-2">
-            {ticket.assistanceTypes.map((item) => (
-              <span
-                key={item}
-                className="rounded-full bg-white px-3 py-1 text-xs font-bold text-login-primary shadow-sm"
-              >
-                {item}
-              </span>
-            ))}
-          </div>
-        </div>
-      ) : null}
-      <div className="mt-4">
-        <p className="modal-label mb-2">User Request</p>
-        <div className="min-h-[100px] rounded-lg border border-[color:var(--color-brand-primary)]/14 bg-white p-3 text-sm leading-6 text-[var(--color-text-strong)]">
+      <div className="mt-5">
+        <p className="modal-label mb-3">
+          Type of Request:{" "}
+          <span className="font-normal normal-case tracking-normal text-[var(--color-text-strong)]">
+            {ticket.assistanceTypeText || "-"}
+          </span>
+        </p>
+        <p className="modal-label mb-2">Description</p>
+        <div className="max-h-[150px] overflow-y-auto rounded-lg border border-[color:var(--color-brand-primary)]/14 bg-white p-4 text-sm leading-6 text-[var(--color-text-strong)] shadow-sm">
           {ticket.message || "No request details provided."}
         </div>
       </div>
     </div>
 
-    <div className="grid gap-4">
-      <ModalField label="Response Subject" required>
+    <div className="grid gap-4 border-t questionnaire-border pt-5">
+      <h3 className="questionnaire-heading text-[21px] font-bold tracking-[-0.01em]">
+        Compose Email Reply
+      </h3>
+      <ModalField label="Email Subject" required>
         <Input
           variant="modal"
           value={subject}
           onChange={(event) => onSubjectChange(event.target.value)}
           onKeyDown={(event) => handleKeyPress(event, onSubmit)}
-          placeholder="Enter response subject"
+          placeholder="Enter email subject"
         />
       </ModalField>
-      <ModalField label="Response Message" required>
+      <ModalField label="Email Message" required>
         <Textarea
           variant="modal"
           value={message}
           onChange={(event) => onMessageChange(event.target.value)}
-          placeholder="Write the response that will be sent to the user."
+          placeholder="Write the email message that will be sent to the user."
           className="min-h-[150px] resize-y"
         />
       </ModalField>
@@ -1575,8 +1600,8 @@ const TicketDetailModalBody = ({
 
 const TicketMetaItem = ({ label, value }: { label: string; value: string }) => (
   <div className="min-w-0">
-    <p className="modal-label">{label}</p>
-    <p className="mt-1 truncate text-sm font-bold text-[var(--color-text-strong)]" title={value}>
+    <p className="truncate text-sm font-normal text-[var(--color-text-strong)]" title={value}>
+      <span className="modal-label mr-1">{label}:</span>
       {value || "-"}
     </p>
   </div>

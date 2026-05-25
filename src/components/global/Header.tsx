@@ -15,6 +15,7 @@ import ModalScaffold from "../ui/modal/ModalScaffold";
 import homepageKeys from "../../api-network/homepage/keys";
 import { syncHomepageUserInfo } from "../../api-network/homepage/query";
 import SupportRequestModal from "../common/support/SupportRequestModal";
+import { getUserAccessConfig, normalizeLoginType } from "../../config/userAccess";
 
 const Header = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -46,8 +47,9 @@ const Header = () => {
   const dispatch = useDispatch<AppDispatch>();
   const fullName = getFullName(firstName, lastName) || firstName || "User";
   const initials = getInitials(fullName, "U");
-  const canAccessAdminPanel = ["admin"].includes((loginType || userType || "").toLowerCase());
-  const isAdminLogin = (loginType || userType || "").toLowerCase() === "admin";
+  const userAccess = getUserAccessConfig(loginType, userType);
+  const normalizedLoginType = normalizeLoginType(loginType, userType);
+  const isAdminLogin = normalizedLoginType === "admin";
   const isPlanInfoVisible = Boolean(planInfoSynced && !isAdminLogin);
   const isFreeUser = Number(planType) === 0;
   const isPaidUser = Number(planType) === 1;
@@ -75,7 +77,7 @@ const Header = () => {
   };
 
   const DropdownData = [
-    ...(canAccessAdminPanel && !isUserManagementPage
+    ...(userAccess.canAccessAdminPanel && !isUserManagementPage
       ? [
         {
           Title: "User Management",
@@ -194,7 +196,7 @@ const Header = () => {
               <LuHouse className="h-[18px] w-[18px]" />
             </button>
           ) : null}
-          {!isAdminLogin ? (
+          {userAccess.canRequestSupport ? (
             <button
               type="button"
               className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-[color:var(--color-brand-primary)]/20 bg-white text-login-primary shadow-sm transition-colors hover:bg-[var(--color-brand-primary-softest)]"

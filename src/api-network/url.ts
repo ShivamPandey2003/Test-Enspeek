@@ -552,24 +552,17 @@ const url = {
   },
 
   getSupportTickets: {
-    endpoint: "admin/assistance-list",
+    endpoint: "support/assistance-list",
     method: "post",
     queryKey: "getSupportTickets",
     mutationKey: "get_support_tickets",
   },
 
-  adminAssistanceReply: {
-    endpoint: "admin/email-reply",
+  assistanceReply: {
+    endpoint: "support/email-reply",
     method: "post",
-    queryKey: "getSupportTickets",
-    mutationKey: "get_support_tickets",
-  },
-
-  resolveSupportTicket: {
-    endpoint: "/admin/support-ticket/resolve",
-    method: "post",
-    queryKey: "resolveSupportTicket",
-    mutationKey: "resolve_support_ticket",
+    queryKey: "assistanceReply",
+    mutationKey: "assistance_reply",
   },
   // ################################################# User Management APIs End #################################################
   // ################################################# User Management APIs End #################################################

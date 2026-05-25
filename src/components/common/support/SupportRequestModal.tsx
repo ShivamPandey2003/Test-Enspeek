@@ -1,16 +1,13 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { createPortal } from "react-dom";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
 import {
   LuBadgeCheck,
-  LuChevronDown,
   LuLoaderCircle,
-  LuX,
 } from "react-icons/lu";
 import Button from "../../ui/Button";
-import Checkbox from "../../ui/Checkbox";
 import ModalField from "../../ui/modal/ModalField";
 import ModalScaffold from "../../ui/modal/ModalScaffold";
+import Select from "../../ui/Select";
 import Textarea from "../../ui/Textarea";
 import { useRequestSupportMutation } from "../../../api-network/support/mutation";
 import { useSupportAssistanceTypes, useSupportRequestInfo } from "../../../api-network/support/query";
@@ -18,7 +15,6 @@ import {
   modalDefinitions,
   renderModalIcon,
 } from "../../../config/modalDefinitions";
-import { cn } from "../../../utils";
 
 type SupportRequestModalProps = {
   isOpen: boolean;
@@ -31,17 +27,9 @@ export default function SupportRequestModal({
   isOpen,
   onClose,
 }: SupportRequestModalProps) {
-  const [selectedCodes, setSelectedCodes] = useState<string[]>([]);
+  const [selectedCode, setSelectedCode] = useState("");
   const [message, setMessage] = useState("");
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [dropdownPosition, setDropdownPosition] = useState({
-    top: 0,
-    left: 0,
-    width: 0,
-  });
   const [submittedTicketId, setSubmittedTicketId] = useState("");
-  const supportTypeRef = useRef<HTMLDivElement | null>(null);
-  const dropdownRef = useRef<HTMLDivElement | null>(null);
   const hasShownLimitToastRef = useRef(false);
   const {
     requestInfo,
@@ -57,18 +45,11 @@ export default function SupportRequestModal({
   const activeAssistanceTypes = hasOpenRequest
     ? requestInfo?.assistanceTypes ?? []
     : assistanceTypes;
-  const activeSelectedCodes = hasOpenRequest
-    ? requestInfo?.assistanceTypes.map((item) => item.code) ?? []
-    : selectedCodes;
+  const activeSelectedCode = hasOpenRequest
+    ? requestInfo?.assistanceTypes[0]?.code ?? ""
+    : selectedCode;
   const activeMessage = hasOpenRequest ? requestInfo?.message ?? "" : message;
   const messageCharacterCount = activeMessage.length;
-  const selectedItems = useMemo(
-    () =>
-      activeAssistanceTypes.filter((item) =>
-        activeSelectedCodes.includes(item.code)
-      ),
-    [activeAssistanceTypes, activeSelectedCodes]
-  );
   const isSubmitting = requestSupportMutation.isPending;
   const isSubmitted = Boolean(submittedTicketId);
   const reviewTicketId = submittedTicketId || requestInfo?.ticketId || "";
@@ -78,78 +59,20 @@ export default function SupportRequestModal({
     hasOpenRequest ||
     isCheckingRequestInfo ||
     isSubmitting ||
-    selectedCodes.length === 0 ||
+    selectedCode.length === 0 ||
     message.trim().length === 0;
   const modalDescription = showReviewState ? undefined : (
     "Tell us what you need help with, and our support team will review your request."
   );
   const definition = modalDefinitions.requestSupport;
 
-  useEffect(() => {
-    if (!isDropdownOpen) return;
-
-    updateDropdownPosition();
-
-    const handlePointerDown = (event: MouseEvent) => {
-      const target = event.target as Node;
-
-      if (
-        supportTypeRef.current?.contains(target) ||
-        dropdownRef.current?.contains(target)
-      ) {
-        return;
-      }
-
-      setIsDropdownOpen(false);
-    };
-
-    document.addEventListener("mousedown", handlePointerDown);
-    window.addEventListener("resize", updateDropdownPosition);
-    window.addEventListener("scroll", updateDropdownPosition, true);
-
-    return () => {
-      document.removeEventListener("mousedown", handlePointerDown);
-      window.removeEventListener("resize", updateDropdownPosition);
-      window.removeEventListener("scroll", updateDropdownPosition, true);
-    };
-  }, [isDropdownOpen, selectedItems.length]);
-
-  const updateDropdownPosition = () => {
-    const triggerRect = supportTypeRef.current?.getBoundingClientRect();
-
-    if (!triggerRect) return;
-
-    const spacing = 8;
-
-    setDropdownPosition({
-      top: triggerRect.bottom + spacing,
-      left: triggerRect.left,
-      width: triggerRect.width,
-    });
-  };
-
   const closeModal = () => {
     if (isSubmitting) return;
 
-    setIsDropdownOpen(false);
     setSubmittedTicketId("");
-    setSelectedCodes([]);
+    setSelectedCode("");
     setMessage("");
     onClose();
-  };
-
-  const toggleSelection = (code: string) => {
-    setSelectedCodes((currentCodes) =>
-      currentCodes.includes(code)
-        ? currentCodes.filter((item) => item !== code)
-        : [...currentCodes, code]
-    );
-  };
-
-  const removeSelection = (code: string) => {
-    setSelectedCodes((currentCodes) =>
-      currentCodes.filter((item) => item !== code)
-    );
   };
 
   const updateMessage = (value: string) => {
@@ -176,7 +99,7 @@ export default function SupportRequestModal({
 
     requestSupportMutation.mutate(
       {
-        assistance_type: selectedCodes,
+        assistance_type: selectedCode,
         message: message.trim(),
       },
       {
@@ -186,7 +109,6 @@ export default function SupportRequestModal({
             response?.response?.ticket_number ??
             "";
           setSubmittedTicketId(String(ticketId));
-          setIsDropdownOpen(false);
         },
       }
     );
@@ -274,110 +196,26 @@ export default function SupportRequestModal({
       {!showReviewState && !isCheckingRequestInfo ? (
         <>
       <ModalField label="Type of request" required>
-        <div className="relative" ref={supportTypeRef}>
-          <button
-            type="button"
-            disabled={isSubmitting || hasOpenRequest || isCheckingRequestInfo}
-            onClick={() => {
-              setIsDropdownOpen((currentValue) => !currentValue);
-              window.requestAnimationFrame(updateDropdownPosition);
-            }}
-            className={cn(
-              "flex min-h-[52px] w-full items-center gap-2 rounded-lg border border-[var(--color-border-default)] bg-white px-3 py-2 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--color-brand-primary)]/25",
-              isDropdownOpen &&
-              "border-[var(--color-brand-primary)] ring-2 ring-[color:var(--color-brand-primary)]/20"
-            )}
-          >
-            <div className="flex min-w-0 flex-1 flex-wrap gap-2.5">
-              {selectedItems.length > 0 ? (
-                selectedItems.map((item) => (
-                  <span
-                    key={item.code}
-                    className="inline-flex max-w-full items-center gap-2 rounded-md bg-[var(--color-brand-primary-softest)] px-2.5 py-1.5 text-sm font-semibold text-[var(--color-text-strong)]"
-                  >
-                    <span className="truncate">{item.label}</span>
-                    {!hasOpenRequest ? (
-                      <span
-                        role="button"
-                        tabIndex={0}
-                        className="inline-flex h-4 w-4 shrink-0 cursor-pointer items-center justify-center rounded-full text-[var(--color-text-muted)] hover:text-login-primary"
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          removeSelection(item.code);
-                        }}
-                        onKeyDown={(event) => {
-                          if (event.key === "Enter" || event.key === " ") {
-                            event.preventDefault();
-                            event.stopPropagation();
-                            removeSelection(item.code);
-                          }
-                        }}
-                        aria-label={`Remove ${item.label}`}
-                      >
-                        <LuX className="h-3.5 w-3.5" />
-                      </span>
-                    ) : null}
-                  </span>
-                ))
-              ) : (
-                <span className="text-sm font-medium text-[var(--color-text-muted)]">
-                  Select support type
-                </span>
-              )}
-            </div>
-            <LuChevronDown
-              className={cn(
-                "h-4 w-4 shrink-0 text-[var(--color-text-muted)] transition-transform",
-                isDropdownOpen && "rotate-180"
-              )}
-            />
-          </button>
-
-          {isDropdownOpen ? createPortal(
-            <div
-              ref={dropdownRef}
-              className="fixed z-[650] rounded-xl border border-[var(--color-border-default)] bg-white p-1.5 shadow-xl"
-              style={{
-                top: dropdownPosition.top,
-                left: dropdownPosition.left,
-                width: dropdownPosition.width,
-              }}
-            >
-              {isLoading ? (
-                <div className="flex items-center gap-2 px-3 py-3 text-sm font-semibold text-[var(--color-text-muted)]">
-                  <LuLoaderCircle className="h-4 w-4 animate-spin" />
-                  Loading assistance types...
-                </div>
-              ) : assistanceTypes.length > 0 ? (
-                <div className="flex flex-col gap-1.5">
-                  {assistanceTypes.map((item) => (
-                    <button
-                      key={item.code}
-                      type="button"
-                      className={cn(
-                        "flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-semibold text-[var(--color-text-strong)] transition-colors hover:bg-[var(--color-brand-primary-softest)]",
-                        activeSelectedCodes.includes(item.code) &&
-                          "bg-[var(--color-brand-primary-softest)]"
-                      )}
-                      onClick={() => toggleSelection(item.code)}
-                    >
-                      <Checkbox
-                        checked={activeSelectedCodes.includes(item.code)}
-                        readOnly
-                      />
-                      <span>{item.label}</span>
-                    </button>
-                  ))}
-                </div>
-              ) : (
-                <p className="px-3 py-3 text-sm font-semibold text-[var(--color-text-muted)]">
-                  No assistance types found.
-                </p>
-              )}
-            </div>,
-            document.body
-          ) : null}
-        </div>
+        <Select
+          variant="modal"
+          value={activeSelectedCode}
+          disabled={isSubmitting || hasOpenRequest || isCheckingRequestInfo || isLoading}
+          onChange={(event) => setSelectedCode(event.target.value)}
+        >
+          <option value="">
+            {isLoading ? "Loading assistance types..." : "Select support type"}
+          </option>
+          {activeAssistanceTypes.map((item) => (
+            <option key={item.code} value={item.code}>
+              {item.label}
+            </option>
+          ))}
+        </Select>
+        {!isLoading && assistanceTypes.length === 0 ? (
+          <p className="mt-2 text-sm font-semibold text-[var(--color-text-muted)]">
+            No assistance types found.
+          </p>
+        ) : null}
       </ModalField>
 
       <ModalField
