@@ -235,7 +235,7 @@ export default function QuestionList() {
                               body: "Tell Enspeek what the study is about and let it draft the first questions for you.",
                             },
                             {
-                              title: "Review & refine questions",
+                              title: "Review & edit questions",
                               body: "Refine wording, reorder items, or create your own question when you need more control.",
                             },
                             {
