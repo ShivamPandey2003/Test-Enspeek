@@ -244,8 +244,8 @@ export default function AdminPanelPage() {
 
   const openTicketModal = (ticket: SupportTicket, mode: "view" | "resolve") => {
     setTicketModal({ ticket, mode });
-    setTicketResponseSubject(ticket.subject);
-    setTicketResponseMessage(ticket.adminMessage);
+    setTicketResponseSubject("");
+    setTicketResponseMessage("");
   };
 
   const closeTicketModal = () => {

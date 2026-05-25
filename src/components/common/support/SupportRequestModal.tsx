@@ -99,7 +99,7 @@ export default function SupportRequestModal({
 
     requestSupportMutation.mutate(
       {
-        assistance_type: selectedCode,
+        assistance_type: [selectedCode],
         message: message.trim(),
       },
       {

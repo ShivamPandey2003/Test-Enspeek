@@ -3,7 +3,7 @@ import { apiRequest } from "../../services/apiService";
 import url from "../url";
 
 export type RequestSupportPayload = {
-  assistance_type: string;
+  assistance_type: string[];
   message: string;
   apiToken?: string;
 };
