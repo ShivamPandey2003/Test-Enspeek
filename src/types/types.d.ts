@@ -46,6 +46,8 @@ declare type Option = {
 
 declare type User = {
   apiToken: string;
+  email?: string;
+  userId?: string;
   firstName: string;
   lastName: string;
   loginType?: "admin" | "client" | "user" | string;
@@ -54,7 +56,11 @@ declare type User = {
   grp: string;
   suggest_login_password: number;
   updated_on: string;
+  createdAt?: string;
+  updatedAt?: string;
   enabled: number;
+  isActive?: boolean;
+  isApproved?: boolean;
   planInfoSynced?: boolean;
   createdStudies?: number;
   allowedStudies?: number;

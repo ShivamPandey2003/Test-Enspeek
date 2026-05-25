@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { FaSignOutAlt } from "react-icons/fa";
-import { LuChevronDown, LuCircleHelp, LuLoaderCircle, LuUsersRound, LuSettings, LuHouse } from "react-icons/lu";
+import { LuChevronDown, LuCircleHelp, LuLoaderCircle, LuUsersRound, LuSettings, LuHouse, LuUserRound } from "react-icons/lu";
 import { useLocation, useNavigate } from "react-router";
 import ICON from "../../assets/icons/icon.png";
 import { useDispatch, useSelector } from "react-redux";
@@ -41,6 +41,7 @@ const Header = () => {
   } = user;
   const showStudyName = pathname !== "/" && name.trim() !== "";
   const isUserManagementPage = pathname.startsWith("/user-management");
+  const isProfilePage = pathname.startsWith("/profile");
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
   };
@@ -85,6 +86,18 @@ const Header = () => {
           onClick: () => {
             setDropdownOpen(false);
             navigate("/user-management");
+          },
+        },
+      ]
+      : []),
+    ...(userAccess.canAccessProfile && !isProfilePage
+      ? [
+        {
+          Title: "Profile",
+          Icon: LuUserRound,
+          onClick: () => {
+            setDropdownOpen(false);
+            navigate("/profile");
           },
         },
       ]
@@ -170,10 +183,10 @@ const Header = () => {
           </>
         )}
       </div>
-      {isUserManagementPage ? (
+      {isUserManagementPage || isProfilePage ? (
         <div className="pointer-events-none absolute left-1/2 hidden -translate-x-1/2 items-center justify-center md:flex">
           <h1 className="home-heading text-[18px] font-bold">
-            User Management
+            {isProfilePage ? "Profile" : "User Management"}
           </h1>
         </div>
       ) : null}

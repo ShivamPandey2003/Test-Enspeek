@@ -58,7 +58,7 @@ const url = {
   },
 
   userInfo: {
-    endpoint: "/user/info",
+    endpoint: "/uam/info",
     method: "post",
     queryKey: "userInfo",
     mutationKey: "user_info",

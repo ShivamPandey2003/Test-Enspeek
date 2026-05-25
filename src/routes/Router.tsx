@@ -15,6 +15,7 @@ import BannerDesign_page from "../pages/BannerDesign.page";
 import { ErrorBoundary } from "react-error-boundary";
 import TableList_page from "../pages/TableList.page";
 import AdminPanelPage from "../pages/admin-panel";
+import ProfilePage from "../pages/Profile.page";
 import { Suspense } from "react";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { cn } from "../utils";
@@ -84,6 +85,10 @@ const Router = createBrowserRouter(
         {
           path: "user-management",
           element: <ProtectedRoute element={<AdminPanelPage />} adminOnly />,
+        },
+        {
+          path: "profile",
+          element: <ProtectedRoute element={<ProfilePage />} profileOnly />,
         },
       ],
     },

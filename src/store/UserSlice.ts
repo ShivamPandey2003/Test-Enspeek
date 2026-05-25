@@ -7,6 +7,8 @@ const saved = localStorage.getItem("user");
 
 const initialState: User = saved ? decrypt(saved) : {
   apiToken: "",
+  email: "",
+  userId: "",
   firstName: "",
   lastName: "",
   loginType: "",
@@ -15,7 +17,11 @@ const initialState: User = saved ? decrypt(saved) : {
   grp: "",
   suggest_login_password: 0,
   updated_on: "",
+  createdAt: "",
+  updatedAt: "",
   enabled: 0,
+  isActive: false,
+  isApproved: false,
   planInfoSynced: false,
   createdStudies: 0,
   allowedStudies: 0,
@@ -38,6 +44,8 @@ const userSlice = createSlice({
       localStorage.removeItem("user");
       return {
         apiToken: "",
+        email: "",
+        userId: "",
         firstName: "",
         lastName: "",
         loginType: "",
@@ -46,7 +54,11 @@ const userSlice = createSlice({
         grp: "",
         suggest_login_password: 0,
         updated_on: "",
+        createdAt: "",
+        updatedAt: "",
         enabled: 0,
+        isActive: false,
+        isApproved: false,
         planInfoSynced: false,
         createdStudies: 0,
         allowedStudies: 0,

@@ -8,9 +8,15 @@ interface ProtectedRouteProps {
   element: JSX.Element;
   reverse?: boolean;
   adminOnly?: boolean;
+  profileOnly?: boolean;
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ element, reverse = false, adminOnly = false }) => {
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
+  element,
+  reverse = false,
+  adminOnly = false,
+  profileOnly = false,
+}) => {
   const isAuthenticated = !!localStorage.getItem('token');
   const user = useSelector((state: RootState) => state.user);
   const userAccess = getUserAccessConfig(user.loginType, user.userType);
@@ -28,6 +34,10 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ element, reverse = fals
   }
 
   if (adminOnly && !userAccess.canAccessAdminPanel) {
+    return <Navigate to="/" replace />;
+  }
+
+  if (profileOnly && !userAccess.canAccessProfile) {
     return <Navigate to="/" replace />;
   }
 

@@ -97,7 +97,6 @@ const PublishSurveyHeader: FC<PublishSurveyHeaderProps> = ({
                   onClick={() => {
                     dispatch(setIsFbModalOpen(true));
                   }}
-                  disabled
                 >
                   <FaFacebookF className="text-base" />
                   <span>Share on Facebook</span>
@@ -109,7 +108,6 @@ const PublishSurveyHeader: FC<PublishSurveyHeaderProps> = ({
                   onClick={() => {
                     dispatch(setIsWhatsappModalOpen(true));
                   }}
-                  disabled
                 >
                   <FaWhatsapp className="text-base" />
                   <span>Share on WhatsApp</span>
