@@ -2,7 +2,7 @@ import queryStructure from "../query-template";
 import { apiRequest } from "../../services/apiService";
 import url from "../url";
 import adminPanelKeys from "./keys";
-import { toNumber } from "../../utils";
+import { toNumber, toTitleCase } from "../../utils";
 
 export type AdminPanelPlan = "free" | "paid";
 export type AdminPanelStatus = "active" | "inactive";
@@ -45,17 +45,8 @@ export type AdminPanelUser = {
 
 const toDisplayName = (firstName: string, lastName: string, email: string) => {
   const fullName = [firstName, lastName].filter(Boolean).join(" ").trim();
-  return fullName ? toTitleCaseName(fullName) : email;
+  return fullName ? toTitleCase(fullName) : email;
 };
-
-const toTitleCaseName = (value: string) =>
-  value.replace(/\S+/g, (word) => {
-    const [firstCharacter = "", ...remainingCharacters] = word;
-
-    return `${firstCharacter.toUpperCase()}${remainingCharacters
-      .join("")
-      .toLowerCase()}`;
-  });
 
 const normalizeUser = (user: AdminPanelUserApiResponse): AdminPanelUser => {
   const firstName = user.firstname?.trim() ?? "";

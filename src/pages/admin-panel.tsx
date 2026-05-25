@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useSelector } from "react-redux";
 import { useQueryClient } from "@tanstack/react-query";
@@ -1199,6 +1199,82 @@ const getTicketStatusTone = (
   return "neutral";
 };
 
+const useRowActionDropdown = ({
+  isOpen,
+  dropdownWidth,
+  onClose,
+}: {
+  isOpen: boolean;
+  dropdownWidth: number;
+  onClose: () => void;
+}) => {
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
+  const buttonRef = useRef<HTMLButtonElement | null>(null);
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
+
+  const updateDropdownPosition = useCallback(() => {
+    const rect = buttonRef.current?.getBoundingClientRect();
+    if (!rect) return;
+
+    const dropdownHeight =
+      dropdownRef.current?.getBoundingClientRect().height ?? 0;
+    const viewportPadding = 12;
+    const bottomSpace = window.innerHeight - rect.bottom;
+    const shouldOpenUp = dropdownHeight > 0 && bottomSpace < dropdownHeight;
+    const top =
+      shouldOpenUp
+        ? Math.max(viewportPadding, rect.top - dropdownHeight - 8)
+        : dropdownHeight > 0
+          ? Math.min(
+              rect.bottom + 8,
+              window.innerHeight - dropdownHeight - viewportPadding
+            )
+          : rect.bottom + 8;
+    const left = Math.min(
+      window.innerWidth - dropdownWidth - viewportPadding,
+      Math.max(viewportPadding, rect.right - dropdownWidth)
+    );
+
+    setDropdownPosition({ top, left });
+  }, [dropdownWidth]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    updateDropdownPosition();
+
+    const handlePointerDown = (event: MouseEvent) => {
+      const target = event.target as Node;
+
+      if (
+        dropdownRef.current?.contains(target) ||
+        buttonRef.current?.contains(target)
+      ) {
+        return;
+      }
+
+      onClose();
+    };
+
+    window.addEventListener("resize", updateDropdownPosition);
+    window.addEventListener("scroll", updateDropdownPosition, true);
+    document.addEventListener("mousedown", handlePointerDown);
+
+    return () => {
+      window.removeEventListener("resize", updateDropdownPosition);
+      window.removeEventListener("scroll", updateDropdownPosition, true);
+      document.removeEventListener("mousedown", handlePointerDown);
+    };
+  }, [isOpen, onClose, updateDropdownPosition]);
+
+  return {
+    buttonRef,
+    dropdownRef,
+    dropdownPosition,
+    updateDropdownPosition,
+  };
+};
+
 const UserRowActions = ({
   user,
   onAction,
@@ -1207,9 +1283,17 @@ const UserRowActions = ({
   onAction: (user: AdminPanelUser, action: AdminPanelActionType) => void;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
-  const buttonRef = useRef<HTMLButtonElement | null>(null);
-  const dropdownRef = useRef<HTMLDivElement | null>(null);
+  const closeDropdown = useCallback(() => setIsOpen(false), []);
+  const {
+    buttonRef,
+    dropdownRef,
+    dropdownPosition,
+    updateDropdownPosition,
+  } = useRowActionDropdown({
+    isOpen,
+    dropdownWidth: 286,
+    onClose: closeDropdown,
+  });
 
   const statusActionLabel =
     user.status === "active"
@@ -1249,62 +1333,6 @@ const UserRowActions = ({
     setIsOpen(false);
     onAction(user, action);
   }
-
-  const updateDropdownPosition = () => {
-    const rect = buttonRef.current?.getBoundingClientRect();
-    if (!rect) return;
-
-    const dropdownWidth = 286;
-    const dropdownHeight =
-      dropdownRef.current?.getBoundingClientRect().height ?? 0;
-    const viewportPadding = 12;
-    const bottomSpace = window.innerHeight - rect.bottom;
-    const shouldOpenUp = dropdownHeight > 0 && bottomSpace < dropdownHeight;
-    const top =
-      shouldOpenUp
-        ? Math.max(viewportPadding, rect.top - dropdownHeight - 8)
-        : dropdownHeight > 0
-          ? Math.min(
-              rect.bottom + 8,
-              window.innerHeight - dropdownHeight - viewportPadding
-            )
-          : rect.bottom + 8;
-    const left = Math.min(
-      window.innerWidth - dropdownWidth - viewportPadding,
-      Math.max(viewportPadding, rect.right - dropdownWidth)
-    );
-
-    setDropdownPosition({ top, left });
-  };
-
-  useEffect(() => {
-    if (!isOpen) return;
-
-    updateDropdownPosition();
-
-    const handlePointerDown = (event: MouseEvent) => {
-      const target = event.target as Node;
-
-      if (
-        dropdownRef.current?.contains(target) ||
-        buttonRef.current?.contains(target)
-      ) {
-        return;
-      }
-
-      setIsOpen(false);
-    };
-
-    window.addEventListener("resize", updateDropdownPosition);
-    window.addEventListener("scroll", updateDropdownPosition, true);
-    document.addEventListener("mousedown", handlePointerDown);
-
-    return () => {
-      window.removeEventListener("resize", updateDropdownPosition);
-      window.removeEventListener("scroll", updateDropdownPosition, true);
-      document.removeEventListener("mousedown", handlePointerDown);
-    };
-  }, [isOpen, actions.length]);
 
   return (
     <>
@@ -1352,9 +1380,17 @@ const TicketRowActions = ({
   onView: (ticket: SupportTicket) => void;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
-  const buttonRef = useRef<HTMLButtonElement | null>(null);
-  const dropdownRef = useRef<HTMLDivElement | null>(null);
+  const closeDropdown = useCallback(() => setIsOpen(false), []);
+  const {
+    buttonRef,
+    dropdownRef,
+    dropdownPosition,
+    updateDropdownPosition,
+  } = useRowActionDropdown({
+    isOpen,
+    dropdownWidth: 220,
+    onClose: closeDropdown,
+  });
   const actions: DropdownData[] = [
     {
       Title: "View Ticket",
@@ -1365,62 +1401,6 @@ const TicketRowActions = ({
       },
     },
   ];
-
-  const updateDropdownPosition = () => {
-    const rect = buttonRef.current?.getBoundingClientRect();
-    if (!rect) return;
-
-    const dropdownWidth = 220;
-    const dropdownHeight =
-      dropdownRef.current?.getBoundingClientRect().height ?? 0;
-    const viewportPadding = 12;
-    const bottomSpace = window.innerHeight - rect.bottom;
-    const shouldOpenUp = dropdownHeight > 0 && bottomSpace < dropdownHeight;
-    const top =
-      shouldOpenUp
-        ? Math.max(viewportPadding, rect.top - dropdownHeight - 8)
-        : dropdownHeight > 0
-          ? Math.min(
-              rect.bottom + 8,
-              window.innerHeight - dropdownHeight - viewportPadding
-            )
-          : rect.bottom + 8;
-    const left = Math.min(
-      window.innerWidth - dropdownWidth - viewportPadding,
-      Math.max(viewportPadding, rect.right - dropdownWidth)
-    );
-
-    setDropdownPosition({ top, left });
-  };
-
-  useEffect(() => {
-    if (!isOpen) return;
-
-    updateDropdownPosition();
-
-    const handlePointerDown = (event: MouseEvent) => {
-      const target = event.target as Node;
-
-      if (
-        dropdownRef.current?.contains(target) ||
-        buttonRef.current?.contains(target)
-      ) {
-        return;
-      }
-
-      setIsOpen(false);
-    };
-
-    window.addEventListener("resize", updateDropdownPosition);
-    window.addEventListener("scroll", updateDropdownPosition, true);
-    document.addEventListener("mousedown", handlePointerDown);
-
-    return () => {
-      window.removeEventListener("resize", updateDropdownPosition);
-      window.removeEventListener("scroll", updateDropdownPosition, true);
-      document.removeEventListener("mousedown", handlePointerDown);
-    };
-  }, [isOpen]);
 
   return (
     <div onClick={(event) => event.stopPropagation()}>

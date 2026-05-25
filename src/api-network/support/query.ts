@@ -2,6 +2,7 @@ import queryStructure from "../query-template";
 import { apiRequest } from "../../services/apiService";
 import url from "../url";
 import supportKeys from "./keys";
+import { toTitleCase } from "../../utils";
 
 export type SupportAssistanceTypeApiResponse = {
   show?: string;
@@ -129,15 +130,6 @@ const normalizeAssistanceTypeList = (
   }));
 };
 
-const toTitleCaseName = (value: string) =>
-  value.replace(/\S+/g, (word) => {
-    const [firstCharacter = "", ...remainingCharacters] = word;
-
-    return `${firstCharacter.toUpperCase()}${remainingCharacters
-      .join("")
-      .toLowerCase()}`;
-  });
-
 const getTicketUserName = (ticket: SupportTicketApiResponse) => {
   const directName =
     ticket.full_name ?? ticket.fullName ?? ticket.name ?? ticket.user_name ?? "";
@@ -145,7 +137,7 @@ const getTicketUserName = (ticket: SupportTicketApiResponse) => {
   const lastName = ticket.lastname ?? ticket.lastName ?? "";
   const fullName = directName || [firstName, lastName].filter(Boolean).join(" ");
 
-  return fullName.trim() ? toTitleCaseName(fullName.trim()) : "";
+  return fullName.trim() ? toTitleCase(fullName) : "";
 };
 
 const normalizeRequestInfo = (
