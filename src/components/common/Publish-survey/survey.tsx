@@ -136,7 +136,7 @@ export default function PublishSurvey() {
                         )}
                         <Button
                           data-test-id="ACTIVATE"
-                          varinat="theme"
+                          variant="theme"
                           onClick={() => {
                             setIsOpen(true);
                           }}

@@ -80,7 +80,7 @@ const ActivateSurvey: FC<ActivateSurveyModalProps> = ({
       secondaryAction={
         <Button
           type="button"
-          varinat="cancel"
+          variant="cancel"
           onClick={() => !isPending && onClose()}
           disabled={isPending}
         >

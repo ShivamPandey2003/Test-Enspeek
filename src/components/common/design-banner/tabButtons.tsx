@@ -47,7 +47,7 @@ const TabButtons: React.FC<TabButtonsProps> = ({
           <Button
             key={point.title}
             type="button"
-            varinat={activeTab === index ? "theme" : "secondary"}
+            variant={activeTab === index ? "theme" : "secondary"}
             onClick={() => setActiveTab(index)}
             className={`report-toolbar-btn px-4 ${
               activeTab === index
@@ -63,7 +63,7 @@ const TabButtons: React.FC<TabButtonsProps> = ({
       </div>
       <Button
         type="button"
-        varinat="theme"
+        variant="theme"
         onClick={addBannerPoint}
         className="report-toolbar-btn px-4"
         disabled={isBannerPointerListPending}

@@ -128,7 +128,7 @@ export default function BannerSettings({
       secondaryAction={
         <Button
           type="button"
-          varinat="cancel"
+          variant="cancel"
           className="border-gray-300 text-[var(--color-text-strong)] hover:bg-gray-50"
           onClick={onClose}
           disabled={isSaving}

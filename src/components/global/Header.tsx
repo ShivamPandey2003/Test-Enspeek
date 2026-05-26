@@ -270,14 +270,14 @@ const Header = () => {
           <div className="mt-6 flex justify-end gap-3">
             <Button
               type="button"
-              varinat="cancel"
+              variant="cancel"
               onClick={() => setLogoutModalOpen(false)}
             >
               Cancel
             </Button>
             <Button
               type="button"
-              varinat="theme"
+              variant="theme"
               onClick={handleLogout}
             >
               Logout
@@ -323,7 +323,7 @@ const PlanLimitsModal = ({
       icon={<Icon className="h-5 w-5" />}
       description={description}
       footerRight={
-        <Button type="button" varinat="cancel" onClick={onClose}>
+        <Button type="button" variant="cancel" onClick={onClose}>
           Cancel
         </Button>
       }

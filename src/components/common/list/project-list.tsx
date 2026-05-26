@@ -93,7 +93,7 @@ export default function ProjectListing() {
                     </div>
                     <Button
                       type="button"
-                      varinat="outline"
+                      variant="outline"
                       size="sm"
                       onClick={() => openChatWithMessage("Count of in progress studies")}
                       className="max-w-full rounded-full home-muted shadow-sm hover:border-login-primary/30 hover:bg-login-primary/5"
@@ -110,7 +110,7 @@ export default function ProjectListing() {
                       <Button
                         key={prompt.id}
                         type="button"
-                        varinat="outline"
+                        variant="outline"
                         onClick={() => {
                           if (prompt.id === "activate study") {
                             openChatWithMessage("Activate Study [Study Name]");

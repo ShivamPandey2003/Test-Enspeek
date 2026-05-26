@@ -236,7 +236,7 @@ const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({ onClose }) => {
 
               <div className="flex w-full flex-wrap items-center justify-end gap-3 lg:w-auto">
                 <Button
-                  varinat="success"
+                  variant="success"
                   className="capitalize"
                   onClick={data ? handleUpdate : handleCreate}
                   disabled={isSaving}
@@ -262,7 +262,7 @@ const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({ onClose }) => {
                 </Button>
                 <Button
                   type="button"
-                  varinat="cancel"
+                  variant="cancel"
                   className="border-gray-300 px-5 text-[var(--color-text-strong)] hover:bg-gray-50"
                   onClick={closeForm}
                   disabled={isSaving}
@@ -272,7 +272,7 @@ const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({ onClose }) => {
                 <Button
                   type="button"
                   aria-label="Close edit question"
-                  varinat="secondary"
+                  variant="secondary"
                   size="icon"
                   tooltip="Collapse"
                   className="questionnaire-muted shadow-none"
@@ -435,7 +435,7 @@ const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({ onClose }) => {
                       className="h-[46px] w-[82px] rounded-lg border px-4 text-center text-base"
                     />
                     <Button
-                      varinat="theme"
+                      variant="theme"
                       size="default"
                       onClick={createOption}
                       disabled={isSaving}

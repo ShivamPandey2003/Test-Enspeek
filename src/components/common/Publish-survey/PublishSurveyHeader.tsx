@@ -102,7 +102,7 @@ const PublishSurveyHeader: FC<PublishSurveyHeaderProps> = ({
                   <span>Share on Facebook</span>
                 </Button>
                 <Button
-                  varinat="success"
+                  variant="success"
                   className="hover:brightness-95"
                   data-test-id="WHATSAPP_SURVEY"
                   onClick={() => {
@@ -125,7 +125,7 @@ const PublishSurveyHeader: FC<PublishSurveyHeaderProps> = ({
               >
                 <Button
                   type="button"
-                  varinat="secondary"
+                  variant="secondary"
                   size="default"
                   disabled
                   data-test-id="INITIATE_DISABLED"
@@ -139,7 +139,7 @@ const PublishSurveyHeader: FC<PublishSurveyHeaderProps> = ({
             {isSurveyActive && launch !== 1 && (
               <Button
                 data-test-id="INITIATE"
-                varinat="theme"
+                variant="theme"
                 onClick={() => {
                   setIsOpenInitiate(true);
                 }}
@@ -149,7 +149,7 @@ const PublishSurveyHeader: FC<PublishSurveyHeaderProps> = ({
             )}
             {isSurveyActive && launch === 1 && studyInfo.closed === 1 && (
               <Button
-                varinat="theme"
+                variant="theme"
                 onClick={() => {
                   setIsOpenInitiate(true);
                 }}
@@ -162,7 +162,7 @@ const PublishSurveyHeader: FC<PublishSurveyHeaderProps> = ({
                 <div className="relative" ref={dropdownRef}>
                   <Button
                     type="button"
-                    varinat="secondary"
+                    variant="secondary"
                     size="icon"
                     data-test-id="PUBLISH_SURVEY_DOWNLOADS"
                     aria-label="Open download history"
@@ -179,7 +179,7 @@ const PublishSurveyHeader: FC<PublishSurveyHeaderProps> = ({
                 </div>
                 <Button
                   data-test-id="NEXT_TO_REPORT"
-                  varinat="theme"
+                  variant="theme"
                   className="px-6"
                   onClick={() => {
                     navigate("/report", { state: { studyID: state.studyID } });

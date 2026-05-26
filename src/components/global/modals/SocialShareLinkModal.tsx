@@ -25,14 +25,14 @@ export default function SocialShareLinkModal({
       title={definition.title}
       icon={headerIcon}
       footerLeft={
-        <Button type="button" varinat="cancel" onClick={onClose}>
+        <Button type="button" variant="cancel" onClick={onClose}>
           {definition.cancelLabel}
         </Button>
       }
       footerRight={
         <Button
           type="button"
-          varinat={definition.tone === "success" ? "success" : "theme"}
+          variant={definition.tone === "success" ? "success" : "theme"}
           onClick={() => {
             if (copyContent) {
               navigator.clipboard.writeText(copyContent);

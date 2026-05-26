@@ -116,7 +116,7 @@ export default function QuestionList() {
               </div>
               <Button
                 data-test-id="NEXTTOSURVEY"
-                varinat="theme"
+                variant="theme"
                 onClick={() => {
                   navigate("/publish-survey", {
                     state: { studyID },
@@ -183,7 +183,7 @@ export default function QuestionList() {
 
                       <Button
                         type="button"
-                        varinat="outline"
+                        variant="outline"
                         size="sm"
                         onClick={() =>
                           openChatWithMessage("Generate 5 questions about my study.")
@@ -201,7 +201,7 @@ export default function QuestionList() {
                           <Button
                             key={prompt.title}
                             type="button"
-                            varinat="outline"
+                            variant="outline"
                             onClick={() => openChatWithMessage(prompt.text)}
                             className="home-panel-soft-bg questionnaire-border group h-auto w-full items-start justify-start whitespace-normal rounded-[16px] px-4 py-2.5 text-left leading-normal transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
                           >

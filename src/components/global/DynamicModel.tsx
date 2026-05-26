@@ -58,7 +58,7 @@ const DynamicModel: React.FC<DynamicModalProps> = ({
           {ButtonText && onClick ? (
             <Button
               size="default"
-              varinat={resolvedButtonVariant}
+              variant={resolvedButtonVariant}
               onClick={onClick}
               data-test-id="MODEL_BUTTON"
               className="min-w-[180px]"

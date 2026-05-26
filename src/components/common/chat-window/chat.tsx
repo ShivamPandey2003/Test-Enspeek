@@ -425,7 +425,7 @@ const ChatWindow: React.FC<{
                         <div className="flex space-x-2">
                           <Button
                             type="button"
-                            varinat={isChart ? "theme" : "outline"}
+                            variant={isChart ? "theme" : "outline"}
                             size="sm"
                             className={`rounded-md ${
                               isChart
@@ -447,7 +447,7 @@ const ChatWindow: React.FC<{
                           ) && (
                             <Button
                               type="button"
-                              varinat={isTable ? "theme" : "outline"}
+                              variant={isTable ? "theme" : "outline"}
                               size="sm"
                               className={`rounded-md ${
                                 isTable

@@ -78,7 +78,7 @@ export default function HistoryModal({
       secondaryAction={
         <Button
           type="button"
-          varinat="cancel"
+          variant="cancel"
           onClick={() => onOpenChange(false)}
           disabled={isClearHistoryPending}
         >

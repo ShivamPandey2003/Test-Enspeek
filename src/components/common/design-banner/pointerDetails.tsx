@@ -173,7 +173,7 @@ const PointDetails: React.FC<pointDetailsProps> = ({
               {BannerPointer.length > 1 && (
                 <Button
                   type="button"
-                  varinat="danger"
+                  variant="danger"
                   onClick={() => deleteBannerPoint(activeTab!)}
                   className="report-toolbar-btn px-4"
                 >

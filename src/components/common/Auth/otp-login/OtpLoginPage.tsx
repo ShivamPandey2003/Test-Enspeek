@@ -269,7 +269,7 @@ const OtpLoginPage = () => {
           <div className="mb-4 inline-flex rounded-full bg-[var(--color-login-input)] p-1">
             <Button
               type="button"
-              varinat={mode === "signin" ? "theme" : "ghost"}
+              variant={mode === "signin" ? "theme" : "ghost"}
               size="sm"
               className="rounded-full px-5"
               onClick={() => setMode("signin")}
@@ -278,7 +278,7 @@ const OtpLoginPage = () => {
             </Button>
             <Button
               type="button"
-              varinat={mode === "signup" ? "theme" : "ghost"}
+              variant={mode === "signup" ? "theme" : "ghost"}
               size="sm"
               className="rounded-full px-5"
               onClick={() => setMode("signup")}
@@ -328,7 +328,7 @@ const OtpLoginPage = () => {
         ) : step === "otp" ? (
           <Button
             type="button"
-            varinat="link"
+            variant="link"
             className="text-sm"
             onClick={() => {
               setStep("form");

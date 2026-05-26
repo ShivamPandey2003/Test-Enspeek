@@ -114,7 +114,7 @@ const AddBannerModal: React.FC<AddBannerModalProps> = ({
       secondaryAction={
         <Button
           type="button"
-          varinat="cancel"
+          variant="cancel"
           onClick={handleClose}
           disabled={isPending || isCreating}
         >

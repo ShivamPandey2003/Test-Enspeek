@@ -90,7 +90,7 @@ const SampleCollectionModel: FC<SampleCollectionModalProps> = ({
       secondaryAction={
         <Button
           type="button"
-          varinat="cancel"
+          variant="cancel"
           onClick={onClose}
           disabled={isPending}
         >

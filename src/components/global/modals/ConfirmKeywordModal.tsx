@@ -67,14 +67,14 @@ export default function ConfirmKeywordModal({
       icon={renderModalIcon(definition.icon ?? LuTrash2)}
       closeDisabled={isPending}
       footerLeft={
-        <Button type="button" varinat="cancel" onClick={onClose} disabled={isPending}>
+        <Button type="button" variant="cancel" onClick={onClose} disabled={isPending}>
           {definition.cancelLabel}
         </Button>
       }
       footerRight={
         <Button
           type="button"
-          varinat={submitVariant as any}
+          variant={submitVariant as any}
           onClick={handleConfirm}
           disabled={isPending || !isConfirmed}
         >

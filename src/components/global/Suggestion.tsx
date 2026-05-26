@@ -25,7 +25,7 @@ const Suggestion = () => {
         <Button
           key={action.label}
           type="button"
-          varinat="chip"
+          variant="chip"
           size="xs"
           className="h-7 rounded-lg font-medium"
           onClick={action.onClick}

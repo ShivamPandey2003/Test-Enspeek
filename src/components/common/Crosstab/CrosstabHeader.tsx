@@ -37,7 +37,7 @@ export default function CrosstabHeader({
         <>
           <Button
             data-test-id="CREATE_BANNER"
-            varinat="theme"
+            variant="theme"
             className="report-toolbar-btn px-4"
             onClick={() => dispatch(setIsAddBannerModalOpen(true))}
           >
@@ -57,7 +57,7 @@ export default function CrosstabHeader({
             />
           </div>
           <Button
-            varinat="secondary"
+            variant="secondary"
             size="icon"
             className="report-toolbar-btn home-border-soft text-[var(--color-brand-info)] hover:bg-[var(--color-brand-primary-softest)]"
             onClick={() => setIsDownloadModalOpen(true)}

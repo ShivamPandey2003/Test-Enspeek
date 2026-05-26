@@ -1588,7 +1588,7 @@ const ConfirmationModalBody = ({
           value={value}
           onChange={(event) => onValueChange(event.target.value)}
           onKeyDown={(event) => handleKeyPress(event, onSubmit)}
-          placeholder="confirm"
+          placeholder={keyword}
         />
       </ModalField>
     </div>
@@ -1680,7 +1680,7 @@ const TicketStatusModalBody = ({
           value={value}
           onChange={(event) => onValueChange(event.target.value)}
           onKeyDown={(event) => handleKeyPress(event, onSubmit)}
-          placeholder="confirm"
+          placeholder={keyword}
         />
       </ModalField>
     </div>
