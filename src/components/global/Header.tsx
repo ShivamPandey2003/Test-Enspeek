@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { FaSignOutAlt } from "react-icons/fa";
-import { LuChevronDown, LuCircleHelp, LuLoaderCircle, LuUsersRound, LuSettings, LuHouse, LuUserRound } from "react-icons/lu";
+import { LuChevronDown, LuLoaderCircle, LuMessageCircle, LuUsersRound, LuSettings, LuHouse, LuUserRound } from "react-icons/lu";
 import { useLocation, useNavigate } from "react-router";
 import ICON from "../../assets/icons/icon.png";
 import { useDispatch, useSelector } from "react-redux";
@@ -39,9 +39,13 @@ const Header = () => {
     planInfoSynced,
     apiToken,
   } = user;
-  const showStudyName = pathname !== "/" && name.trim() !== "";
   const isUserManagementPage = pathname.startsWith("/user-management");
   const isProfilePage = pathname.startsWith("/profile");
+  const showStudyName =
+    pathname !== "/" &&
+    !isUserManagementPage &&
+    !isProfilePage &&
+    name.trim() !== "";
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
   };
@@ -220,7 +224,7 @@ const Header = () => {
                 setSupportModalOpen(true);
               }}
             >
-              <LuCircleHelp className="h-[18px] w-[18px]" />
+              <LuMessageCircle className="h-[18px] w-[18px]" />
             </button>
           ) : null}
           {isPlanInfoVisible && (isFreeUser || isPaidUser) ? (

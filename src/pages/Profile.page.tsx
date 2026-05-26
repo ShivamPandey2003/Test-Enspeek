@@ -215,7 +215,7 @@ export default function ProfilePage() {
         <div className="space-y-4">
           <div>
             <p className="mb-2 text-sm font-bold text-[var(--color-text-strong)]">
-              Request is About
+              Request type
             </p>
             <div className="grid gap-2 sm:grid-cols-3">
               {subscriptionRequestTopics.map((topic) => (
@@ -236,7 +236,7 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          <ProfileFormField label="Request Details">
+          <ProfileFormField label="Description">
             <Textarea
               value={subscriptionRequestMessage}
               disabled={subscriptionRequestMutation.isPending}
