@@ -42,11 +42,11 @@ export const promptCatalog: PromptCatalogItem[] = [
     message: "Count of in progress studies",
   },
   {
-    id: "give me survey link of [study name]",
-    label: "Survey Link",
+    id: "give me research link of [study name]",
+    label: "Research Link",
     icon: <LuLink className="h-4 w-4" />,
-    description: "AI fetches the survey link for a study",
-    message: "Give me survey link of [study name]",
+    description: "AI fetches the research link for a study",
+    message: "Give me research link of [study name]",
   },
   {
     id: "studies created on [mm, dd]",
@@ -179,15 +179,15 @@ export const promptCatalog: PromptCatalogItem[] = [
     message: "Get data of [qid] in [study name]",
   },
   {
-    id: "Get count of completed surveys in [study name]",
+    id: "Get count of completed research responses in [study name]",
     label: "Completed Count",
     icon: <LuChartBar className="h-4 w-4" />,
-    message: "Get count of completed surveys in [study name]",
+    message: "Get count of completed research responses in [study name]",
   },
   {
-    id: "Get count of incompleted surveys in [study name]",
+    id: "Get count of incomplete research responses in [study name]",
     label: "Incomplete Count",
     icon: <LuChartBar className="h-4 w-4" />,
-    message: "Get count of incompleted surveys in [study name]",
+    message: "Get count of incomplete research responses in [study name]",
   },
 ];

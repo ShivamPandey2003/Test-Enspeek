@@ -144,7 +144,7 @@ const HomeSidebar: React.FC = () => {
         </div>
         <div className="home-panel-bg grid grid-cols-3 gap-1 rounded-full p-1 text-sm">
           <Button
-            varinat={activeTab === "myactive" ? "theme" : "secondary"}
+            variant={activeTab === "myactive" ? "theme" : "secondary"}
             className={cn(
               "px-2 text-center text-[13px] leading-none",
               activeTab === "myactive"
@@ -156,7 +156,7 @@ const HomeSidebar: React.FC = () => {
             {`Active (${activeCount})`}
           </Button>
           <Button
-            varinat={activeTab === "allactive" ? "theme" : "secondary"}
+            variant={activeTab === "allactive" ? "theme" : "secondary"}
             className={cn(
               "px-2 text-center text-[13px] leading-none",
               activeTab === "allactive"
@@ -168,7 +168,7 @@ const HomeSidebar: React.FC = () => {
             {`All (${allCount})`}
           </Button>
           <Button
-            varinat={activeTab === "isarchived" ? "theme" : "secondary"}
+            variant={activeTab === "isarchived" ? "theme" : "secondary"}
             className={cn(
               "px-2 text-center text-[13px] leading-none",
               activeTab === "isarchived"
@@ -259,7 +259,7 @@ const HomeSidebar: React.FC = () => {
               placeholder="1"
             />
             <span className="home-muted text-sm font-medium">{`of ${totalPages}`}</span>
-            <Button type="button" varinat="theme" size="sm" onClick={handleGoToPage}>
+            <Button type="button" variant="theme" size="sm" onClick={handleGoToPage}>
               Go
             </Button>
           </div>

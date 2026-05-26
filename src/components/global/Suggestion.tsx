@@ -25,7 +25,7 @@ const Suggestion = () => {
         <Button
           key={action.label}
           type="button"
-          varinat="chip"
+          variant="chip"
           size="xs"
           className="h-7 rounded-lg font-medium"
           onClick={action.onClick}
@@ -74,8 +74,8 @@ const Suggestion = () => {
 
     actions.push(
       {
-        label: "Survey Link",
-        onClick: () => sendMessage("Give survey link"),
+        label: "Research Link",
+        onClick: () => sendMessage("Give research link"),
       },
       {
         label: "Test Link",

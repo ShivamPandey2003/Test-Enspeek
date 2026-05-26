@@ -12,7 +12,7 @@ export function toNumber(value: unknown, fallback = 0) {
   return Number.isFinite(parsedValue) ? parsedValue : fallback;
 }
 
-function toTitleCase(value?: string) {
+export function toTitleCase(value?: string) {
   return (value || "")
     .trim()
     .split(/\s+/)

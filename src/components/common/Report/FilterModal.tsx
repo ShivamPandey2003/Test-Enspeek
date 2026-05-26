@@ -47,7 +47,7 @@ export default function FilterModal({ isOpen, setIsOpen }: FilterModalProps) {
       secondaryAction={
         <Button
           type="button"
-          varinat="cancel"
+          variant="cancel"
           onClick={setIsOpen}
           disabled={isIncludeReportFiltersPending}
         >

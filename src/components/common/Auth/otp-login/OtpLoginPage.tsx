@@ -14,7 +14,7 @@ import SignUpForm from "./SignUpForm";
 import type { AuthMode, AuthStep, SignInFormState, SignUpFormState } from "./types";
 
 const OTP_LENGTH = 6;
-const RESEND_COOLDOWN_SECONDS = 30;
+const RESEND_COOLDOWN_SECONDS = 60;
 
 const isValidEmail = (value: string) =>
   /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
@@ -269,7 +269,7 @@ const OtpLoginPage = () => {
           <div className="mb-4 inline-flex rounded-full bg-[var(--color-login-input)] p-1">
             <Button
               type="button"
-              varinat={mode === "signin" ? "theme" : "ghost"}
+              variant={mode === "signin" ? "theme" : "ghost"}
               size="sm"
               className="rounded-full px-5"
               onClick={() => setMode("signin")}
@@ -278,7 +278,7 @@ const OtpLoginPage = () => {
             </Button>
             <Button
               type="button"
-              varinat={mode === "signup" ? "theme" : "ghost"}
+              variant={mode === "signup" ? "theme" : "ghost"}
               size="sm"
               className="rounded-full px-5"
               onClick={() => setMode("signup")}
@@ -305,7 +305,7 @@ const OtpLoginPage = () => {
           : step === "otp"
           ? "Finish login with the one-time password"
           : mode === "signin"
-            ? "Use your email to receive a one-time password"
+            ? "Use email to receive a one-time password"
             : "Register first, then sign in with OTP"
       }
       footer={
@@ -328,7 +328,7 @@ const OtpLoginPage = () => {
         ) : step === "otp" ? (
           <Button
             type="button"
-            varinat="link"
+            variant="link"
             className="text-sm"
             onClick={() => {
               setStep("form");

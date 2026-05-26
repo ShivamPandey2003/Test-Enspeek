@@ -49,14 +49,11 @@ const buttonSizeVariants = cva("", {
   },
 });
 
-type ButtonVariant = VariantProps<typeof buttonToneVariants>["variant"];
-
 export interface ButtonProps
   extends ButtonHTMLAttributes<HTMLButtonElement>,
   VariantProps<typeof buttonToneVariants>,
   VariantProps<typeof buttonSizeVariants> {
   children: ReactNode;
-  varinat?: ButtonVariant;
   tooltip?: string;
   tooltipPosition?: TooltipPosition;
   tooltipDelay?: number;
@@ -64,7 +61,6 @@ export interface ButtonProps
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
   children,
-  varinat,
   variant,
   size,
   className,
@@ -80,7 +76,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
       data-tooltip-delay={tooltip ? tooltipDelay : undefined}
       className={cn(
       buttonBaseClasses,
-      buttonToneVariants({ variant: variant ?? varinat }),
+      buttonToneVariants({ variant }),
       buttonSizeVariants({ size }),
       className
     )}

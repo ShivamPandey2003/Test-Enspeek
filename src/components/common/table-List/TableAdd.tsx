@@ -54,7 +54,7 @@ export default function AddCustomTableListModal({ rows, setRows }: Props) {
     <div className="crosstab-surface overflow-hidden">
       <div className="home-panel-soft-bg flex justify-end border-b home-border-soft px-4 py-3">
         <Button
-          varinat="theme"
+          variant="theme"
           onClick={handleCreateRow}
           className="report-toolbar-btn ml-4"
         >

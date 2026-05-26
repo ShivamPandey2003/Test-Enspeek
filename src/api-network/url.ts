@@ -58,7 +58,7 @@ const url = {
   },
 
   userInfo: {
-    endpoint: "/user/info",
+    endpoint: "/uam/info",
     method: "post",
     queryKey: "userInfo",
     mutationKey: "user_info",
@@ -528,6 +528,55 @@ const url = {
     method: "post",
     queryKey: "updateUser",
     mutationKey: "update_user",
+  },
+
+  supportList: {
+    endpoint: "uam/assistance_type",
+    method: "post",
+    queryKey: "supportList",
+    mutationKey: "support_list",
+  },
+
+  supportRequestInfo: {
+    endpoint: "uam/get_assistance_request",
+    method: "post",
+    queryKey: "supportRequestInfo",
+    mutationKey: "support_request_info",
+  },
+
+  requestSupport: {
+    endpoint: "uam/request_assistance",
+    method: "post",
+    queryKey: "requestSupport",
+    mutationKey: "request_support",
+  },
+
+  getSupportTickets: {
+    endpoint: "support/assistance-list",
+    method: "post",
+    queryKey: "getSupportTickets",
+    mutationKey: "get_support_tickets",
+  },
+
+  assistanceReply: {
+    endpoint: "support/email-reply",
+    method: "post",
+    queryKey: "assistanceReply",
+    mutationKey: "assistance_reply",
+  },
+
+  subscriptionRequest: {
+    endpoint: "uam/subscriptionRequest",
+    method: "post",
+    queryKey: "subscriptionRequest",
+    mutationKey: "subscription_request",
+  },
+
+  updateTicketStatus: {
+    endpoint: "support/resolve-assistance",
+    method: "post",
+    queryKey: "updateTicketStatus",
+    mutationKey: "update_ticket_status",
   },
   // ################################################# User Management APIs End #################################################
   // ################################################# User Management APIs End #################################################

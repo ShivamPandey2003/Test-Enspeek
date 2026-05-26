@@ -51,14 +51,14 @@ export default function NameCopyModal({
       icon={<LuCopy className="h-5 w-5" />}
       closeDisabled={isPending}
       footerLeft={
-        <Button type="button" varinat="cancel" onClick={onClose} disabled={isPending}>
+        <Button type="button" variant="cancel" onClick={onClose} disabled={isPending}>
           {definition.cancelLabel}
         </Button>
       }
       footerRight={
         <Button
           type="button"
-          varinat="theme"
+          variant="theme"
           onClick={handleConfirm}
           disabled={isPending || value.trim() === ""}
         >

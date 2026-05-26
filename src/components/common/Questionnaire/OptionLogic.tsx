@@ -131,7 +131,7 @@ export default function OptionLogic({
             )}
             <Button
               type="button"
-              varinat={row.terminate ? "danger" : "outline"}
+              variant={row.terminate ? "danger" : "outline"}
               size="sm"
               tooltip={row.terminate ? "Remove termination" : "Apply termination"}
               onClick={() => toggleTerminate(idx)}

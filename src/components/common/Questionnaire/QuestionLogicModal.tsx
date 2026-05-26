@@ -74,7 +74,7 @@ export default function QuesLogicModal({
       footerContent={
         <div className="flex flex-wrap items-center justify-end gap-3">
           <Button
-            varinat="cancel"
+            variant="cancel"
             onClick={handleReset}
             disabled={isPending}
           >
@@ -95,7 +95,7 @@ export default function QuesLogicModal({
             )}
           </Button>
           <Button
-            varinat="success"
+            variant="success"
             onClick={handleSave}
             disabled={isPending}
           >

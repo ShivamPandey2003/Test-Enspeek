@@ -108,7 +108,7 @@ const OtpForm: React.FC<OtpFormProps> = ({
       <div className="text-center">
         <Button
           type="button"
-          varinat="link"
+          variant="link"
           disabled={isResending || resendSecondsLeft > 0}
           onClick={onResend}
           className="text-sm"

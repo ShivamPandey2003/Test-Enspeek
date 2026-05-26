@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
 import { MdArrowForwardIos } from "react-icons/md";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
-import { LuBotMessageSquare, LuCircleCheckBig, LuPlus, LuSparkles, LuWandSparkles } from "react-icons/lu";
+import { LuBotMessageSquare, LuPlus, LuSparkles, LuWandSparkles } from "react-icons/lu";
 import type { AppDispatch, RootState } from "../../../store/store";
 import { cn, getTimeGreeting, normalizeDisplayName } from "../../../utils";
 import { setEditingQuestion } from "../../../store/QuestionSlice";
@@ -116,7 +116,7 @@ export default function QuestionList() {
               </div>
               <Button
                 data-test-id="NEXTTOSURVEY"
-                varinat="theme"
+                variant="theme"
                 onClick={() => {
                   navigate("/publish-survey", {
                     state: { studyID },
@@ -153,44 +153,42 @@ export default function QuestionList() {
               }}
             />
           ) : submitItems.length === 0 ? (
-            <div className="flex min-h-full w-full items-center justify-center px-5 py-4 md:px-6 md:py-5">
-              <div className="mx-auto flex w-full max-w-5xl flex-col gap-4">
-                <div className="grid gap-4 xl:grid-cols-[minmax(0,1.16fr)_minmax(280px,0.84fr)] xl:items-stretch">
-                  <div className="platform-card-shadow-strong questionnaire-card questionnaire-border overflow-hidden rounded-[30px] border">
-                    <div className="platform-hero-surface px-5 py-5 md:px-6 md:py-6">
-                      <div className="flex flex-wrap items-center gap-2">
+            <div className="flex min-h-full w-full items-center justify-center px-5 py-3 md:px-6 md:py-4">
+              <div className="mx-auto flex w-full max-w-6xl flex-col gap-4">
+                <div className="w-full">
+                  <div className="platform-card-shadow-strong questionnaire-card questionnaire-border overflow-hidden rounded-[24px] border">
+                    <div className="platform-hero-surface px-5 py-4 md:px-6 md:py-5">
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <div className="flex items-center gap-3">
+                          <div className="relative flex h-10 w-10 items-center justify-center rounded-[16px] bg-gradient-to-br from-login-primary to-action shadow-lg">
+                            <LuBotMessageSquare className="h-5 w-5 text-white" />
+                            <LuSparkles className="absolute -right-2 -top-2 h-4 w-4 text-amber-400" />
+                          </div>
+                          <div className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-1.5 text-sm font-semibold questionnaire-heading shadow-sm">
+                            {`${greeting}, ${normalizedFirstName}`}
+                          </div>
+                        </div>
                         <span className="home-panel-soft-bg home-highlight inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em]">
                           <LuSparkles className="h-3.5 w-3.5" />
                           AI-assisted questionnaire
                         </span>
                       </div>
 
-                      <div className="mt-4 flex items-center gap-3">
-                        <div className="relative flex h-12 w-12 items-center justify-center rounded-[18px] bg-gradient-to-br from-login-primary to-action shadow-lg">
-                          <LuBotMessageSquare className="h-6 w-6 text-white" />
-                          <LuSparkles className="absolute -right-2 -top-2 h-4 w-4 text-amber-400" />
-                        </div>
-                        <div className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold questionnaire-heading shadow-sm">
-                          {`${greeting}, ${normalizedFirstName}`}
-                        </div>
-                      </div>
-
-                      <h2 className="questionnaire-heading mt-4 max-w-3xl text-[clamp(1.9rem,3vw,2.65rem)] font-semibold leading-[1.05] tracking-[-0.04em]">
+                      <h2 className="questionnaire-heading mt-3 max-w-3xl text-[clamp(1.65rem,2.5vw,2.25rem)] font-semibold leading-[1.05] tracking-[-0.035em]">
                         Start building your questionnaire
                       </h2>
-                      <p className="home-highlight mt-2.5 max-w-2xl text-[14px] leading-6 md:text-[16px] md:leading-6">
-                        Tell Enspeek what your study is about and it can generate
-                        your first set of questions in plain language.
+                      <p className="home-highlight mt-2 max-w-none text-[14px] leading-5 md:whitespace-nowrap md:text-[15px]">
+                        Tell Enspeek what your study is about and it can generate your first set of questions in plain language.
                       </p>
 
                       <Button
                         type="button"
-                        varinat="outline"
+                        variant="outline"
                         size="sm"
                         onClick={() =>
                           openChatWithMessage("Generate 5 questions about my study.")
                         }
-                        className="mt-4 rounded-full home-muted shadow-sm hover:border-login-primary/30 hover:bg-login-primary/5"
+                        className="mt-3 rounded-full home-muted shadow-sm hover:border-login-primary/30 hover:bg-login-primary/5"
                       >
                         Try:
                         <span className="font-semibold text-login-primary">
@@ -198,82 +196,68 @@ export default function QuestionList() {
                         </span>
                       </Button>
 
-                      <div className="mt-3.5 grid gap-3 md:grid-cols-2">
+                      <div className="mt-3 grid gap-3 md:grid-cols-2">
                         {emptyStatePrompts.map((prompt) => (
                           <Button
                             key={prompt.title}
                             type="button"
-                            varinat="outline"
+                            variant="outline"
                             onClick={() => openChatWithMessage(prompt.text)}
-                            className="home-panel-soft-bg questionnaire-border group h-auto w-full items-start justify-start whitespace-normal rounded-[20px] px-4 py-3 text-left leading-normal transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+                            className="home-panel-soft-bg questionnaire-border group h-auto w-full items-start justify-start whitespace-normal rounded-[16px] px-4 py-2.5 text-left leading-normal transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
                           >
-                            <span className="home-dropdown-icon-wrap flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl">
+                            <span className="home-dropdown-icon-wrap flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl">
                               {prompt.icon}
                             </span>
                             <span className="min-w-0 flex-1">
                               <span className="questionnaire-heading block break-words text-sm font-semibold leading-5">
                                 {prompt.title}
                               </span>
-                              <span className="questionnaire-muted mt-0.5 block break-words text-sm leading-5">
+                              <span className="questionnaire-muted mt-0.5 block break-words text-sm leading-[18px]">
                                 {prompt.text}
                               </span>
                             </span>
                           </Button>
                         ))}
                       </div>
-                    </div>
-                  </div>
 
-                  <div className="platform-card-shadow-medium questionnaire-card questionnaire-border h-full rounded-[28px] border px-5 py-5">
-                    <div className="flex h-full flex-col">
-                      <div className="flex items-center gap-3">
-                        <div className="home-panel-soft-bg flex h-10 w-10 items-center justify-center rounded-2xl">
-                          <LuCircleCheckBig className="h-5 w-5 text-login-primary" />
-                        </div>
-                        <div>
-                          <p className="questionnaire-heading text-[17px] font-semibold">
-                            What happens next
-                          </p>
-                          <p className="questionnaire-muted mt-0.5 text-sm leading-5">
-                            A simple path from first question to final survey.
-                          </p>
-                        </div>
-                      </div>
+                      <div className="mt-4 border-t questionnaire-border pt-4">
+                        <p className="questionnaire-heading text-[17px] font-semibold">
+                          What happens next:{" "}
+                          <span className="font-normal">
+                            A simple path from first question to final research.
+                          </span>
+                        </p>
 
-                      <div className="mt-3 flex flex-1 flex-col gap-2">
-                        {[
-                          {
-                            title: "Describe your topic in simple words",
-                            body: "Tell Enspeek what the study is about and let it draft the first questions for you.",
-                          },
-                          {
-                            title: "Review and edit the generated questions",
-                            body: "Refine wording, reorder items, or create your own question when you need more control.",
-                          },
-                          {
-                            title: "Move to publish survey when ready",
-                            body: "When the questionnaire looks right, continue to publish and activate the study.",
-                          },
-                        ].map((item, index) => (
-                          <div
-                            key={item.title}
-                            className="home-panel-soft-bg flex flex-1 items-center rounded-[20px] border questionnaire-border px-4 py-3"
-                          >
-                            <div className="flex items-center gap-3">
-                              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-login-primary text-sm font-semibold text-white">
+                        <div className="mt-3 grid gap-3 lg:grid-cols-3">
+                          {[
+                            {
+                              title: "Describe your topic in simple words",
+                              body: "Tell Enspeek what the study is about and let it draft the first questions for you.",
+                            },
+                            {
+                              title: "Review & edit questions",
+                              body: "Refine wording, reorder items, or create your own question when you need more control.",
+                            },
+                            {
+                              title: "Move to publish research when ready",
+                              body: "When the questionnaire looks right, continue to publish and activate the study.",
+                            },
+                          ].map((item, index) => (
+                            <div key={item.title} className="flex items-start gap-2.5">
+                              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-login-primary text-sm font-semibold text-white">
                                 {index + 1}
                               </div>
-                              <div>
-                                <p className="questionnaire-heading text-sm font-semibold leading-5.5">
+                              <div className="min-w-0">
+                                <p className="questionnaire-heading text-sm font-semibold leading-[18px]">
                                   {item.title}
                                 </p>
-                                <p className="questionnaire-muted mt-1 text-sm leading-5">
+                                <p className="questionnaire-muted mt-1 text-sm leading-[18px]">
                                   {item.body}
                                 </p>
                               </div>
                             </div>
-                          </div>
-                        ))}
+                          ))}
+                        </div>
                       </div>
                     </div>
                   </div>

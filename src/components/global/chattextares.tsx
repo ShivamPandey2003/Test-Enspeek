@@ -128,7 +128,7 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
         <div className="fixed bottom-8 right-8 z-50">
           <Button
             onClick={handleOpen}
-            varinat="theme"
+            variant="theme"
             size="icon"
             tooltip="Open Chat"
             className="h-14 w-14 text-white shadow-lg transition-all duration-300 hover:scale-110"
@@ -164,7 +164,7 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
             trigger={
               <Button
                 type="button"
-                varinat="ghost"
+                variant="ghost"
                 size="icon"
                 tooltip="Quick Commands"
                 className="home-dropdown-icon-wrap h-10 w-10 shrink-0 rounded-full shadow-sm hover:opacity-90"
@@ -194,7 +194,7 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
           <div className="ml-auto flex items-center gap-2">
             <Button
               type="button"
-              varinat="theme"
+              variant="theme"
               size="icon"
               tooltip="Send"
               disabled={isTyping}

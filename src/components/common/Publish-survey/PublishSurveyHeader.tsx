@@ -83,7 +83,7 @@ const PublishSurveyHeader: FC<PublishSurveyHeaderProps> = ({
           left={
             <div className="flex flex-wrap items-center gap-3">
               <h1 className="questionnaire-heading text-[18px] font-semibold leading-none md:text-[22px]">
-                Publish Survey
+                Publish Research
               </h1>
             </div>
         }
@@ -97,19 +97,17 @@ const PublishSurveyHeader: FC<PublishSurveyHeaderProps> = ({
                   onClick={() => {
                     dispatch(setIsFbModalOpen(true));
                   }}
-                  disabled
                 >
                   <FaFacebookF className="text-base" />
                   <span>Share on Facebook</span>
                 </Button>
                 <Button
-                  varinat="success"
+                  variant="success"
                   className="hover:brightness-95"
                   data-test-id="WHATSAPP_SURVEY"
                   onClick={() => {
                     dispatch(setIsWhatsappModalOpen(true));
                   }}
-                  disabled
                 >
                   <FaWhatsapp className="text-base" />
                   <span>Share on WhatsApp</span>
@@ -127,7 +125,7 @@ const PublishSurveyHeader: FC<PublishSurveyHeaderProps> = ({
               >
                 <Button
                   type="button"
-                  varinat="secondary"
+                  variant="secondary"
                   size="default"
                   disabled
                   data-test-id="INITIATE_DISABLED"
@@ -141,7 +139,7 @@ const PublishSurveyHeader: FC<PublishSurveyHeaderProps> = ({
             {isSurveyActive && launch !== 1 && (
               <Button
                 data-test-id="INITIATE"
-                varinat="theme"
+                variant="theme"
                 onClick={() => {
                   setIsOpenInitiate(true);
                 }}
@@ -151,12 +149,12 @@ const PublishSurveyHeader: FC<PublishSurveyHeaderProps> = ({
             )}
             {isSurveyActive && launch === 1 && studyInfo.closed === 1 && (
               <Button
-                varinat="theme"
+                variant="theme"
                 onClick={() => {
                   setIsOpenInitiate(true);
                 }}
               >
-                Relaunch Survey
+                Relaunch Research
               </Button>
             )}
             {launch === 1 && (
@@ -164,7 +162,7 @@ const PublishSurveyHeader: FC<PublishSurveyHeaderProps> = ({
                 <div className="relative" ref={dropdownRef}>
                   <Button
                     type="button"
-                    varinat="secondary"
+                    variant="secondary"
                     size="icon"
                     data-test-id="PUBLISH_SURVEY_DOWNLOADS"
                     aria-label="Open download history"
@@ -181,7 +179,7 @@ const PublishSurveyHeader: FC<PublishSurveyHeaderProps> = ({
                 </div>
                 <Button
                   data-test-id="NEXT_TO_REPORT"
-                  varinat="theme"
+                  variant="theme"
                   className="px-6"
                   onClick={() => {
                     navigate("/report", { state: { studyID: state.studyID } });

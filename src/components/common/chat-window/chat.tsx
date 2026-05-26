@@ -425,7 +425,7 @@ const ChatWindow: React.FC<{
                         <div className="flex space-x-2">
                           <Button
                             type="button"
-                            varinat={isChart ? "theme" : "outline"}
+                            variant={isChart ? "theme" : "outline"}
                             size="sm"
                             className={`rounded-md ${
                               isChart
@@ -447,7 +447,7 @@ const ChatWindow: React.FC<{
                           ) && (
                             <Button
                               type="button"
-                              varinat={isTable ? "theme" : "outline"}
+                              variant={isTable ? "theme" : "outline"}
                               size="sm"
                               className={`rounded-md ${
                                 isTable
@@ -536,16 +536,16 @@ const ChatWindow: React.FC<{
                       rel="noopener noreferrer"
                       className="text-blue-600 hover:text-blue-800"
                     >
-                      🔗 Click to view survey
+                      🔗 Click to view research
                     </a>
 
                     <IconActionButton
-                      tooltip="Copy survey link"
+                      tooltip="Copy research link"
                       onClick={() => {
                         if (msg.liveLink) {
                           navigator.clipboard.writeText(msg.liveLink);
                         }
-                        toast.success("Survey link copied to clipboard!");
+                        toast.success("Research link copied to clipboard!");
                       }}
                       tone="neutral"
                       className="theme-text-muted"

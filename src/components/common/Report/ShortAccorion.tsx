@@ -22,7 +22,7 @@ export const SimpleAccordionItem = ({
     <div className="border border-gray-200 mb-2">
       <Button
         type="button"
-        varinat="ghost"
+        variant="ghost"
         className="w-full justify-between rounded-none px-2 py-2 font-medium text-left text-[var(--color-text-strong)] shadow-none hover:bg-[var(--color-surface-soft)]"
         onClick={() => setExpanded((prev) => (prev === id ? "" : id))}
       >

@@ -97,7 +97,7 @@ const Header: React.FC<CrosstabHeaderProps> = ({
         tableData.length > 0 ? (
           <>
             <Button
-              varinat="theme"
+              variant="theme"
               className="report-toolbar-btn bg-[var(--color-questionnaire-multi)] px-4 text-white hover:opacity-90"
               onClick={() => dispatch(setIsBannerSettingsOpen(true))}
             >
@@ -105,7 +105,7 @@ const Header: React.FC<CrosstabHeaderProps> = ({
             </Button>
             <div className="relative" ref={dropdownRef}>
               <Button
-                varinat="theme"
+                variant="theme"
                 className="report-toolbar-btn bg-[var(--color-study-progress)] px-4 text-white hover:opacity-90"
                 onClick={() =>
                   dispatch(setIsDownloadDropdownOpen(!isDownloadDropdownOpen))
@@ -134,7 +134,7 @@ const Header: React.FC<CrosstabHeaderProps> = ({
               </Select>
               <Button
                 type="button"
-                varinat="theme"
+                variant="theme"
                 size="sm"
                 onClick={() =>
                   navigate("/crosstab/table-list", {
@@ -153,7 +153,7 @@ const Header: React.FC<CrosstabHeaderProps> = ({
         ) : (
           <Button
             data-test-id="SAVE_QUESTION"
-            varinat="theme"
+            variant="theme"
             className="report-toolbar-btn px-5"
             onClick={() => {
               if (selectedQuestions.length === 0) {

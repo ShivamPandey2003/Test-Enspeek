@@ -35,7 +35,7 @@ export default function ProjectListing() {
   const steps = [
     {
       title: "Tell Enspeek what you want",
-      body: "Describe your topic in simple words. No survey experience needed.",
+      body: "Describe your topic in simple words. No research experience needed.",
     },
     {
       title: "Review and refine",
@@ -71,13 +71,13 @@ export default function ProjectListing() {
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="home-panel-soft-bg home-highlight inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em]">
                       <LuSparkles className="h-3.5 w-3.5" />
-                      Chat-first survey design
+                      Chat-first research design
                     </span>
                   </div>
 
                   <div className="mt-4 max-w-3xl">
                     <p className="home-title text-[clamp(1.9rem,3.2vw,3.25rem)] font-semibold leading-[1.02] tracking-[-0.05em]">
-                      Build a survey by simply describing it.
+                      Build research by simply describing it.
                     </p>
                     <p className="home-text mt-2 max-w-2xl text-[14px] leading-5.5 md:text-[15px] md:leading-6">
                       Tell Enspeek what you want in plain language and it helps
@@ -93,7 +93,7 @@ export default function ProjectListing() {
                     </div>
                     <Button
                       type="button"
-                      varinat="outline"
+                      variant="outline"
                       size="sm"
                       onClick={() => openChatWithMessage("Count of in progress studies")}
                       className="max-w-full rounded-full home-muted shadow-sm hover:border-login-primary/30 hover:bg-login-primary/5"
@@ -110,7 +110,7 @@ export default function ProjectListing() {
                       <Button
                         key={prompt.id}
                         type="button"
-                        varinat="outline"
+                        variant="outline"
                         onClick={() => {
                           if (prompt.id === "activate study") {
                             openChatWithMessage("Activate Study [Study Name]");

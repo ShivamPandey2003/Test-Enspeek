@@ -73,10 +73,10 @@ export default function PublishSurvey() {
                         </div>
                         <div>
                           <h2 className="text-[26px] font-bold leading-tight">
-                            Survey is Live!
+                            Research is Live!
                           </h2>
                           <p className="mt-1 text-lg text-white/90">
-                            Your survey is collecting responses
+                            Your research is collecting responses
                           </p>
                         </div>
                       </div>
@@ -84,7 +84,7 @@ export default function PublishSurvey() {
 
                     <section className="questionnaire-card rounded-[24px] border home-border-soft px-6 py-6 shadow-sm">
                       <h3 className="questionnaire-heading text-[16px] font-bold">
-                        Survey Link
+                        Research Link
                       </h3>
                       <div className="questionnaire-input mt-5 flex flex-col gap-4 rounded-[20px] px-4 py-5 md:flex-row md:items-center md:justify-between">
                         <p
@@ -96,18 +96,18 @@ export default function PublishSurvey() {
                         </p>
                         <div className="flex items-center gap-4 self-end md:self-auto">
                           <IconActionButton
-                            aria-label="Copy survey link"
+                            aria-label="Copy research link"
                             tone="primary"
-                            tooltip="Copy survey link"
+                            tooltip="Copy research link"
                             onClick={() => handleCopy(studyInfo.livelink)}
                             className="home-highlight"
                           >
                             <LuCopy className="h-6 w-6" />
                           </IconActionButton>
                           <IconActionButton
-                            aria-label="Open survey link"
+                            aria-label="Open research link"
                             tone="primary"
-                            tooltip="Open survey link"
+                            tooltip="Open research link"
                             onClick={() => handleLinkClick(studyInfo.livelink)}
                             className="home-highlight"
                           >
@@ -120,7 +120,7 @@ export default function PublishSurvey() {
                 ) : (
                   <div className="questionnaire-card rounded-[24px] border home-border-soft px-6 py-8 text-center shadow-sm">
                     <p className="questionnaire-heading text-base md:text-lg">
-                      Survey is not active yet. Activate it to enable data
+                      Research is not active yet. Activate it to enable data
                       collection and generate the live link.
                     </p>
                     <div className="mt-6 flex justify-center">
@@ -136,7 +136,7 @@ export default function PublishSurvey() {
                         )}
                         <Button
                           data-test-id="ACTIVATE"
-                          varinat="theme"
+                          variant="theme"
                           onClick={() => {
                             setIsOpen(true);
                           }}

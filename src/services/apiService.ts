@@ -126,6 +126,20 @@ export const apiRequest = async (
           "Unable to complete this request.";
         toast.error(message);
         throw createToastedError(message);
+      } else if (response?.data?.code === 429) {
+        const message =
+          response?.data?.message ||
+          response?.data?.header?.message ||
+          "Too many requests. Please try again later.";
+        toast.error(message);
+        throw createToastedError(message);
+      } else if (response?.data?.code === 500) {
+        const message =
+          response?.data?.message ||
+          response?.data?.header?.message ||
+          "Something went wrong. Please try again.";
+        toast.error(message);
+        throw createToastedError(message);
       } else if (response?.data?.code === 403) {
         if (shouldSkipAuth(url)) {
           return response.data;
@@ -162,6 +176,14 @@ export const apiRequest = async (
       throw createToastedError(message);
     } else if (error.response?.status === 400 || error?.status === 400 || error?.data?.code === 400) {
       const message = getApiErrorMessage(error, "Unable to complete this request.");
+      toast.error(message);
+      throw createToastedError(message);
+    } else if (error.response?.status === 429 || error?.status === 429 || error?.data?.code === 429) {
+      const message = getApiErrorMessage(error, "Too many requests. Please try again later.");
+      toast.error(message);
+      throw createToastedError(message);
+    } else if (error.response?.status === 500 || error?.status === 500 || error?.data?.code === 500) {
+      const message = getApiErrorMessage(error, "Something went wrong. Please try again.");
       toast.error(message);
       throw createToastedError(message);
     }

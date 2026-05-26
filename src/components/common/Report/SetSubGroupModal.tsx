@@ -51,7 +51,7 @@ const SetSubgroupModal: React.FC<SetSubgroupModalProps> = ({
       secondaryAction={
         <Button
           type="button"
-          varinat="cancel"
+          variant="cancel"
           onClick={onClose}
           disabled={isSaving}
         >
