@@ -25,9 +25,9 @@ const SampleCollectionModel: FC<SampleCollectionModalProps> = ({
   const { mutateAsync, isPending } = useInitiateSampleCollectionMutation(state.studyID);
   const definition = modalDefinitions.initiateSampleCollection;
   const title =
-    studyInfo.closed === 1 ? "Relaunch Survey" : definition.title;
+    studyInfo.closed === 1 ? "Relaunch Research" : definition.title;
   const submitLabel =
-    studyInfo.closed === 1 ? "Relaunch Survey" : definition.submitLabel!;
+    studyInfo.closed === 1 ? "Relaunch Research" : definition.submitLabel!;
 
   useEffect(() => {
     if (isOpen && !isPending) {

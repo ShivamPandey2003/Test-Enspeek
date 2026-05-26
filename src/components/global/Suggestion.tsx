@@ -74,8 +74,8 @@ const Suggestion = () => {
 
     actions.push(
       {
-        label: "Survey Link",
-        onClick: () => sendMessage("Give survey link"),
+        label: "Research Link",
+        onClick: () => sendMessage("Give research link"),
       },
       {
         label: "Test Link",

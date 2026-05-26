@@ -224,7 +224,7 @@ export default function QuestionList() {
                         <p className="questionnaire-heading text-[17px] font-semibold">
                           What happens next:{" "}
                           <span className="font-normal">
-                            A simple path from first question to final survey.
+                            A simple path from first question to final research.
                           </span>
                         </p>
 
@@ -239,7 +239,7 @@ export default function QuestionList() {
                               body: "Refine wording, reorder items, or create your own question when you need more control.",
                             },
                             {
-                              title: "Move to publish survey when ready",
+                              title: "Move to publish research when ready",
                               body: "When the questionnaire looks right, continue to publish and activate the study.",
                             },
                           ].map((item, index) => (

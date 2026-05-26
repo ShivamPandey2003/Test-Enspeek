@@ -105,10 +105,10 @@ export const modalDefinitions: Record<string, ModalDefinition> = {
   },
   activateSurvey: {
     id: "activateSurvey",
-    title: "Activate Survey",
+    title: "Activate Research",
     tone: "success",
     icon: LuBadgeCheck,
-    submitLabel: "Activate Survey",
+    submitLabel: "Activate Research",
     submittingLabel: "Activating...",
     cancelLabel: "Cancel",
     maxWidthClass: "max-w-lg",

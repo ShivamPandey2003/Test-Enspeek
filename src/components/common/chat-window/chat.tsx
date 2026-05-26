@@ -536,16 +536,16 @@ const ChatWindow: React.FC<{
                       rel="noopener noreferrer"
                       className="text-blue-600 hover:text-blue-800"
                     >
-                      🔗 Click to view survey
+                      🔗 Click to view research
                     </a>
 
                     <IconActionButton
-                      tooltip="Copy survey link"
+                      tooltip="Copy research link"
                       onClick={() => {
                         if (msg.liveLink) {
                           navigator.clipboard.writeText(msg.liveLink);
                         }
-                        toast.success("Survey link copied to clipboard!");
+                        toast.success("Research link copied to clipboard!");
                       }}
                       tone="neutral"
                       className="theme-text-muted"

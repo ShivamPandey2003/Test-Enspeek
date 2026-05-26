@@ -396,7 +396,7 @@ const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({ onClose }) => {
                 value={qInstruction}
                 onChange={(e) => setQinstruction(e.target.value)}
                 placeholder={
-                  isSelectableType === "stop" ? "Stop the survey" : "(Please select one.)"
+                  isSelectableType === "stop" ? "Stop the research" : "(Please select one.)"
                 }
               />
             </div>

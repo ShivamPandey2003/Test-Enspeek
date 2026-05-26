@@ -34,7 +34,7 @@ const Sidebar: React.FC = () => {
       icons.push({
         path: "/publish-survey",
         icon: <LuSettings2 className="h-5 w-5" />,
-        title: "Publish Survey",
+        title: "Publish Research",
       });
     }
 

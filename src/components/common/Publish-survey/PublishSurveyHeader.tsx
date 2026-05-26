@@ -83,7 +83,7 @@ const PublishSurveyHeader: FC<PublishSurveyHeaderProps> = ({
           left={
             <div className="flex flex-wrap items-center gap-3">
               <h1 className="questionnaire-heading text-[18px] font-semibold leading-none md:text-[22px]">
-                Publish Survey
+                Publish Research
               </h1>
             </div>
         }
@@ -154,7 +154,7 @@ const PublishSurveyHeader: FC<PublishSurveyHeaderProps> = ({
                   setIsOpenInitiate(true);
                 }}
               >
-                Relaunch Survey
+                Relaunch Research
               </Button>
             )}
             {launch === 1 && (
