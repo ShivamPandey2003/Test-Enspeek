@@ -50,8 +50,8 @@ const Header = () => {
   const initials = getInitials(fullName, "U");
   const userAccess = getUserAccessConfig(loginType, userType);
   const normalizedLoginType = normalizeLoginType(loginType, userType);
-  const isAdminLogin = normalizedLoginType === "admin";
-  const isPlanInfoVisible = Boolean(planInfoSynced && !isAdminLogin);
+  const isClientLogin = normalizedLoginType === "client";
+  const isPlanInfoVisible = Boolean(planInfoSynced && isClientLogin);
   const isFreeUser = Number(planType) === 0;
   const isPaidUser = Number(planType) === 1;
   const PlanIcon = LuSettings

@@ -394,8 +394,6 @@ export const modalDefinitions: Record<string, ModalDefinition> = {
     title: "Support Ticket Details",
     tone: "primary",
     icon: LuTicketCheck,
-    submitLabel: "Send Email",
-    submittingLabel: "Sending...",
     cancelLabel: "Cancel",
     maxWidthClass: "max-w-4xl",
   },
@@ -408,6 +406,17 @@ export const modalDefinitions: Record<string, ModalDefinition> = {
     submittingLabel: "Submitting...",
     cancelLabel: "Cancel",
     maxWidthClass: "max-w-xl",
+  },
+  updateTicketStatus: {
+    id: "updateTicketStatus",
+    title: "Update Ticket Status",
+    tone: "primary",
+    icon: LuTicketCheck,
+    submitLabel: "Submit",
+    submittingLabel: "Submitting...",
+    cancelLabel: "Cancel",
+    maxWidthClass: "max-w-lg",
+    confirmationKeyword: "confirm",
   },
 };
 

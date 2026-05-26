@@ -571,6 +571,13 @@ const url = {
     queryKey: "subscriptionRequest",
     mutationKey: "subscription_request",
   },
+
+  updateTicketStatus: {
+    endpoint: "support/resolve-assistance",
+    method: "post",
+    queryKey: "updateTicketStatus",
+    mutationKey: "update_ticket_status",
+  },
   // ################################################# User Management APIs End #################################################
   // ################################################# User Management APIs End #################################################
   // ################################################# User Management APIs End #################################################

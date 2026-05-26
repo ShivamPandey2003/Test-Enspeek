@@ -36,7 +36,6 @@ import ModalInfoBlock from "../components/ui/modal/ModalInfoBlock";
 import ModalScaffold from "../components/ui/modal/ModalScaffold";
 import PageContentShell from "../components/ui/PageContentShell";
 import PageSubheader from "../components/ui/PageSubheader";
-import Textarea from "../components/ui/Textarea";
 import { cn, handleKeyPress } from "../utils";
 import DropDown from "../components/global/DropDown";
 import {
@@ -44,9 +43,8 @@ import {
   useSupportTickets,
 } from "../api-network/support/query";
 import {
-  type AssistanceReplyPayload,
   getSupportResponseMessage,
-  useAssistanceReplyMutation,
+  useUpdateTicketStatusMutation,
 } from "../api-network/support/mutation";
 import supportKeys from "../api-network/support/keys";
 import {
@@ -70,7 +68,11 @@ type SubscriptionFormState = {
 type AdminPanelTab = AdminPanelTabId;
 type TicketModalState = {
   ticket: SupportTicket;
-  mode: "view" | "resolve";
+} | null;
+
+type TicketStatusModalState = {
+  ticket: SupportTicket;
+  nextIsResolved: boolean;
 } | null;
 
 const toPositiveInteger = (value: string) => {
@@ -91,6 +93,9 @@ const toOptionalUpdatedLimit = (value: string) => {
 const normalizeNumericInput = (value: string) => value.replace(/\D/g, "");
 
 const blockedNumericKeys = new Set(["e", "E", "-", "+", "."]);
+
+const isTicketResolvedStatus = (status: string) =>
+  ["resolved", "closed", "completed"].includes(status.trim().toLowerCase());
 
 const getUserActionDefinitionKey = (
   action: AdminPanelActionType,
@@ -116,9 +121,10 @@ export default function AdminPanelPage() {
   const [search, setSearch] = useState("");
   const [actionModal, setActionModal] = useState<ActionModalState>(null);
   const [ticketModal, setTicketModal] = useState<TicketModalState>(null);
+  const [ticketStatusModal, setTicketStatusModal] =
+    useState<TicketStatusModalState>(null);
+  const [ticketStatusKeywordValue, setTicketStatusKeywordValue] = useState("");
   const [keywordValue, setKeywordValue] = useState("");
-  const [ticketResponseSubject, setTicketResponseSubject] = useState("");
-  const [ticketResponseMessage, setTicketResponseMessage] = useState("");
   const [subscriptionForm, setSubscriptionForm] = useState<SubscriptionFormState>({
     allowedPrompt: "",
     allowedStudies: "",
@@ -151,7 +157,7 @@ export default function AdminPanelPage() {
     error: ticketsError,
   } = useSupportTickets(effectiveActiveTab === "tickets" && canViewTicketsTab);
   const updateUserMutation = useUpdateAdminPanelUserMutation();
-  const assistanceReplyMutation = useAssistanceReplyMutation();
+  const updateTicketStatusMutation = useUpdateTicketStatusMutation();
   const isUsersTab = effectiveActiveTab === "users";
   const isAdminsTab = effectiveActiveTab === "admins";
   const activeError = isUsersTab
@@ -242,18 +248,27 @@ export default function AdminPanelPage() {
     setKeywordValue("");
   };
 
-  const openTicketModal = (ticket: SupportTicket, mode: "view" | "resolve") => {
-    setTicketModal({ ticket, mode });
-    setTicketResponseSubject("");
-    setTicketResponseMessage("");
+  const openTicketModal = (ticket: SupportTicket) => {
+    setTicketModal({ ticket });
   };
 
   const closeTicketModal = () => {
-    if (assistanceReplyMutation.isPending) return;
-
     setTicketModal(null);
-    setTicketResponseSubject("");
-    setTicketResponseMessage("");
+  };
+
+  const openTicketStatusModal = (ticket: SupportTicket) => {
+    setTicketStatusModal({
+      ticket,
+      nextIsResolved: !isTicketResolvedStatus(ticket.status),
+    });
+    setTicketStatusKeywordValue("");
+  };
+
+  const closeTicketStatusModal = () => {
+    if (updateTicketStatusMutation.isPending) return;
+
+    setTicketStatusModal(null);
+    setTicketStatusKeywordValue("");
   };
 
   const updateCachedUser = (updatedUser: AdminPanelUser) => {
@@ -293,42 +308,42 @@ export default function AdminPanelPage() {
     );
   };
 
-  const handleTicketSubmit = () => {
-    if (!ticketModal) return;
+  const handleTicketStatusSubmit = () => {
+    if (!ticketStatusModal) return;
 
-    const subject = ticketResponseSubject.trim();
-    const message = ticketResponseMessage.trim();
+    const definition = modalDefinitions.updateTicketStatus;
+    const keyword = definition.confirmationKeyword ?? "confirm";
 
-    if (!subject || !message) {
-      toast.warning("Please enter subject and response message.");
+    if (ticketStatusKeywordValue.trim().toLowerCase() !== keyword) {
+      toast.warning(`Please type "${keyword}" to confirm.`);
       return;
     }
 
-    const payload: AssistanceReplyPayload = {
-      apiToken: user.apiToken,
-      email: ticketModal.ticket.email,
-      subject,
-      body: message,
-      ticket_id: ticketModal.ticket.ticketNumber,
-    };
+    const nextStatus = ticketStatusModal.nextIsResolved ? "resolved" : "open";
 
-    assistanceReplyMutation.mutate(payload, {
-      onSuccess: (response) => {
-        updateCachedTicket({
-          ...ticketModal.ticket,
-          subject,
-          adminMessage: message,
-          status: "resolved",
-        });
-        toast.success(
-          getSupportResponseMessage(
-            response,
-            "Support ticket updated successfully."
-          )
-        );
-        closeTicketModal();
+    updateTicketStatusMutation.mutate(
+      {
+        apiToken: user.apiToken,
+        is_resolve: ticketStatusModal.nextIsResolved ? 1 : 0,
+        ticket_id: ticketStatusModal.ticket.ticketNumber,
       },
-    });
+      {
+        onSuccess: (response) => {
+          updateCachedTicket({
+            ...ticketStatusModal.ticket,
+            status: nextStatus,
+          });
+          toast.success(
+            getSupportResponseMessage(
+              response,
+              `Ticket marked as ${formatStatusLabel(nextStatus)}.`
+            )
+          );
+          setTicketStatusModal(null);
+          setTicketStatusKeywordValue("");
+        },
+      }
+    );
   };
 
   const handleStatusSubmit = (user: AdminPanelUser) => {
@@ -589,7 +604,8 @@ export default function AdminPanelPage() {
         ) : (
           <TicketManagementTable
             tickets={activeError ? [] : filteredTickets}
-            onView={(ticket) => openTicketModal(ticket, "view")}
+            onView={openTicketModal}
+            onStatusChange={openTicketStatusModal}
             emptyMessage={getTableEmptyMessage(activeError, "tickets")}
           />
         )}
@@ -683,47 +699,77 @@ export default function AdminPanelPage() {
             : modalDefinitions.supportTicketDetails.title
         }
         icon={renderModalIcon(modalDefinitions.supportTicketDetails.icon)}
-        closeDisabled={assistanceReplyMutation.isPending}
         footerLeft={
           <Button
             type="button"
             variant="cancel"
             onClick={closeTicketModal}
-            disabled={assistanceReplyMutation.isPending}
           >
             Cancel
-          </Button>
-        }
-        footerRight={
-          <Button
-            type="button"
-            variant="theme"
-            onClick={handleTicketSubmit}
-            disabled={
-              assistanceReplyMutation.isPending ||
-              !ticketResponseSubject.trim() ||
-              !ticketResponseMessage.trim()
-            }
-          >
-            {assistanceReplyMutation.isPending ? (
-              <>
-                <span className="modal-spinner" />
-                {modalDefinitions.supportTicketDetails.submittingLabel}
-              </>
-            ) : (
-              modalDefinitions.supportTicketDetails.submitLabel
-            )}
           </Button>
         }
       >
         {ticketModal ? (
           <TicketDetailModalBody
             ticket={ticketModal.ticket}
-            subject={ticketResponseSubject}
-            message={ticketResponseMessage}
-            onSubjectChange={setTicketResponseSubject}
-            onMessageChange={setTicketResponseMessage}
-            onSubmit={handleTicketSubmit}
+          />
+        ) : null}
+      </ModalScaffold>
+      <ModalScaffold
+        isOpen={Boolean(ticketStatusModal)}
+        onClose={closeTicketStatusModal}
+        className={modalDefinitions.updateTicketStatus.maxWidthClass}
+        title={
+          ticketStatusModal?.nextIsResolved
+            ? "Resolve Support Ticket"
+            : "Unresolve Support Ticket"
+        }
+        icon={renderModalIcon(modalDefinitions.updateTicketStatus.icon)}
+        closeDisabled={updateTicketStatusMutation.isPending}
+        footerLeft={
+          <Button
+            type="button"
+            variant="cancel"
+            onClick={closeTicketStatusModal}
+            disabled={updateTicketStatusMutation.isPending}
+          >
+            {modalDefinitions.updateTicketStatus.cancelLabel ?? "Cancel"}
+          </Button>
+        }
+        footerRight={
+          <Button
+            type="button"
+            variant="theme"
+            onClick={handleTicketStatusSubmit}
+            disabled={
+              updateTicketStatusMutation.isPending ||
+              ticketStatusKeywordValue.trim().toLowerCase() !==
+                (modalDefinitions.updateTicketStatus.confirmationKeyword ?? "confirm")
+            }
+          >
+            {updateTicketStatusMutation.isPending ? (
+              <>
+                <span className="modal-spinner" />
+                {modalDefinitions.updateTicketStatus.submittingLabel ??
+                  "Submitting..."}
+              </>
+            ) : (
+              modalDefinitions.updateTicketStatus.submitLabel ?? "Submit"
+            )}
+          </Button>
+        }
+      >
+        {ticketStatusModal ? (
+          <TicketStatusModalBody
+            ticket={ticketStatusModal.ticket}
+            nextIsResolved={ticketStatusModal.nextIsResolved}
+            keyword={
+              modalDefinitions.updateTicketStatus.confirmationKeyword ??
+              "confirm"
+            }
+            value={ticketStatusKeywordValue}
+            onValueChange={setTicketStatusKeywordValue}
+            onSubmit={handleTicketStatusSubmit}
           />
         ) : null}
       </ModalScaffold>
@@ -801,7 +847,7 @@ const UserManagementTable = ({
           ].map((heading) => (
             <TableHeading
               key={heading}
-              align={heading === "Email" ? "left" : "center"}
+              align={["Name", "Email"].includes(heading) ? "left" : "center"}
               className={getUserTableColumnClassName(heading)}
             >
               {heading}
@@ -819,7 +865,7 @@ const UserManagementTable = ({
               <TableData align="center" className="font-semibold text-[var(--color-text-strong)]">
                 {index + 1}.
               </TableData>
-              <TableData align="center" className="min-w-[120px] max-w-[120px] font-semibold text-[var(--color-text-strong)]">
+              <TableData className="min-w-[120px] max-w-[120px] font-semibold text-[var(--color-text-strong)]">
                 <span className="block max-w-[120px] truncate" title={user.name}>
                   {user.name}
                 </span>
@@ -880,12 +926,12 @@ const AdminManagementTable = ({
           {["S.No.", "Name", "Email", "Created At", "Last Login"].map((heading) => (
             <TableHeading
               key={heading}
-              align={heading === "Email" ? "left" : "center"}
+              align={["Name", "Email"].includes(heading) ? "left" : "center"}
               className={
                 heading === "Name"
                   ? "min-w-[120px] max-w-[120px]"
                   : heading === "S.No."
-                  ? "min-w-[70px]"
+                  ? "w-12 min-w-12"
                   : undefined
               }
             >
@@ -904,8 +950,8 @@ const AdminManagementTable = ({
               <TableData align="center" className="font-semibold text-[var(--color-text-strong)]">
                 {index + 1}.
               </TableData>
-              <TableData align="center" className="min-w-[120px] max-w-[120px] font-semibold text-[var(--color-text-strong)]">
-                <span className="mx-auto block max-w-[120px] truncate text-center" title={admin.name}>
+              <TableData className="min-w-[120px] max-w-[120px] font-semibold text-[var(--color-text-strong)]">
+                <span className="block max-w-[120px] truncate" title={admin.name}>
                   {admin.name}
                 </span>
               </TableData>
@@ -927,10 +973,12 @@ const AdminManagementTable = ({
 const TicketManagementTable = ({
   tickets,
   onView,
+  onStatusChange,
   emptyMessage,
 }: {
   tickets: SupportTicket[];
   onView: (ticket: SupportTicket) => void;
+  onStatusChange: (ticket: SupportTicket) => void;
   emptyMessage: string;
 }) => (
   <ManagementTableShell>
@@ -952,7 +1000,7 @@ const TicketManagementTable = ({
             <TableHeading
               key={heading}
               align={
-                ["Email", "Description"].includes(heading)
+                ["Name", "Email", "Type Of Request", "Description"].includes(heading)
                   ? "left"
                   : "center"
               }
@@ -970,7 +1018,7 @@ const TicketManagementTable = ({
                           : heading === "Created At" || heading === "Updated At"
                             ? "min-w-[120px]"
                             : heading === "S.No."
-                              ? "min-w-[70px]"
+                              ? "w-12 min-w-12"
                               : undefined
               }
             >
@@ -984,17 +1032,22 @@ const TicketManagementTable = ({
           tickets.map((ticket, index) => (
             <tr
               key={ticket.id}
-              title={`Open ticket ${ticket.ticketNumber}`}
-              onClick={() => onView(ticket)}
-              className="group cursor-pointer border-b home-border-soft transition-colors hover:bg-[var(--color-brand-primary-softest)]/45"
+              className="group border-b home-border-soft transition-colors hover:bg-[var(--color-brand-primary-softest)]/45"
             >
               <TableData align="center" className="font-semibold text-[var(--color-text-strong)]">
                 {index + 1}.
               </TableData>
-              <TableData align="center" className="font-bold text-login-primary">
-                {ticket.ticketNumber}
+              <TableData align="center" className="whitespace-nowrap font-bold text-login-primary">
+                <button
+                  type="button"
+                  className="cursor-pointer whitespace-nowrap rounded px-1.5 py-1 font-bold text-login-primary transition-colors hover:bg-[var(--color-brand-primary-softest)]"
+                  onClick={() => onView(ticket)}
+                  title={`View ticket ${ticket.ticketNumber}`}
+                >
+                  {ticket.ticketNumber}
+                </button>
               </TableData>
-              <TableData align="center" className="min-w-[120px] max-w-[120px] font-semibold text-[var(--color-text-strong)]">
+              <TableData className="min-w-[120px] max-w-[120px] font-semibold text-[var(--color-text-strong)]">
                 <span className="block max-w-[120px] truncate" title={ticket.name}>
                   {ticket.name}
                 </span>
@@ -1002,7 +1055,7 @@ const TicketManagementTable = ({
               <TableData className="min-w-[260px] font-medium text-[var(--color-text-strong)]">
                 {ticket.email}
               </TableData>
-              <TableData align="center" className="min-w-[190px] max-w-[190px] font-medium text-[var(--color-text-strong)]">
+              <TableData className="min-w-[190px] max-w-[190px] font-medium text-[var(--color-text-strong)]">
                 <TwoLineText
                   value={ticket.assistanceTypeText}
                   title={ticket.assistanceTypeText}
@@ -1022,6 +1075,7 @@ const TicketManagementTable = ({
                 <TicketRowActions
                   ticket={ticket}
                   onView={onView}
+                  onStatusChange={onStatusChange}
                 />
               </TableData>
             </tr>
@@ -1041,7 +1095,7 @@ const ManagementTableShell = ({ children }: { children: React.ReactNode }) => (
 );
 
 const getUserTableColumnClassName = (heading: string) => {
-  if (heading === "S.No.") return "min-w-[70px]";
+  if (heading === "S.No.") return "w-12 min-w-12";
   if (heading === "Name") return "min-w-[120px] max-w-[120px]";
   if (heading === "Email") return "min-w-[260px]";
   if (heading === "Subscription" || heading === "Verification") {
@@ -1064,7 +1118,7 @@ const TableHeading = ({
 }) => (
   <th
     className={cn(
-      "whitespace-nowrap border-b border-[color:var(--color-brand-primary)] bg-login-primary px-3 py-3 text-[12px] font-extrabold uppercase tracking-[0.08em] text-white",
+      "whitespace-nowrap border-b border-[color:var(--color-brand-primary)] bg-login-primary px-2 py-3 text-[12px] font-extrabold uppercase tracking-[0.08em] text-white",
       align === "center" ? "text-center" : "text-left",
       className
     )}
@@ -1084,7 +1138,7 @@ const TableData = ({
 }) => (
   <td
     className={cn(
-      "border-b home-border-soft px-1 py-1 home-heading",
+      "border-b home-border-soft px-2 py-3 home-heading",
       align === "center" ? "text-center" : "text-left",
       className
     )}
@@ -1375,9 +1429,11 @@ const UserRowActions = ({
 const TicketRowActions = ({
   ticket,
   onView,
+  onStatusChange,
 }: {
   ticket: SupportTicket;
   onView: (ticket: SupportTicket) => void;
+  onStatusChange: (ticket: SupportTicket) => void;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const closeDropdown = useCallback(() => setIsOpen(false), []);
@@ -1391,6 +1447,7 @@ const TicketRowActions = ({
     dropdownWidth: 220,
     onClose: closeDropdown,
   });
+  const isResolved = isTicketResolvedStatus(ticket.status);
   const actions: DropdownData[] = [
     {
       Title: "View Ticket",
@@ -1398,6 +1455,14 @@ const TicketRowActions = ({
       onClick: () => {
         setIsOpen(false);
         onView(ticket);
+      },
+    },
+    {
+      Title: isResolved ? "Unresolve" : "Resolve",
+      Icon: isResolved ? LuBadgeX : LuBadgeCheck,
+      onClick: () => {
+        setIsOpen(false);
+        onStatusChange(ticket);
       },
     },
   ];
@@ -1532,72 +1597,100 @@ const ConfirmationModalBody = ({
 
 const TicketDetailModalBody = ({
   ticket,
-  subject,
-  message,
-  onSubjectChange,
-  onMessageChange,
-  onSubmit,
 }: {
   ticket: SupportTicket;
-  subject: string;
-  message: string;
-  onSubjectChange: (value: string) => void;
-  onMessageChange: (value: string) => void;
-  onSubmit: () => void;
 }) => (
-  <div className="space-y-6">
-    <h3 className="questionnaire-heading text-[21px] font-bold tracking-[-0.01em]">
-      Requested Assistance
-    </h3>
-    <div className="rounded-xl border border-[color:var(--color-brand-primary)]/16 bg-[var(--color-brand-primary-softest)]/35 p-5">
-      <div className="flex flex-wrap items-center gap-x-10 gap-y-2">
-        <TicketMetaItem label="Email" value={ticket.email} />
-        <TicketMetaItem label="Status" value={formatStatusLabel(ticket.status)} />
-      </div>
-      <div className="mt-5">
-        <p className="modal-label mb-3">
-          Type of Request:{" "}
-          <span className="font-normal normal-case tracking-normal text-[var(--color-text-strong)]">
-            {ticket.assistanceTypeText || "-"}
-          </span>
+  <div className="space-y-5">
+    <div className="flex flex-wrap items-start justify-between gap-3">
+      <div>
+        <h3 className="questionnaire-heading text-[21px] font-bold tracking-[-0.01em]">
+          Requested Assistance
+        </h3>
+        <p className="mt-1 text-sm text-[var(--color-text-muted)]">
+          Review the client request and current ticket details.
         </p>
-        <p className="modal-label mb-2">Description</p>
-        <div className="max-h-[150px] overflow-y-auto rounded-lg border border-[color:var(--color-brand-primary)]/14 bg-white p-4 text-sm leading-6 text-[var(--color-text-strong)] shadow-sm">
-          {ticket.message || "No request details provided."}
-        </div>
+      </div>
+      <StatusPill tone={getTicketStatusTone(ticket.status)}>
+        {formatStatusLabel(ticket.status)}
+      </StatusPill>
+    </div>
+
+    <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+      <div className="grid gap-4 md:grid-cols-2">
+        <TicketMetaCard label="Name" value={ticket.name} />
+        <TicketMetaCard label="Email" value={ticket.email} />
+      </div>
+
+      <div className="mt-4 rounded-lg border border-gray-200 bg-[var(--color-surface-soft)] p-4">
+        <p className="modal-label mb-1">Type of Request</p>
+        <p className="text-sm font-semibold text-[var(--color-text-strong)]">
+          {ticket.assistanceTypeText || "-"}
+        </p>
       </div>
     </div>
 
-    <div className="grid gap-4 border-t questionnaire-border pt-5">
-      <h3 className="questionnaire-heading text-[21px] font-bold tracking-[-0.01em]">
-        Compose Email Reply
+    <div>
+      <h3 className="questionnaire-heading text-[18px] font-bold tracking-[-0.01em]">
+        Description
       </h3>
-      <ModalField label="Email Subject" required>
-        <Input
-          variant="modal"
-          value={subject}
-          onChange={(event) => onSubjectChange(event.target.value)}
-          onKeyDown={(event) => handleKeyPress(event, onSubmit)}
-          placeholder="Enter email subject"
-        />
-      </ModalField>
-      <ModalField label="Email Message" required>
-        <Textarea
-          variant="modal"
-          value={message}
-          onChange={(event) => onMessageChange(event.target.value)}
-          placeholder="Write the email message that will be sent to the user."
-          className="min-h-[150px] resize-y"
-        />
-      </ModalField>
+      <div className="mt-3 max-h-[220px] overflow-y-auto rounded-xl border border-gray-200 bg-[var(--color-surface-soft)] p-4 text-sm leading-6 text-[var(--color-text-strong)]">
+        {ticket.message || "No request details provided."}
+      </div>
     </div>
   </div>
 );
 
-const TicketMetaItem = ({ label, value }: { label: string; value: string }) => (
-  <div className="min-w-0">
-    <p className="truncate text-sm font-normal text-[var(--color-text-strong)]" title={value}>
-      <span className="modal-label mr-1">{label}:</span>
+const TicketStatusModalBody = ({
+  ticket,
+  nextIsResolved,
+  keyword,
+  value,
+  onValueChange,
+  onSubmit,
+}: {
+  ticket: SupportTicket;
+  nextIsResolved: boolean;
+  keyword: string;
+  value: string;
+  onValueChange: (value: string) => void;
+  onSubmit: () => void;
+}) => {
+  const actionText = nextIsResolved ? "resolve" : "unresolve";
+
+  return (
+    <div className="space-y-4">
+      <p className="theme-text-default text-[15px] leading-6">
+        Please confirm that you want to {actionText} ticket{" "}
+        <span className="font-semibold text-login-primary">
+          {ticket.ticketNumber}
+        </span>
+        .
+      </p>
+      <div className="flex items-center gap-2 rounded-lg border border-[color:var(--color-brand-primary)]/16 bg-[var(--color-brand-primary-softest)]/45 px-4 py-3 text-sm leading-5 text-[var(--color-text-strong)]">
+        <LuInfo className="h-4 w-4 shrink-0 text-login-primary" />
+        <span>
+          Type{" "}
+          <span className="font-semibold text-login-primary">"{keyword}"</span>{" "}
+          to submit this request
+        </span>
+      </div>
+      <ModalField label="Confirmation" required>
+        <Input
+          variant="modal"
+          value={value}
+          onChange={(event) => onValueChange(event.target.value)}
+          onKeyDown={(event) => handleKeyPress(event, onSubmit)}
+          placeholder="confirm"
+        />
+      </ModalField>
+    </div>
+  );
+};
+
+const TicketMetaCard = ({ label, value }: { label: string; value: string }) => (
+  <div className="min-w-0 rounded-lg border border-gray-200 bg-[var(--color-surface-soft)] px-4 py-3">
+    <p className="modal-label mb-1">{label}</p>
+    <p className="truncate text-sm font-semibold text-[var(--color-text-strong)]" title={value}>
       {value || "-"}
     </p>
   </div>

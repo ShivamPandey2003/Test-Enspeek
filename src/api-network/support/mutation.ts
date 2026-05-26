@@ -35,6 +35,12 @@ export type SubscriptionRequestPayload = {
   message: string;
 };
 
+export type UpdateTicketStatusPayload = {
+  apiToken?: string;
+  is_resolve: 0 | 1;
+  ticket_id: string;
+};
+
 type SupportMutationMessageResponse = {
   header?: {
     message?: string;
@@ -112,6 +118,23 @@ export const useSubscriptionRequestMutation = () =>
 
       if (!response) {
         throw new Error("Unable to submit subscription request.");
+      }
+
+      return response;
+    },
+  });
+
+export const useUpdateTicketStatusMutation = () =>
+  mutationStructure<unknown, Error, UpdateTicketStatusPayload>({
+    mutationFn: async (payload) => {
+      const response = await apiRequest(
+        url.updateTicketStatus.method,
+        url.updateTicketStatus.endpoint,
+        payload
+      );
+
+      if (!response) {
+        throw new Error("Unable to update ticket status.");
       }
 
       return response;
