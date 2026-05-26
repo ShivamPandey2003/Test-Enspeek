@@ -566,7 +566,7 @@ const url = {
   },
 
   subscriptionRequest: {
-    endpoint: "support/subscription-request",
+    endpoint: "uam/subscriptionRequest",
     method: "post",
     queryKey: "subscriptionRequest",
     mutationKey: "subscription_request",
