@@ -195,7 +195,7 @@ const Header = () => {
           className="flex cursor-pointer items-center gap-3"
           onClick={toggleDropdown}
         >
-          {isUserManagementPage ? (
+          {isUserManagementPage || isProfilePage ? (
             <button
               type="button"
               onClick={(event) => {

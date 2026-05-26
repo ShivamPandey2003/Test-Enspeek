@@ -4,88 +4,88 @@ import { toast } from "sonner";
 import {
   LuBadgeCheck,
   LuCreditCard,
+  LuInfo,
   LuMail,
-  LuMessageSquareText,
-  LuSend,
   LuUserRound,
 } from "react-icons/lu";
 import Button from "../components/ui/Button";
-import Input from "../components/ui/Input";
 import ModalScaffold from "../components/ui/modal/ModalScaffold";
 import PageContentShell from "../components/ui/PageContentShell";
 import Textarea from "../components/ui/Textarea";
+import {
+  getSupportResponseMessage,
+  useSubscriptionRequestMutation,
+} from "../api-network/support/mutation";
+import { modalDefinitions, renderModalIcon } from "../config/modalDefinitions";
 import type { RootState } from "../store/store";
 import { cn, getFullName } from "../utils";
 
 const formatNumber = (value?: number) =>
   new Intl.NumberFormat("en-US").format(Number(value ?? 0));
 
-const toPositiveInteger = (value: string) => {
-  if (!/^\d+$/.test(value.trim())) return null;
-
-  const parsedValue = Number(value);
-  return Number.isSafeInteger(parsedValue) && parsedValue > 0 ? parsedValue : null;
-};
+const subscriptionRequestTopics = [
+  { id: "studies", label: "Studies" },
+  { id: "prompts", label: "Prompts" },
+  { id: "questions", label: "Questions" },
+];
 
 export default function ProfilePage() {
   const user = useSelector((state: RootState) => state.user);
-  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
-  const [studyLimitAddition, setStudyLimitAddition] = useState("");
-  const [promptLimitAddition, setPromptLimitAddition] = useState("");
-  const [questionLimitAddition, setQuestionLimitAddition] = useState("");
-  const [confirmationText, setConfirmationText] = useState("");
-  const [note, setNote] = useState("");
+  const subscriptionRequestMutation = useSubscriptionRequestMutation();
+  const [isSubscriptionRequestOpen, setIsSubscriptionRequestOpen] = useState(false);
+  const [subscriptionRequestMessage, setSubscriptionRequestMessage] = useState("");
+  const [subscriptionRequestTopicsValue, setSubscriptionRequestTopicsValue] = useState<string[]>([]);
   const fullName = getFullName(user.firstName, user.lastName) || "Client User";
   const planType = Number(user.planType);
   const isPaidUser = planType === 1;
   const planLabel = isPaidUser ? "Premium" : "Free";
-  const parsedStudyLimitAddition = toPositiveInteger(studyLimitAddition);
-  const parsedPromptLimitAddition = toPositiveInteger(promptLimitAddition);
-  const parsedQuestionLimitAddition = toPositiveInteger(questionLimitAddition);
-  const isConfirmationValid = confirmationText.trim().toLowerCase() === "confirm";
+  const subscriptionRequestModal = modalDefinitions.subscriptionRequest;
 
-  const submitRequest = () => {
-    setConfirmationText("");
+  const closeSubscriptionRequestModal = () => {
+    if (subscriptionRequestMutation.isPending) return;
 
-    if (!isPaidUser) {
-      setIsReviewModalOpen(true);
-      return;
-    }
-
-    if (
-      !studyLimitAddition.trim() &&
-      !promptLimitAddition.trim() &&
-      !questionLimitAddition.trim()
-    ) {
-      toast.warning("Please enter at least one limit addition.");
-      return;
-    }
-
-    if (
-      (studyLimitAddition.trim() && parsedStudyLimitAddition === null) ||
-      (promptLimitAddition.trim() && parsedPromptLimitAddition === null) ||
-      (questionLimitAddition.trim() && parsedQuestionLimitAddition === null)
-    ) {
-      toast.warning("Limit additions must be positive whole numbers.");
-      return;
-    }
-
-    setIsReviewModalOpen(true);
+    setIsSubscriptionRequestOpen(false);
+    setSubscriptionRequestMessage("");
+    setSubscriptionRequestTopicsValue([]);
   };
 
-  const confirmRequest = () => {
-    if (confirmationText.trim().toLowerCase() !== "confirm") {
-      toast.warning('Please type "confirm" to submit this request.');
+  const toggleSubscriptionRequestTopic = (topicId: string) => {
+    setSubscriptionRequestTopicsValue((currentTopics) =>
+      currentTopics.includes(topicId)
+        ? currentTopics.filter((currentTopic) => currentTopic !== topicId)
+        : [...currentTopics, topicId]
+    );
+  };
+
+  const submitSubscriptionRequest = () => {
+    if (subscriptionRequestMutation.isPending) return;
+
+    if (!subscriptionRequestMessage.trim()) {
+      toast.warning("Please enter your subscription request.");
       return;
     }
 
-    toast.success("Your request is ready for admin review.");
-    setStudyLimitAddition("");
-    setPromptLimitAddition("");
-    setQuestionLimitAddition("");
-    setConfirmationText("");
-    setNote("");
-    setIsReviewModalOpen(false);
+    subscriptionRequestMutation.mutate(
+      {
+        apiToken: user.apiToken,
+        request_types: subscriptionRequestTopicsValue,
+        message: subscriptionRequestMessage.trim(),
+      },
+      {
+        onSuccess: (response) => {
+          toast.success(
+            getSupportResponseMessage(
+              response,
+              "Your subscription request has been submitted."
+            )
+          );
+          closeSubscriptionRequestModal();
+        },
+        onError: (error) => {
+          toast.error(error.message || "Unable to submit subscription request.");
+        },
+      }
+    );
   };
 
   return (
@@ -141,18 +141,29 @@ export default function ProfilePage() {
           </section>
 
           <section className="questionnaire-card questionnaire-border rounded-xl border bg-white p-6">
-            <div className="flex items-center gap-3">
-              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[var(--color-brand-primary-softest)] text-login-primary">
-                <LuCreditCard className="h-5 w-5" />
-              </span>
-              <div>
-                <h2 className="text-[18px] font-bold text-login-primary">
-                  Subscription Usage
-                </h2>
-                <p className="text-sm text-[var(--color-text-muted)]">
-                  Current plan limits from your profile.
-                </p>
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[var(--color-brand-primary-softest)] text-login-primary">
+                  <LuCreditCard className="h-5 w-5" />
+                </span>
+                <div>
+                  <h2 className="text-[18px] font-bold text-login-primary">
+                    Subscription Usage
+                  </h2>
+                  <p className="text-sm text-[var(--color-text-muted)]">
+                    Current plan limits from your profile.
+                  </p>
+                </div>
               </div>
+              <button
+                type="button"
+                className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full border border-[color:var(--color-brand-primary)]/20 bg-white text-login-primary shadow-sm transition-colors hover:bg-[var(--color-brand-primary-softest)]"
+                aria-label="Open subscription request"
+                title="Subscription Request"
+                onClick={() => setIsSubscriptionRequestOpen(true)}
+              >
+                <LuInfo className="h-[18px] w-[18px]" />
+              </button>
             </div>
             <div className="mt-5 grid gap-3">
               <UsageRow
@@ -173,175 +184,67 @@ export default function ProfilePage() {
             </div>
           </section>
         </div>
-
-        <section className="mx-auto mt-4 max-w-6xl rounded-xl border questionnaire-border bg-white p-6">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div>
-              <div className="flex items-center gap-3">
-                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[var(--color-brand-primary-softest)] text-login-primary">
-                  <LuMessageSquareText className="h-5 w-5" />
-                </span>
-                <div>
-                  <h2 className="text-[20px] font-bold text-login-primary">
-                    Subscription Change Request
-                  </h2>
-                  <p className="mt-1 text-sm text-[var(--color-text-muted)]">
-                    Ask an admin to review a plan or limit change for your account.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-5 grid gap-4">
-            {!isPaidUser ? (
-              <div className="rounded-xl border border-[color:var(--color-brand-primary)]/16 bg-[var(--color-brand-primary-softest)]/45 p-4">
-                <h3 className="text-sm font-bold text-login-primary">
-                  Request premium access
-                </h3>
-                <p className="mt-1 text-sm leading-5 text-[var(--color-text-muted)]">
-                  Ask an admin to review your account and upgrade it to premium access.
-                </p>
-              </div>
-            ) : null}
-
-            {isPaidUser ? (
-              <LimitRequestTable
-                rows={[
-                  {
-                    title: "Study Creation Limit",
-                    currentLimit: user.allowedStudies,
-                    value: studyLimitAddition,
-                    onChange: setStudyLimitAddition,
-                    placeholder: "e.g. 100",
-                  },
-                  {
-                    title: "Prompt Subscription Limit",
-                    currentLimit: user.allowedPrompt,
-                    value: promptLimitAddition,
-                    onChange: setPromptLimitAddition,
-                    placeholder: "e.g. 100",
-                  },
-                  {
-                    title: "Question Addition Limit",
-                    currentLimit: user.allowedQuestions,
-                    value: questionLimitAddition,
-                    onChange: setQuestionLimitAddition,
-                    placeholder: "e.g. 100",
-                  },
-                ]}
-              />
-            ) : null}
-          </div>
-
-          <div className="mt-4">
-            <ProfileFormField label="Additional Notes">
-              <Textarea
-                value={note}
-                onChange={(event) => setNote(event.target.value)}
-                placeholder="Add any context that will help the admin review this request."
-                className="min-h-[120px] resize-y"
-              />
-            </ProfileFormField>
-          </div>
-
-          <div className="mt-5 flex justify-end">
-            <Button type="button" variant="theme" onClick={submitRequest}>
-              <LuSend className="h-4 w-4" />
-              Submit Request
-            </Button>
-          </div>
-        </section>
       </PageContentShell>
       <ModalScaffold
-        isOpen={isReviewModalOpen}
-        onClose={() => {
-          setIsReviewModalOpen(false);
-          setConfirmationText("");
-        }}
-        title="Review Subscription Request"
-        icon={<LuMessageSquareText className="h-5 w-5" />}
-        className="max-w-4xl"
-        footerLeft={
-          <Button
-            type="button"
-            variant="cancel"
-            onClick={() => {
-              setIsReviewModalOpen(false);
-              setConfirmationText("");
-            }}
-          >
-            Cancel
-          </Button>
-        }
+        isOpen={isSubscriptionRequestOpen}
+        onClose={closeSubscriptionRequestModal}
+        title={subscriptionRequestModal.title}
+        icon={renderModalIcon(subscriptionRequestModal.icon)}
+        className={subscriptionRequestModal.maxWidthClass}
         footerRight={
           <Button
             type="button"
             variant="theme"
-            onClick={confirmRequest}
-            disabled={!isConfirmationValid}
+            onClick={submitSubscriptionRequest}
+            disabled={
+              !subscriptionRequestMessage.trim() ||
+              subscriptionRequestMutation.isPending
+            }
           >
-            Confirm Request
+            {subscriptionRequestMutation.isPending ? (
+              <>
+                <span className="modal-spinner" />
+                {subscriptionRequestModal.submittingLabel ?? "Submitting..."}
+              </>
+            ) : (
+              subscriptionRequestModal.submitLabel ?? "Submit"
+            )}
           </Button>
         }
       >
         <div className="space-y-4">
-          {!isPaidUser ? (
-            <div className="rounded-lg border border-[color:var(--color-brand-primary)]/16 bg-[var(--color-brand-primary-softest)]/45 p-4">
-              <h3 className="text-base font-bold text-login-primary">
-                Premium access request
-              </h3>
-              <p className="mt-2 text-sm leading-6 text-[var(--color-text-strong)]">
-                This request will ask an admin to review your account for premium access.
-              </p>
+          <div>
+            <p className="mb-2 text-sm font-bold text-[var(--color-text-strong)]">
+              Request is About
+            </p>
+            <div className="grid gap-2 sm:grid-cols-3">
+              {subscriptionRequestTopics.map((topic) => (
+                <label
+                  key={topic.id}
+                  className="flex cursor-pointer items-center gap-2 rounded-lg border questionnaire-border bg-[var(--color-surface-soft)] px-4 py-3 text-sm font-semibold text-[var(--color-text-strong)]"
+                >
+                  <input
+                    type="checkbox"
+                    checked={subscriptionRequestTopicsValue.includes(topic.id)}
+                    disabled={subscriptionRequestMutation.isPending}
+                    onChange={() => toggleSubscriptionRequestTopic(topic.id)}
+                    className="h-4 w-4 rounded border-gray-300 accent-[var(--color-brand-primary)]"
+                  />
+                  {topic.label}
+                </label>
+              ))}
             </div>
-          ) : (
-            <LimitReviewTable
-              rows={[
-                {
-                  title: "Study Creation Limit",
-                  currentLimit: user.allowedStudies,
-                  addition: parsedStudyLimitAddition,
-                },
-                {
-                  title: "Prompt Subscription Limit",
-                  currentLimit: user.allowedPrompt,
-                  addition: parsedPromptLimitAddition,
-                },
-                {
-                  title: "Question Addition Limit",
-                  currentLimit: user.allowedQuestions,
-                  addition: parsedQuestionLimitAddition,
-                },
-              ]}
-            />
-          )}
-          {note.trim() ? (
-            <div className="rounded-lg border questionnaire-border bg-white p-4">
-              <p className="text-sm font-bold text-[var(--color-text-strong)]">
-                Additional Notes
-              </p>
-              <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-[var(--color-text-muted)]">
-                {note}
-              </p>
-            </div>
-          ) : null}
-          <div className="rounded-lg border questionnaire-border bg-white p-4">
-            <label className="block">
-              <span className="mb-2 block text-sm font-bold text-[var(--color-text-strong)]">
-                Type{" "}
-                <span className="font-extrabold text-login-primary">"confirm"</span>
-                {" "}to submit this request
-              </span>
-              <Input
-                variant="modal"
-                value={confirmationText}
-                onChange={(event) => setConfirmationText(event.target.value)}
-                placeholder="Confirm"
-                className="h-[46px]"
-              />
-            </label>
           </div>
+
+          <ProfileFormField label="Request Details">
+            <Textarea
+              value={subscriptionRequestMessage}
+              disabled={subscriptionRequestMutation.isPending}
+              onChange={(event) => setSubscriptionRequestMessage(event.target.value)}
+              placeholder="Type your subscription request here."
+              className="min-h-[180px] resize-y"
+            />
+          </ProfileFormField>
         </div>
       </ModalScaffold>
     </div>
@@ -382,106 +285,6 @@ const ProfileFormField = ({
     {children}
   </label>
 );
-
-type LimitRequestRow = {
-  title: string;
-  currentLimit?: number;
-  value: string;
-  onChange: (value: string) => void;
-  placeholder: string;
-};
-
-const LimitRequestTable = ({ rows }: { rows: LimitRequestRow[] }) => (
-  <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
-    <div className="overflow-x-auto">
-      <table className="min-w-full border-collapse text-left">
-        <thead className="bg-[var(--color-brand-primary-softest)]/45">
-          <tr className="text-xs font-bold uppercase tracking-[0.08em] text-login-primary">
-            <th className="px-4 py-3">Limit Type</th>
-            <th className="px-4 py-3 text-center">Current Limit</th>
-            <th className="px-4 py-3 text-center">Additional Limit Requested</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-gray-200">
-          {rows.map((row) => (
-            <tr key={row.title} className="align-middle">
-              <td className="px-4 py-4 text-sm font-bold text-login-primary">
-                {row.title}
-              </td>
-              <td className="px-4 py-4 text-center text-sm font-semibold text-[var(--color-text-strong)]">
-                {formatNumber(row.currentLimit)}
-              </td>
-              <td className="px-4 py-4 text-center">
-                <Input
-                  type="text"
-                  inputMode="numeric"
-                  pattern="[0-9]*"
-                  value={row.value}
-                  onChange={(event) =>
-                    row.onChange(event.target.value.replace(/\D/g, ""))
-                  }
-                  placeholder={row.placeholder}
-                  className="mx-auto h-[40px] w-[140px] border-gray-200 px-3 text-center"
-                />
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  </div>
-);
-
-type LimitReviewRow = {
-  title: string;
-  currentLimit?: number;
-  addition: number | null;
-};
-
-const LimitReviewTable = ({ rows }: { rows: LimitReviewRow[] }) => {
-  const requestedRows = rows.filter((row) => row.addition);
-
-  return (
-    <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
-      <div className="overflow-x-auto">
-        <table className="min-w-full border-collapse text-left">
-          <thead className="bg-[var(--color-brand-primary-softest)]/45">
-            <tr className="text-xs font-bold uppercase tracking-[0.08em] text-login-primary">
-              <th className="px-4 py-3">Limit Type</th>
-              <th className="px-4 py-3 text-center">Current Limit</th>
-              <th className="px-4 py-3 text-center">Additional Limit Requested</th>
-              <th className="px-4 py-3 text-center">Updated Limit</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200">
-            {requestedRows.map((row) => {
-              const currentLimit = Number(row.currentLimit ?? 0);
-              const addition = Number(row.addition ?? 0);
-              const updatedLimit = currentLimit + addition;
-
-              return (
-                <tr key={row.title} className="align-middle">
-                  <td className="px-4 py-4 text-sm font-bold text-login-primary">
-                    {row.title}
-                  </td>
-                  <td className="px-4 py-4 text-center text-sm font-semibold text-[var(--color-text-strong)]">
-                    {formatNumber(currentLimit)}
-                  </td>
-                  <td className="px-4 py-4 text-center text-sm font-semibold text-[var(--color-text-strong)]">
-                    + {formatNumber(addition)}
-                  </td>
-                  <td className="px-4 py-4 text-center text-sm font-bold text-login-primary">
-                    {formatNumber(updatedLimit)}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-};
 
 const UsageRow = ({
   label,

@@ -399,6 +399,16 @@ export const modalDefinitions: Record<string, ModalDefinition> = {
     cancelLabel: "Cancel",
     maxWidthClass: "max-w-4xl",
   },
+  subscriptionRequest: {
+    id: "subscriptionRequest",
+    title: "Subscription Request",
+    tone: "primary",
+    icon: LuMessageCircle,
+    submitLabel: "Submit",
+    submittingLabel: "Submitting...",
+    cancelLabel: "Cancel",
+    maxWidthClass: "max-w-xl",
+  },
 };
 
 export const resolveModalText = (

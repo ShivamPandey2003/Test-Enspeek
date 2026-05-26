@@ -564,6 +564,13 @@ const url = {
     queryKey: "assistanceReply",
     mutationKey: "assistance_reply",
   },
+
+  subscriptionRequest: {
+    endpoint: "support/subscription-request",
+    method: "post",
+    queryKey: "subscriptionRequest",
+    mutationKey: "subscription_request",
+  },
   // ################################################# User Management APIs End #################################################
   // ################################################# User Management APIs End #################################################
   // ################################################# User Management APIs End #################################################

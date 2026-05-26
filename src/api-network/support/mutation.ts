@@ -29,6 +29,12 @@ export type AssistanceReplyPayload = {
   ticket_id: string;
 };
 
+export type SubscriptionRequestPayload = {
+  apiToken?: string;
+  request_types: string[];
+  message: string;
+};
+
 type SupportMutationMessageResponse = {
   header?: {
     message?: string;
@@ -89,6 +95,23 @@ export const useAssistanceReplyMutation = () =>
 
       if (!response) {
         throw new Error("Unable to send support ticket reply.");
+      }
+
+      return response;
+    },
+  });
+
+export const useSubscriptionRequestMutation = () =>
+  mutationStructure<unknown, Error, SubscriptionRequestPayload>({
+    mutationFn: async (payload) => {
+      const response = await apiRequest(
+        url.subscriptionRequest.method,
+        url.subscriptionRequest.endpoint,
+        payload
+      );
+
+      if (!response) {
+        throw new Error("Unable to submit subscription request.");
       }
 
       return response;

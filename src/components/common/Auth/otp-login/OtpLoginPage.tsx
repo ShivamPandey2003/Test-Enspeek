@@ -14,7 +14,7 @@ import SignUpForm from "./SignUpForm";
 import type { AuthMode, AuthStep, SignInFormState, SignUpFormState } from "./types";
 
 const OTP_LENGTH = 6;
-const RESEND_COOLDOWN_SECONDS = 30;
+const RESEND_COOLDOWN_SECONDS = 60;
 
 const isValidEmail = (value: string) =>
   /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
