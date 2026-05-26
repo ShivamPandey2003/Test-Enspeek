@@ -829,7 +829,7 @@ const UserManagementTable = ({
               </TableData>
               <TableData align="center">
                 <StatusPill tone={user.plan === "paid" ? "paid" : "free"}>
-                  {user.plan === "paid" ? "Paid" : "Free"}
+                  {user.plan === "paid" ? "Premium" : "Free"}
                 </StatusPill>
               </TableData>
               <TableData align="center">
@@ -1470,10 +1470,12 @@ const ConfirmationModalBody = ({
 }) => {
   const definition = modalDefinitions[getUserActionDefinitionKey(action, user)];
   const actionText = definition.confirmationAction ?? definition.title.toLowerCase();
+  const isDeactivateUserAction = definition.id === "deactivateUser";
+  const isVerifyUserAction = definition.id === "verifyUser";
   const confirmationMessage =
     action === "plan"
       ? {
-          targetPlan: user.plan === "free" ? "Paid" : "Free",
+          targetPlan: user.plan === "free" ? "Premium" : "Free",
         }
       : null;
 
@@ -1482,24 +1484,38 @@ const ConfirmationModalBody = ({
       <p className="theme-text-default text-[15px] leading-6">
         {confirmationMessage ? (
           <>
-            Are you sure you want to change{" "}
-            <span className="font-bold text-login-primary">{user.name}</span>{" "}
-            to a{" "}
+            Please confirm that you want to change{" "}
+            <span className="font-bold text-login-primary">{user.name}'s</span>{" "}
+            account to a{" "}
             <span className="font-bold text-login-primary">
               {confirmationMessage.targetPlan}
             </span>{" "}
-            user?
+            user.
           </>
         ) : (
-          <>
-            Are you sure you want to {actionText}{" "}
-            <span className="font-semibold text-login-primary">{user.name}</span>?
-          </>
+          isDeactivateUserAction ? (
+            <>
+              Please confirm that you want to deactivate{" "}
+              <span className="font-semibold text-login-primary">{user.name}</span>
+              's user account.
+            </>
+          ) : isVerifyUserAction ? (
+            <>
+              Please confirm that you want to verify{" "}
+              <span className="font-semibold text-login-primary">{user.name}</span>
+              's user account.
+            </>
+          ) : (
+            <>
+              Are you sure you want to {actionText}{" "}
+              <span className="font-semibold text-login-primary">{user.name}</span>?
+            </>
+          )
         )}
       </p>
       <ModalInfoBlock icon={<LuBadgeCheck className="h-4 w-4 text-login-primary" />}>
-        Type <span className="font-semibold text-login-primary">{keyword}</span>{" "}
-        to confirm this action.
+        Type <span className="font-semibold text-login-primary">"{keyword}"</span>{" "}
+        to submit this request
       </ModalInfoBlock>
       <ModalField label="Confirmation" required>
         <Input
@@ -1507,7 +1523,7 @@ const ConfirmationModalBody = ({
           value={value}
           onChange={(event) => onValueChange(event.target.value)}
           onKeyDown={(event) => handleKeyPress(event, onSubmit)}
-          placeholder={`Type '${keyword}' here...`}
+          placeholder="confirm"
         />
       </ModalField>
     </div>

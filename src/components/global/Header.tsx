@@ -232,8 +232,8 @@ const Header = () => {
               }}
               disabled={isPlanInfoRefreshing}
               className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-[color:var(--color-brand-primary)]/20 bg-white text-login-primary shadow-sm transition-colors hover:bg-[var(--color-brand-primary-softest)] disabled:cursor-wait disabled:opacity-70"
-              aria-label={isPaidUser ? "View paid plan usage" : "View free plan usage limits"}
-              title={isPaidUser ? "Paid plan usage" : "Free plan usage limits"}
+              aria-label={isPaidUser ? "View premium plan usage" : "View free plan usage"}
+              title={isPaidUser ? "Premium plan usage" : "Free plan usage"}
             >
               {isPlanInfoRefreshing ? (
                 <LuLoaderCircle className="h-[18px] w-[18px] animate-spin" />
@@ -310,8 +310,8 @@ const PlanLimitsModal = ({
   const planType = Number(user.planType);
   const isPaidUser = planType === 1;
   const Icon = LuSettings
-  const planLabel = isPaidUser ? "Paid Plan" : "Free Plan";
-  const title = "Your Plan Usage Limits";
+  const planLabel = isPaidUser ? "Premium Plan" : "Free Plan";
+  const title = "Plan Usage Limits";
   const description = `You're on the ${planLabel}. Here's your included allowance for studies, prompts, and question addition.`;
 
   return (
@@ -347,19 +347,16 @@ const PlanLimitsModal = ({
           label="Studies"
           used={user.createdStudies ?? 0}
           allowed={user.allowedStudies ?? 0}
-          usedLabel="created"
         />
         <PlanLimitRow
           label="Prompts"
           used={user.usedPrompt ?? 0}
           allowed={user.allowedPrompt ?? 0}
-          usedLabel="used"
         />
         <PlanLimitRow
           label="Questions"
           used={user.createdQuestions ?? 0}
           allowed={user.allowedQuestions ?? 0}
-          usedLabel="created"
         />
       </div>
     </ModalScaffold>
@@ -370,12 +367,10 @@ const PlanLimitRow = ({
   label,
   used,
   allowed,
-  usedLabel,
 }: {
   label: string;
   used: number;
   allowed: number;
-  usedLabel: string;
 }) => {
   const remaining = Math.max(allowed - used, 0);
 
@@ -384,9 +379,6 @@ const PlanLimitRow = ({
       <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_300px] sm:items-center">
         <div className="min-w-0">
           <p className="text-[15px] font-bold text-login-primary">{label}</p>
-          <p className="home-muted mt-0.5 text-sm">
-            {used} {usedLabel} of {allowed} allowed
-          </p>
         </div>
         <div className="grid grid-cols-3 gap-2 text-center">
           <PlanMetric mobileLabel="Used" value={used} />

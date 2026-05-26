@@ -120,7 +120,7 @@ export default function ProfilePage() {
                     "inline-flex rounded-full px-4 py-2 text-sm font-bold",
                     isPaidUser
                       ? "bg-[var(--color-study-activated)]/10 text-[var(--color-study-activated)]"
-                      : "bg-[var(--color-brand-primary-softest)] text-login-primary"
+                      : "bg-yellow-100 text-yellow-700"
                   )}
                 >
                   {planLabel}
