@@ -2,7 +2,6 @@ import type { ComponentType, ReactNode } from "react";
 import {
   LuBadgeCheck,
   LuArchive,
-  LuCircleHelp,
   LuCopy,
   LuDownload,
   LuFilter,
@@ -383,7 +382,7 @@ export const modalDefinitions: Record<string, ModalDefinition> = {
     title: "Request for Assistance",
     description: "Get help from our research experts or technical support.",
     tone: "primary",
-    icon: LuCircleHelp,
+    icon: LuMessageCircle,
     submitLabel: "Request Assistance",
     submittingLabel: "Requesting...",
     cancelLabel: "Cancel",

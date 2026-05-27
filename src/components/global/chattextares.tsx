@@ -20,6 +20,7 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
   placement = "floating",
 }) => {
   const internalTextareaRef = React.useRef<HTMLTextAreaElement>(null);
+  const selectionRef = React.useRef<{ start: number; end: number } | null>(null);
   const { isTyping, isChatOpen, pending } = useSelector(
     (state: RootState) => state.chat
   );
@@ -28,16 +29,26 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
   const isPanelPlacement = placement === "panel";
   const { message, openChat, sendMessage, setDraftMessage } = useAiChat();
 
-  const focusChatInput = React.useCallback(() => {
+  const focusChatInput = React.useCallback((moveCaretToEnd = false) => {
     const textarea = internalTextareaRef.current;
     if (!textarea) return;
 
     textarea.focus();
-    const caretPosition = textarea.value.length;
-    textarea.setSelectionRange(caretPosition, caretPosition);
+
+    if (moveCaretToEnd) {
+      const caretPosition = textarea.value.length;
+      textarea.setSelectionRange(caretPosition, caretPosition);
+    }
   }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    if (e.target.selectionStart !== null && e.target.selectionEnd !== null) {
+      selectionRef.current = {
+        start: e.target.selectionStart,
+        end: e.target.selectionEnd,
+      };
+    }
+
     setDraftMessage(e.target.value);
   };
 
@@ -56,6 +67,14 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
       textarea.style.height = "auto";
       const newHeight = Math.min(textarea.scrollHeight, 200);
       textarea.style.height = `${newHeight}px`;
+
+      if (selectionRef.current && document.activeElement === textarea) {
+        textarea.setSelectionRange(
+          selectionRef.current.start,
+          selectionRef.current.end
+        );
+        selectionRef.current = null;
+      }
     }
   }, [message]);
 
@@ -85,7 +104,7 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
       }
 
       requestAnimationFrame(() => {
-        focusChatInput();
+        focusChatInput(true);
       });
     };
 
@@ -101,9 +120,12 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
     }
 
     requestAnimationFrame(() => {
-      focusChatInput();
+      focusChatInput(true);
     });
-  }, [focusChatInput, isChatOpen, openChat, pathname]);
+    // Run this only when the page changes. Re-running after each draft update
+    // moves the caret to the end and breaks middle-of-text editing.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
 
   React.useEffect(() => {
     const handleModalCloseFocus = () => {
@@ -112,7 +134,7 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
       }
 
       requestAnimationFrame(() => {
-        focusChatInput();
+        focusChatInput(true);
       });
     };
 

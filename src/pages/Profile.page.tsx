@@ -17,6 +17,7 @@ import {
   useSubscriptionRequestMutation,
 } from "../api-network/support/mutation";
 import { modalDefinitions, renderModalIcon } from "../config/modalDefinitions";
+import { circleIconButtonClass, circleIconContentClass } from "../constants/uiClasses";
 import type { RootState } from "../store/store";
 import { cn, getFullName } from "../utils";
 
@@ -157,12 +158,14 @@ export default function ProfilePage() {
               </div>
               <button
                 type="button"
-                className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full border border-[color:var(--color-brand-primary)]/20 bg-white text-login-primary shadow-sm transition-colors hover:bg-[var(--color-brand-primary-softest)]"
+                className={circleIconButtonClass}
                 aria-label="Open subscription request"
                 title="Subscription Request"
                 onClick={() => setIsSubscriptionRequestOpen(true)}
               >
-                <LuInfo className="h-[18px] w-[18px]" />
+                <span className={circleIconContentClass}>
+                  <LuInfo className="h-[18px] w-[18px]" />
+                </span>
               </button>
             </div>
             <div className="mt-5 grid gap-3">

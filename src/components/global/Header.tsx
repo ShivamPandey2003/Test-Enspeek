@@ -16,6 +16,7 @@ import homepageKeys from "../../api-network/homepage/keys";
 import { syncHomepageUserInfo } from "../../api-network/homepage/query";
 import SupportRequestModal from "../common/support/SupportRequestModal";
 import { getUserAccessConfig, normalizeLoginType } from "../../config/userAccess";
+import { circleIconButtonClass, circleIconContentClass } from "../../constants/uiClasses";
 
 const Header = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -174,7 +175,7 @@ const Header = () => {
           className="flex shrink-0 items-center gap-3"
         >
           <img src={ICON} alt="Enspeek" className="h-11 w-auto" />
-          <span className="text-[23px] font-extrabold tracking-[-0.03em] text-login-primary">
+          <span className="text-[23px] font-bold tracking-[-0.03em] text-login-primary">
             Enspeek
           </span>
         </a>
@@ -206,17 +207,19 @@ const Header = () => {
                 event.stopPropagation();
                 navigate("/");
               }}
-              className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-[color:var(--color-brand-primary)]/20 bg-white text-login-primary shadow-sm transition-colors hover:bg-[var(--color-brand-primary-softest)]"
+              className={circleIconButtonClass}
               aria-label="Go to home"
               title="Home"
             >
-              <LuHouse className="h-[18px] w-[18px]" />
+              <span className={circleIconContentClass}>
+                <LuHouse className="h-[18px] w-[18px]" />
+              </span>
             </button>
           ) : null}
           {userAccess.canRequestSupport ? (
             <button
               type="button"
-              className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-[color:var(--color-brand-primary)]/20 bg-white text-login-primary shadow-sm transition-colors hover:bg-[var(--color-brand-primary-softest)]"
+              className={circleIconButtonClass}
               aria-label="Support"
               title="Request for Assistance"
               onClick={(event) => {
@@ -224,7 +227,9 @@ const Header = () => {
                 setSupportModalOpen(true);
               }}
             >
-              <LuMessageCircle className="h-[18px] w-[18px]" />
+              <span className={circleIconContentClass}>
+                <LuMessageCircle className="h-[18px] w-[18px]" />
+              </span>
             </button>
           ) : null}
           {isPlanInfoVisible && (isFreeUser || isPaidUser) ? (
@@ -235,15 +240,17 @@ const Header = () => {
                 openPlanLimitModal();
               }}
               disabled={isPlanInfoRefreshing}
-              className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-[color:var(--color-brand-primary)]/20 bg-white text-login-primary shadow-sm transition-colors hover:bg-[var(--color-brand-primary-softest)] disabled:cursor-wait disabled:opacity-70"
+              className={cn(circleIconButtonClass, "disabled:cursor-wait disabled:opacity-70")}
               aria-label={isPaidUser ? "View premium plan usage" : "View free plan usage"}
               title={isPaidUser ? "Premium plan usage" : "Free plan usage"}
             >
-              {isPlanInfoRefreshing ? (
-                <LuLoaderCircle className="h-[18px] w-[18px] animate-spin" />
-              ) : (
-                <PlanIcon className="h-[18px] w-[18px]" />
-              )}
+              <span className={circleIconContentClass}>
+                {isPlanInfoRefreshing ? (
+                  <LuLoaderCircle className="h-[18px] w-[18px] animate-spin" />
+                ) : (
+                  <PlanIcon className="h-[18px] w-[18px]" />
+                )}
+              </span>
             </button>
           ) : null}
           <div

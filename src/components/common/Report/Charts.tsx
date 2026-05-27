@@ -61,9 +61,7 @@ export default function SingleSelectChart({ hasData = true, chartData, baseText,
     credits: { enabled: false },
     tooltip: {
       formatter: function () {
-        return `<b>${this.x}</b><br/>
-                        ${this.series.name}: <b>${this.y}%</b><br/>
-                        Count: <b>${Math.round(
+        return `${this.series.name}: <b>${this.y}%</b><br/>Count: <b>${Math.round(
           ((this.y as number) / 100) * totalRespondents
         )}</b>`;
       },
