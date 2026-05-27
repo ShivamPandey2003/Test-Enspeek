@@ -440,6 +440,10 @@ body{
   color: var(--color-brand-primary);
 }
 
+.modal-header-icon svg {
+  display: block;
+}
+
 .modal-title {
     color: var(--color-text-strong);
     font-size: 1.5rem;

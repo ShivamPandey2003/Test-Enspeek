@@ -1610,9 +1610,14 @@ const TicketDetailModalBody = ({
           Review the client request and current ticket details.
         </p>
       </div>
-      <StatusPill tone={getTicketStatusTone(ticket.status)}>
-        {formatStatusLabel(ticket.status)}
-      </StatusPill>
+      <div className="flex items-center gap-2">
+        <span className="text-sm font-semibold text-[var(--color-text-muted)]">
+          Status:
+        </span>
+        <StatusPill tone={getTicketStatusTone(ticket.status)}>
+          {formatStatusLabel(ticket.status)}
+        </StatusPill>
+      </div>
     </div>
 
     <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
