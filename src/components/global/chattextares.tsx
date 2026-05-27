@@ -28,17 +28,36 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
   const isPanelPlacement = placement === "panel";
   const { message, openChat, sendMessage, setDraftMessage } = useAiChat();
 
-  const focusChatInput = React.useCallback(() => {
+  const focusChatInput = React.useCallback((moveCaretToEnd = false) => {
     const textarea = internalTextareaRef.current;
     if (!textarea) return;
 
     textarea.focus();
-    const caretPosition = textarea.value.length;
-    textarea.setSelectionRange(caretPosition, caretPosition);
+
+    if (moveCaretToEnd) {
+      const caretPosition = textarea.value.length;
+      textarea.setSelectionRange(caretPosition, caretPosition);
+    }
   }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const selectionStart = e.target.selectionStart;
+    const selectionEnd = e.target.selectionEnd;
+
     setDraftMessage(e.target.value);
+
+    requestAnimationFrame(() => {
+      const textarea = internalTextareaRef.current;
+
+      if (
+        textarea &&
+        document.activeElement === textarea &&
+        selectionStart !== null &&
+        selectionEnd !== null
+      ) {
+        textarea.setSelectionRange(selectionStart, selectionEnd);
+      }
+    });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -85,7 +104,7 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
       }
 
       requestAnimationFrame(() => {
-        focusChatInput();
+        focusChatInput(true);
       });
     };
 
@@ -101,9 +120,12 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
     }
 
     requestAnimationFrame(() => {
-      focusChatInput();
+      focusChatInput(true);
     });
-  }, [focusChatInput, isChatOpen, openChat, pathname]);
+    // Run this only when the page changes. Re-running after each draft update
+    // moves the caret to the end and breaks middle-of-text editing.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
 
   React.useEffect(() => {
     const handleModalCloseFocus = () => {
@@ -112,7 +134,7 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
       }
 
       requestAnimationFrame(() => {
-        focusChatInput();
+        focusChatInput(true);
       });
     };
 
