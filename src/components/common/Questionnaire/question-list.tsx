@@ -35,8 +35,8 @@ export default function QuestionList() {
 
   const emptyStatePrompts = [
     {
-      title: "Create your first question",
-      text: "Create a single select question on [Topic]",
+      title: "Generate Questions",
+      text: "Generate questions on [Topic]",
       icon: <LuPlus className="h-4 w-4" />,
     },
   ];
@@ -148,7 +148,7 @@ export default function QuestionList() {
               }}
             />
           ) : submitItems.length === 0 ? (
-            <div className="flex min-h-full w-full items-center justify-center px-5 py-3 md:px-6 md:py-4">
+            <div className="flex min-h-full w-full items-center justify-center px-5 pb-24 pt-3 md:px-6 md:pb-36 md:pt-4">
               <div className="mx-auto flex w-full max-w-6xl flex-col gap-4">
                 <div className="w-full">
                   <div className="platform-card-shadow-strong questionnaire-card questionnaire-border overflow-hidden rounded-[24px] border">

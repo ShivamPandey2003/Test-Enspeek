@@ -179,7 +179,7 @@ const Header = () => {
           className="flex shrink-0 items-center gap-3"
         >
           <img src={ICON} alt="Enspeek" className="h-11 w-auto" />
-          <span className="text-[23px] font-extrabold tracking-[-0.03em] text-login-primary">
+          <span className="text-[23px] font-bold tracking-[-0.03em] text-login-primary">
             Enspeek
           </span>
         </a>
