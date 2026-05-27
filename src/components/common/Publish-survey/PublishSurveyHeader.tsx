@@ -159,14 +159,16 @@ const PublishSurveyHeader: FC<PublishSurveyHeaderProps> = ({
             )}
             {launch === 1 && (
               <>
-                <div className="relative" ref={dropdownRef}>
+                <div className="relative cursor-not-allowed" ref={dropdownRef}>
                   <Button
                     type="button"
                     variant="secondary"
                     size="icon"
                     data-test-id="PUBLISH_SURVEY_DOWNLOADS"
                     aria-label="Open download history"
-                    className="home-border-soft text-[var(--color-brand-info)] hover:bg-[var(--color-brand-primary-softest)]"
+                    disabled
+                    aria-disabled="true"
+                    className="pointer-events-none home-border-soft text-[var(--color-brand-info)] opacity-50 grayscale-[0.2] disabled:cursor-not-allowed"
                     onClick={() => setOpen((prev) => !prev)}
                   >
                     <LuDownload className="h-4 w-4" />
