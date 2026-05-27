@@ -167,9 +167,7 @@ const PublishSurveyHeader: FC<PublishSurveyHeaderProps> = ({
                     data-test-id="PUBLISH_SURVEY_DOWNLOADS"
                     aria-label="Open download history"
                     disabled
-                    aria-disabled="true"
-                    className="pointer-events-none home-border-soft text-[var(--color-brand-info)] opacity-50 grayscale-[0.2] disabled:cursor-not-allowed"
-                    onClick={() => setOpen((prev) => !prev)}
+                    className="pointer-events-none home-border-soft text-[var(--color-brand-info)] opacity-50 grayscale-[0.2]"
                   >
                     <LuDownload className="h-4 w-4" />
                   </Button>

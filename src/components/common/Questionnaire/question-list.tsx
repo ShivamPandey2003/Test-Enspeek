@@ -195,47 +195,6 @@ export default function QuestionList() {
                         ))}
                       </div>
 
-                      {/*
-                      <div className="mt-4 border-t questionnaire-border pt-4">
-                        <p className="questionnaire-heading text-[17px] font-semibold">
-                          What happens next:{" "}
-                          <span className="font-normal">
-                            A simple path from first question to final research.
-                          </span>
-                        </p>
-
-                        <div className="mt-3 grid gap-3 lg:grid-cols-3">
-                          {[
-                            {
-                              title: "Describe your topic in simple words",
-                              body: "Tell Enspeek what the study is about and let it draft the first questions for you.",
-                            },
-                            {
-                              title: "Review & edit questions",
-                              body: "Refine wording, reorder items, or create your own question when you need more control.",
-                            },
-                            {
-                              title: "Move to publish research when ready",
-                              body: "When the questionnaire looks right, continue to publish and activate the study.",
-                            },
-                          ].map((item, index) => (
-                            <div key={item.title} className="flex items-start gap-2.5">
-                              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-login-primary text-sm font-semibold text-white">
-                                {index + 1}
-                              </div>
-                              <div className="min-w-0">
-                                <p className="questionnaire-heading text-sm font-semibold leading-[18px]">
-                                  {item.title}
-                                </p>
-                                <p className="questionnaire-muted mt-1 text-sm leading-[18px]">
-                                  {item.body}
-                                </p>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                      */}
                     </div>
                   </div>
                 </div>

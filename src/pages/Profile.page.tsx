@@ -17,6 +17,7 @@ import {
   useSubscriptionRequestMutation,
 } from "../api-network/support/mutation";
 import { modalDefinitions, renderModalIcon } from "../config/modalDefinitions";
+import { circleIconButtonClass, circleIconContentClass } from "../constants/uiClasses";
 import type { RootState } from "../store/store";
 import { cn, getFullName } from "../utils";
 
@@ -28,11 +29,6 @@ const subscriptionRequestTopics = [
   { id: "prompts", label: "Prompts" },
   { id: "questions", label: "Questions" },
 ];
-
-const profileCircleButtonClass =
-  "relative inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full border border-[color:var(--color-brand-primary)]/20 bg-white p-0 text-login-primary shadow-sm transition-colors hover:bg-[var(--color-brand-primary-softest)]";
-const profileCircleIconClass =
-  "absolute inset-0 flex items-center justify-center leading-none [&>svg]:block";
 
 export default function ProfilePage() {
   const user = useSelector((state: RootState) => state.user);
@@ -162,12 +158,12 @@ export default function ProfilePage() {
               </div>
               <button
                 type="button"
-                className={profileCircleButtonClass}
+                className={circleIconButtonClass}
                 aria-label="Open subscription request"
                 title="Subscription Request"
                 onClick={() => setIsSubscriptionRequestOpen(true)}
               >
-                <span className={profileCircleIconClass}>
+                <span className={circleIconContentClass}>
                   <LuInfo className="h-[18px] w-[18px]" />
                 </span>
               </button>

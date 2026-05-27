@@ -32,21 +32,6 @@ export default function ProjectListing() {
     ["create [study name]"].includes(prompt.id)
   );
 
-  // const steps = [
-  //   {
-  //     title: "Tell Enspeek what you want",
-  //     body: "Describe your topic in simple words. No research experience needed.",
-  //   },
-  //   {
-  //     title: "Review and refine",
-  //     body: "Edit, reorder, or ask AI to improve the generated questions.",
-  //   },
-  //   {
-  //     title: "Launch with confidence",
-  //     body: "Activate, collect responses, and move into reports and crosstab.",
-  //   },
-  // ];
-
   if (userInfoError) {
     return <Error />;
   }
@@ -116,49 +101,6 @@ export default function ProjectListing() {
                   </div>
                 </div>
               </div>
-
-              {/*
-              <div className="platform-card-shadow-medium home-surface home-border-soft h-full rounded-[28px] border px-5 py-5 md:px-6">
-                <div className="flex h-full flex-col">
-                  <div className="flex items-center gap-3">
-                    <div className="home-panel-soft-bg flex h-10 w-10 items-center justify-center rounded-2xl">
-                      <LuCircleCheckBig className="h-5 w-5 text-login-primary" />
-                    </div>
-                    <div>
-                      <p className="home-heading text-[17px] font-semibold">
-                        How it works
-                      </p>
-                      <p className="home-muted mt-0.5 text-sm leading-5">
-                        Three simple steps from idea to launch.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="mt-3 flex flex-1 flex-col gap-2">
-                    {steps.map((step, index) => (
-                      <div
-                        key={step.title}
-                        className="home-panel-soft-bg flex flex-1 items-center rounded-[20px] border home-border-soft px-4 py-3"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-login-primary text-sm font-semibold text-white">
-                            {index + 1}
-                          </div>
-                          <div>
-                            <p className="home-heading text-[15px] font-semibold">
-                              {step.title}
-                            </p>
-                            <p className="home-muted mt-0.5 text-sm leading-[1.35rem]">
-                              {step.body}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-              */}
             </div>
           </div>
         </div>

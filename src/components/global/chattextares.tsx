@@ -20,6 +20,7 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
   placement = "floating",
 }) => {
   const internalTextareaRef = React.useRef<HTMLTextAreaElement>(null);
+  const selectionRef = React.useRef<{ start: number; end: number } | null>(null);
   const { isTyping, isChatOpen, pending } = useSelector(
     (state: RootState) => state.chat
   );
@@ -41,23 +42,14 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
   }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const selectionStart = e.target.selectionStart;
-    const selectionEnd = e.target.selectionEnd;
+    if (e.target.selectionStart !== null && e.target.selectionEnd !== null) {
+      selectionRef.current = {
+        start: e.target.selectionStart,
+        end: e.target.selectionEnd,
+      };
+    }
 
     setDraftMessage(e.target.value);
-
-    requestAnimationFrame(() => {
-      const textarea = internalTextareaRef.current;
-
-      if (
-        textarea &&
-        document.activeElement === textarea &&
-        selectionStart !== null &&
-        selectionEnd !== null
-      ) {
-        textarea.setSelectionRange(selectionStart, selectionEnd);
-      }
-    });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -75,6 +67,14 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
       textarea.style.height = "auto";
       const newHeight = Math.min(textarea.scrollHeight, 200);
       textarea.style.height = `${newHeight}px`;
+
+      if (selectionRef.current && document.activeElement === textarea) {
+        textarea.setSelectionRange(
+          selectionRef.current.start,
+          selectionRef.current.end
+        );
+        selectionRef.current = null;
+      }
     }
   }, [message]);
 
