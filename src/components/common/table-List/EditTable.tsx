@@ -288,7 +288,7 @@ export default function EditTableModal({
                 {rows.map((row) => (
                   <tr key={row.id}>
                     <td className="border-r home-border-soft px-3 py-3 align-middle text-center">
-                      <Button type="button" variant="secondary" size="icon" className="crosstab-muted cursor-all-scroll shadow-none">
+                      <Button type="button" variant="secondary" size="icon" className="crosstab-muted cursor-all-scroll shadow-none" disabled>
                         <LuArrowUpDown />
                       </Button>
                     </td>
