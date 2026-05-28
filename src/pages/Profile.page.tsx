@@ -282,41 +282,18 @@ export default function ProfilePage() {
               variant="modal"
               value={subscriptionRequestMessage}
               disabled={subscriptionRequestMutation.isPending}
-              maxLength={SUBSCRIPTION_REQUEST_MESSAGE_MAX_LENGTH}
-              onChange={(event) => setSubscriptionRequestMessage(event.target.value)}
-              onKeyDown={(event) => {
-                const allowedNavigationKeys = [
-                  "Backspace",
-                  "Delete",
-                  "ArrowLeft",
-                  "ArrowRight",
-                  "ArrowUp",
-                  "ArrowDown",
-                  "Home",
-                  "End",
-                  "Tab",
-                ];
+              onChange={(event) => {
+                const nextValue = event.target.value;
 
-                if (
-                  subscriptionRequestMessage.length >= SUBSCRIPTION_REQUEST_MESSAGE_MAX_LENGTH &&
-                  !event.ctrlKey &&
-                  !event.metaKey &&
-                  !event.altKey &&
-                  event.key.length === 1 &&
-                  !allowedNavigationKeys.includes(event.key)
-                ) {
+                if (nextValue.length > SUBSCRIPTION_REQUEST_MESSAGE_MAX_LENGTH) {
+                  setSubscriptionRequestMessage(
+                    nextValue.slice(0, SUBSCRIPTION_REQUEST_MESSAGE_MAX_LENGTH)
+                  );
                   showSubscriptionRequestLimitToast();
+                  return;
                 }
-              }}
-              onPaste={(event) => {
-                const pastedText = event.clipboardData.getData("text");
 
-                if (
-                  subscriptionRequestMessage.length + pastedText.length >
-                  SUBSCRIPTION_REQUEST_MESSAGE_MAX_LENGTH
-                ) {
-                  showSubscriptionRequestLimitToast();
-                }
+                setSubscriptionRequestMessage(nextValue);
               }}
               placeholder="Type your message here..."
               className="min-h-[180px] resize-y"
