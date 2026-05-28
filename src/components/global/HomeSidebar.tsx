@@ -126,7 +126,11 @@ const HomeSidebar: React.FC = () => {
   const sidebarTitle = activeTab === "myactive" ? "My Studies" : activeTab === "allactive" ? "All Studies" : "Archive Studies";
   const activeCount = studyList?.count?.active ?? Studys.filter((s: any) => !Boolean(s.isarchived)).length;
   const archivedCount = studyList?.count?.archived ?? Studys.filter((s: any) => Boolean(s.isarchived)).length;
-  const allCount = studyList?.count ? (studyList.count.active || 0) + (studyList.count.archived || 0) + (studyList.count.shared || 0) : Studys.length;
+  const allCount = studyList?.count?.all ?? (
+    studyList?.count
+      ? (studyList.count.active || 0) + (studyList.count.archived || 0) + (studyList.count.shared || 0)
+      : Studys.length
+  );
 
   const handleGoToPage = () => {
     const parsedPage = Number(pageInput);

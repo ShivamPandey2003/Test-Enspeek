@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "sonner";
 import {
@@ -30,9 +30,12 @@ const subscriptionRequestTopics = [
   { id: "questions", label: "Questions" },
 ];
 
+const SUBSCRIPTION_REQUEST_MESSAGE_MAX_LENGTH = 2000;
+
 export default function ProfilePage() {
   const user = useSelector((state: RootState) => state.user);
   const subscriptionRequestMutation = useSubscriptionRequestMutation();
+  const hasShownLimitToastRef = useRef(false);
   const [isSubscriptionRequestOpen, setIsSubscriptionRequestOpen] = useState(false);
   const [subscriptionRequestMessage, setSubscriptionRequestMessage] = useState("");
   const [subscriptionRequestTopicsValue, setSubscriptionRequestTopicsValue] = useState<string[]>([]);
@@ -41,6 +44,20 @@ export default function ProfilePage() {
   const isPaidUser = planType === 1;
   const planLabel = isPaidUser ? "Premium" : "Free";
   const subscriptionRequestModal = modalDefinitions.subscriptionRequest;
+  const subscriptionRequestCharacterCount = subscriptionRequestMessage.length;
+
+  const showSubscriptionRequestLimitToast = () => {
+    if (hasShownLimitToastRef.current) return;
+
+    hasShownLimitToastRef.current = true;
+    toast.warning(
+      `Description cannot exceed ${SUBSCRIPTION_REQUEST_MESSAGE_MAX_LENGTH} characters.`
+    );
+
+    window.setTimeout(() => {
+      hasShownLimitToastRef.current = false;
+    }, 1500);
+  };
 
   const closeSubscriptionRequestModal = () => {
     if (subscriptionRequestMutation.isPending) return;
@@ -194,6 +211,17 @@ export default function ProfilePage() {
         title={subscriptionRequestModal.title}
         icon={renderModalIcon(subscriptionRequestModal.icon)}
         className={subscriptionRequestModal.maxWidthClass}
+        closeDisabled={subscriptionRequestMutation.isPending}
+        footerLeft={
+          <Button
+            type="button"
+            variant="cancel"
+            disabled={subscriptionRequestMutation.isPending}
+            onClick={closeSubscriptionRequestModal}
+          >
+            {subscriptionRequestModal.cancelLabel ?? "Cancel"}
+          </Button>
+        }
         footerRight={
           <Button
             type="button"
@@ -201,6 +229,7 @@ export default function ProfilePage() {
             onClick={submitSubscriptionRequest}
             disabled={
               !subscriptionRequestMessage.trim() ||
+              subscriptionRequestTopicsValue.length === 0 ||
               subscriptionRequestMutation.isPending
             }
           >
@@ -239,12 +268,57 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          <ProfileFormField label="Description">
+          <ProfileFormField
+            label={
+              <span className="flex w-full items-center justify-between gap-3">
+                <span>Description</span>
+                <span className="text-xs font-bold text-[var(--color-text-muted)]">
+                  {subscriptionRequestCharacterCount}/{SUBSCRIPTION_REQUEST_MESSAGE_MAX_LENGTH} Characters
+                </span>
+              </span>
+            }
+          >
             <Textarea
+              variant="modal"
               value={subscriptionRequestMessage}
               disabled={subscriptionRequestMutation.isPending}
+              maxLength={SUBSCRIPTION_REQUEST_MESSAGE_MAX_LENGTH}
               onChange={(event) => setSubscriptionRequestMessage(event.target.value)}
-              placeholder="Type your subscription request here."
+              onKeyDown={(event) => {
+                const allowedNavigationKeys = [
+                  "Backspace",
+                  "Delete",
+                  "ArrowLeft",
+                  "ArrowRight",
+                  "ArrowUp",
+                  "ArrowDown",
+                  "Home",
+                  "End",
+                  "Tab",
+                ];
+
+                if (
+                  subscriptionRequestMessage.length >= SUBSCRIPTION_REQUEST_MESSAGE_MAX_LENGTH &&
+                  !event.ctrlKey &&
+                  !event.metaKey &&
+                  !event.altKey &&
+                  event.key.length === 1 &&
+                  !allowedNavigationKeys.includes(event.key)
+                ) {
+                  showSubscriptionRequestLimitToast();
+                }
+              }}
+              onPaste={(event) => {
+                const pastedText = event.clipboardData.getData("text");
+
+                if (
+                  subscriptionRequestMessage.length + pastedText.length >
+                  SUBSCRIPTION_REQUEST_MESSAGE_MAX_LENGTH
+                ) {
+                  showSubscriptionRequestLimitToast();
+                }
+              }}
+              placeholder="Type your message here..."
               className="min-h-[180px] resize-y"
             />
           </ProfileFormField>
@@ -278,7 +352,7 @@ const ProfileFormField = ({
   label,
   children,
 }: {
-  label: string;
+  label: ReactNode;
   children: ReactNode;
 }) => (
   <label className="block">

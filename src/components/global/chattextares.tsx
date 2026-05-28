@@ -10,7 +10,10 @@ import PromptsList from "./PromptsList";
 import { CiCircleList } from "react-icons/ci";
 import useAiChat from "../../api-network/global/ai-chat";
 import Button from "../ui/Button";
-import { MODAL_CLOSE_FOCUS_CHAT_EVENT } from "../../utils/modalFocus";
+import {
+  FOCUS_CHAT_INPUT_EVENT,
+  MODAL_CLOSE_FOCUS_CHAT_EVENT,
+} from "../../utils/modalFocus";
 
 interface ChatTextAreaProps {
   placement?: "floating" | "panel";
@@ -138,8 +141,10 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
       });
     };
 
+    window.addEventListener(FOCUS_CHAT_INPUT_EVENT, handleModalCloseFocus);
     window.addEventListener(MODAL_CLOSE_FOCUS_CHAT_EVENT, handleModalCloseFocus);
     return () => {
+      window.removeEventListener(FOCUS_CHAT_INPUT_EVENT, handleModalCloseFocus);
       window.removeEventListener(MODAL_CLOSE_FOCUS_CHAT_EVENT, handleModalCloseFocus);
     };
   }, [focusChatInput, isChatOpen, openChat]);

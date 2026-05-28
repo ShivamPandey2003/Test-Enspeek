@@ -17,6 +17,7 @@ import Button from "../../ui/Button";
 import useAiChat from "../../../api-network/global/ai-chat";
 import { useHydrateQuestionnaireSubmitItems } from "../../../api-network/questionnaire/mutation";
 import { useQuestionnaireList, useQuestionnaireQuestionTypes, useQuestionnaireStudyInfo } from "../../../api-network/questionnaire/query";
+import { focusChatInput } from "../../../utils/modalFocus";
 
 export default function QuestionList() {
   const navigate = useNavigate();
@@ -182,7 +183,10 @@ export default function QuestionList() {
                             key={prompt.title}
                             type="button"
                             variant="outline"
-                            onClick={() => openChatWithMessage(prompt.text)}
+                            onClick={() => {
+                              openChatWithMessage(prompt.text);
+                              focusChatInput();
+                            }}
                             className="home-panel-soft-bg questionnaire-border group h-10 w-auto items-center justify-center rounded-full px-4 py-2 text-center leading-normal transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
                           >
                             <span className="home-dropdown-icon-wrap flex h-7 w-7 shrink-0 items-center justify-center rounded-full [&>svg]:h-4 [&>svg]:w-4">
