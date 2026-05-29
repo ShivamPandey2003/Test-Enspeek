@@ -418,7 +418,7 @@ const ChatWindow: React.FC<{
 
                     if (typeof questionData.base === "object" && questionData.base !== null) {
                       const total = Object.values(questionData.base).reduce(
-                        (acc: number, val: any) =>
+                        (acc: number, val: unknown) =>
                           acc + (typeof val === "number" ? val : 0),
                         0
                       );
