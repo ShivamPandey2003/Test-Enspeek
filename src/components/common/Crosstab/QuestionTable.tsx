@@ -9,14 +9,27 @@ import Checkbox from "../../ui/Checkbox";
 
 export default function QuestionsList() {
   const { state } = useLocation();
+  const studyID = state?.studyID ?? "";
+  const bannerID = state?.bannerID ?? "";
   const { QListData, isQListDataPending } = useQList(
-    state.studyID,
-    state.BannerID
+    studyID,
+    bannerID
   );
   const { selectedQuestions } = useSelector(
     (state: RootState) => state.crosstab
   );
   const dispatch = useDispatch<AppDispatch>();
+
+  if (!studyID || !bannerID) {
+    return (
+      <div className="crosstab-surface px-4 py-4">
+        <p className="home-text">
+          Unable to load questions because the study or banner selection is missing.
+        </p>
+      </div>
+    );
+  }
+
   const toggleSelectAll = (checked: boolean) => {
     if (checked) {
       dispatch(setSelectedQuestions(QListData.map((q: any) => q.qID)));

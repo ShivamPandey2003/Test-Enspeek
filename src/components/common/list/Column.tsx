@@ -19,6 +19,11 @@ import ListingCopyModal from "../../global/ListingCopyModal";
 import { useNavigate } from "react-router";
 import { resetStudyInfo } from "../../../store/CrosstabStudySlice";
 import Checkbox from "../../ui/Checkbox";
+import {
+  setCopyModel,
+  setSelectedId,
+  setSelectedStudyName,
+} from "../../../store/TriggerSlice";
 
 const columnHelper = createColumnHelper<Study>();
 
@@ -142,6 +147,9 @@ const useColumns = ({
             onClick: () => {
               setOpenDropdownIndex(null);
               setModalRowIndex(rowIndex);
+              dispatch(setSelectedId(studyID));
+              dispatch(setSelectedStudyName(studyName));
+              dispatch(setCopyModel(true));
             },
           },
           {

@@ -131,9 +131,9 @@ export default function CreationProject() {
       dispatch(
         setStudyInfo({
           studyID: studyID,
-          hasQuestionnaire: res.response.hasQuestionnaire,
+          hasQuestionnaire: res.response.hasquestionnaire,
           launch: res.response.launch,
-          name: res.response.studyName,
+          name: res.response.studyname,
           output: res.response.output,
           link: res.response.link,
           closed: res.response.closed
@@ -153,7 +153,7 @@ export default function CreationProject() {
     <div className="w-full h-full mx-auto bg-white rounded-md">
       <div className="flex justify-between items-center mb-5">
         <h1 className="text-2xl font-medium text-gray-600">
-          {StudyInfo ? StudyInfo.studyName : "PROJECT CREATION"}
+          {StudyInfo ? StudyInfo.studyname : "PROJECT CREATION"}
         </h1>
         {state?.studyID ? (
           <Button
@@ -186,7 +186,7 @@ export default function CreationProject() {
               variant="default"
               id="projectName"
               name="projectName"
-              value={StudyInfo ? StudyInfo.studyName : formData.projectName}
+              value={StudyInfo ? StudyInfo.studyname : formData.projectName}
               onChange={handleChange}
               className={`${
                 errors.projectName ? "border-[var(--color-core-danger)]" : ""
