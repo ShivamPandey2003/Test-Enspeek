@@ -40,7 +40,6 @@ export default function CrosstabHeader({
             variant="theme"
             className="report-toolbar-btn px-4"
             onClick={() => dispatch(setIsAddBannerModalOpen(true))}
-            disabled
           >
             <LuPlus />
             Banner

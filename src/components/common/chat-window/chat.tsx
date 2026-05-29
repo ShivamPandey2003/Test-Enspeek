@@ -416,6 +416,15 @@ const ChatWindow: React.FC<{
                       return `Base: (n = ${questionData.base})`;
                     }
 
+                    if (typeof questionData.base === "object" && questionData.base !== null) {
+                      const total = Object.values(questionData.base).reduce(
+                        (acc: number, val: any) =>
+                          acc + (typeof val === "number" ? val : 0),
+                        0
+                      );
+                      return `Base: (n = ${total})`;
+                    }
+
                     return "Base: (n = 0)";
                   })();
 

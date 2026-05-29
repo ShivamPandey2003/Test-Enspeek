@@ -131,9 +131,9 @@ export default function CreationProject() {
       dispatch(
         setStudyInfo({
           studyID: studyID,
-          hasQuestionnaire: res.response.hasQuestionnaire,
+          hasQuestionnaire: res.response.hasquestionnaire,
           launch: res.response.launch,
-          name: res.response.studyName,
+          name: res.response.studyname,
           output: res.response.output,
           link: res.response.link,
           closed: res.response.closed

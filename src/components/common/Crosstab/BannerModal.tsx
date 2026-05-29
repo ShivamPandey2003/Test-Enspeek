@@ -65,7 +65,7 @@ const AddBannerModal: React.FC<AddBannerModalProps> = ({
         count: counts ? 1 : 0,
         percent: percentage ? 1 : 0,
       });
-      setBannerName("");
+      setBannerNameInput("");
       setBannerDescription("");
       setCounts(false);
       setPercentage(true);

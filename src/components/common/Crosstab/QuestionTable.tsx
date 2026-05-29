@@ -10,8 +10,8 @@ import Checkbox from "../../ui/Checkbox";
 export default function QuestionsList() {
   const { state } = useLocation();
   const { QListData, isQListDataPending } = useQList(
-    state.studyID,
-    state.BannerID
+    state?.studyID,
+    state?.bannerID
   );
   const { selectedQuestions } = useSelector(
     (state: RootState) => state.crosstab
