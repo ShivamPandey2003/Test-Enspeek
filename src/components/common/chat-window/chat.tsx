@@ -3,7 +3,7 @@ import TypingIndicator from "./typing-indicator";
 import Question_Format from "./Question-format";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../../../store/store";
-import { setMessages } from "../../../store/ChatSlice";
+import { setMessage, setMessages } from "../../../store/ChatSlice";
 import { useLocation } from "react-router";
 import { cn, formatRichText } from "../../../utils";
 import { FaChartBar, FaCopy, FaExpandArrowsAlt, FaTable } from "react-icons/fa";
@@ -14,12 +14,37 @@ import TableAndChartModal from "../Report/TableAndChartModal";
 import TableModal from "../Crosstab/TableModal";
 import { toast } from "sonner";
 import { PRIMARY_CHART_COLOR } from "../../../utils/chartColors";
-import { getFullName, getInitials } from "../../../utils";
+import { getFullName } from "../../../utils";
 import { LuBotMessageSquare, LuSparkles } from "react-icons/lu";
 import Button from "../../ui/Button";
 import IconActionButton from "../../ui/IconActionButton";
+import AvatarInitials from "../../ui/AvatarInitials";
+import { CHAT_AGENT_INITIALS, CHAT_AGENT_LABEL, CHAT_AGENT_NAME } from "../../../config/chatAgent";
+import { FOCUS_CHAT_INPUT_EVENT } from "../../../utils/modalFocus";
+import { LuCopy, LuPencilLine } from "react-icons/lu";
 
 const RESPONSE_SCROLL_GAP = 12;
+
+const getUserInitials = (firstName?: string, lastName?: string) => {
+  const parts = [firstName, lastName]
+    .map((part) => part?.trim())
+    .filter(Boolean) as string[];
+
+  if (parts.length === 0) return "U";
+  if (parts.length === 1) return parts[0][0]?.toUpperCase() ?? "U";
+
+  return `${parts[0][0] ?? ""}${parts[1][0] ?? ""}`.toUpperCase();
+};
+
+const getReadableMessageText = (value?: string) => {
+  if (!value) return "";
+
+  const parser = new DOMParser();
+  const documentValue = parser.parseFromString(value, "text/html");
+  const parsedText = documentValue.body.textContent?.trim();
+
+  return parsedText || value.replace(/<[^>]*>/g, "").trim();
+};
 
 const ChatWindow: React.FC<{
   surface?: "auto" | "page" | "card";
@@ -148,9 +173,33 @@ const ChatWindow: React.FC<{
   const [selectedCrosstab, setSelectedCrosstab] = useState<number | null>(null);
   const [isCrosstabModalOpen, setIsCrosstabModalOpen] = useState(false);
   const fullName = getFullName(firstName, lastName) || firstName || "User";
-  const userInitials = getInitials(fullName, "U");
+  const userInitials = getUserInitials(firstName, lastName);
   const isHomePageSurface =
     pathname === "/" && (surface === "auto" || surface === "page");
+  const isResponseLocked = isTyping || pending;
+  const handleCopyMessage = async (text?: string) => {
+    const readableText = getReadableMessageText(text);
+
+    if (!readableText) {
+      toast.warning("No message text to copy.");
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(readableText);
+      toast.success("Message copied.");
+    } catch {
+      toast.error("Unable to copy message.");
+    }
+  };
+  const handleEditMessage = (text?: string) => {
+    const readableText = getReadableMessageText(text);
+
+    if (!readableText || isResponseLocked) return;
+
+    dispatch(setMessage(readableText));
+    window.dispatchEvent(new Event(FOCUS_CHAT_INPUT_EVENT));
+  };
   useEffect(() => {
     const defaultTabs: { [key: number]: "chart" | "table" } = {};
     messages.forEach((_, i) => {
@@ -222,11 +271,11 @@ const ChatWindow: React.FC<{
           "min-h-0 flex-1",
           scrollMode === "internal" && "overflow-y-auto",
           surface === "page"
-            ? "home-page-bg"
+            ? "home-surface"
             : surface === "card"
               ? "home-surface"
               : pathname === "/"
-                ? "home-page-bg"
+                ? "home-surface"
                 : "home-surface"
         )}
         style={scrollMode === "internal" ? { scrollbarGutter: "stable" } : undefined}
@@ -238,7 +287,15 @@ const ChatWindow: React.FC<{
               : "px-4 pb-3 pt-4 md:px-6 md:pt-6"
           )}
         >
-        {messages.map((msg, index) => (
+        {messages.map((msg, index) => {
+          const isUserMessage = msg.sender === "user";
+          const messageText = getReadableMessageText(msg.text);
+          const responseKeys =
+            msg.response && !Array.isArray(msg.response) && typeof msg.response === "object"
+              ? Object.keys(msg.response)
+              : [];
+
+          return (
           <div
             key={index}
             ref={(element) => {
@@ -246,42 +303,43 @@ const ChatWindow: React.FC<{
             }}
             data-test-id={`${msg.sender}-${index}`}
             className={cn(
-              "mb-6 flex w-full",
-              msg.sender === "user" ? "justify-end" : "justify-start"
+              "mb-4 flex w-full",
+              isUserMessage ? "justify-end" : "justify-start"
             )}
           >
             <div
               className={cn(
-                "flex max-w-full items-start gap-3",
-                msg.sender === "user" && "flex-row-reverse"
+                "flex max-w-full items-start gap-2.5",
+                isUserMessage && "flex-row-reverse"
               )}
             >
-              <div
-                title={msg.sender === "user" ? fullName : "Enspeek AI"}
+              <AvatarInitials
+                label={isUserMessage ? fullName : CHAT_AGENT_NAME}
+                title={isUserMessage ? fullName : CHAT_AGENT_NAME}
+                initials={isUserMessage ? userInitials : CHAT_AGENT_INITIALS}
                 className={cn(
-                  "mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold",
-                  msg.sender === "user"
-                    ? "home-avatar-user"
+                  "mt-0.5 h-9 w-9 text-[12px] shadow-sm",
+                  isUserMessage
+                    ? "bg-[#4f56e6] text-white"
                     : "home-avatar-ai"
                 )}
-              >
-                {msg.sender === "user" ? userInitials : "AI"}
-              </div>
-              <div
+              />
+              <div className={cn("flex min-w-0 max-w-full flex-col", isUserMessage && "items-end")}>
+                <div
                 className={
                   msg.sdata || msg.crosstab
                     ? "max-w-[min(100%,860px)]"
                     : cn(
-                        "inline-block max-w-[min(100%,820px)] rounded-[22px] px-5 py-4 text-left text-sm shadow-sm",
-                        msg.sender === "user"
-                          ? "bg-[var(--color-brand-info-soft)] text-[var(--color-text-strong)]"
-                          : "home-surface home-text border home-border"
+                        "inline-block max-w-[min(100%,820px)] rounded-[16px] px-3 py-2 text-left text-sm shadow-sm",
+                        isUserMessage
+                          ? "bg-[#4f56e6] text-white shadow-md"
+                          : "home-surface home-text border home-border shadow-[0_8px_22px_rgba(15,23,42,0.12)]"
                       )
                 }
               >
               {(!msg.questions || msg.questions.add) && !msg.sdata && (
                 <div
-                  className="break-words text-[15px] leading-7"
+                  className="break-words text-[14px] leading-6"
                   dangerouslySetInnerHTML={{ __html: formatRichText(msg.text) }}
                 />
               )}
@@ -289,7 +347,7 @@ const ChatWindow: React.FC<{
                 msg.questions.length === 0 &&
                 !msg.sdata && (
                   <div
-                    className="break-words text-[15px] leading-7"
+                    className="break-words text-[14px] leading-6"
                     dangerouslySetInnerHTML={{ __html: formatRichText(msg.text) }}
                   />
                 )}
@@ -301,14 +359,14 @@ const ChatWindow: React.FC<{
               )}
               {Array.isArray(msg.response) ? (
                 <ul className="list-disc px-6">
-                  {msg.response.map((item: any) => (
+                  {msg.response.map((item: { studyID: string; studyName: string }) => (
                     <li key={item.studyID}>{item.studyName}</li>
                   ))}
                 </ul>
               ) : (
-                typeof msg.response === "object" && (
+                responseKeys.length > 0 && (
                   <div className="mt-2">
-                    {Object.keys(msg.response).map((key, index) => (
+                    {responseKeys.map((key, index) => (
                       <p className="mt-1 break-words" key={index}>
                         <strong>{key}:</strong>{" "}
                         <span className="text-gray-500">
@@ -345,10 +403,10 @@ const ChatWindow: React.FC<{
                     "object";
 
                   const chartData = isCrosstab
-                      ? questionData._colorder.map((colId: any) => ({
+                      ? questionData._colorder.map((colId: string) => ({
                           name: questionData._coloptions?.[colId] ?? colId,
                           color: PRIMARY_CHART_COLOR,
-                          data: questionData._roworder.map((rowId: any) => {
+                          data: questionData._roworder.map((rowId: string) => {
                             return {
                               name: questionData._rowoptions?.[rowId],
                             y: questionData.data?.[colId]?.[rowId] ?? 0,
@@ -359,7 +417,7 @@ const ChatWindow: React.FC<{
                         {
                           name: "Responses",
                           color: PRIMARY_CHART_COLOR,
-                          data: questionData._roworder.map((rowId: any) => ({
+                          data: questionData._roworder.map((rowId: string) => ({
                             name: questionData._rowoptions?.[rowId],
                             y: questionData.data?.[rowId] ?? 0,
                           })),
@@ -367,7 +425,7 @@ const ChatWindow: React.FC<{
                       ];
 
                   const categories = questionData._roworder?.map(
-                    (rowId: any) => questionData._rowoptions?.[rowId]
+                    (rowId: string) => questionData._rowoptions?.[rowId]
                   );
 
                   const headers = !isCrosstab
@@ -564,10 +622,43 @@ const ChatWindow: React.FC<{
                   </div>
                 )}
               </>
+                </div>
+                <div
+                  className={cn(
+                    "mt-1.5 flex items-center gap-1.5",
+                    isUserMessage ? "justify-end" : "justify-start"
+                  )}
+                >
+                  <IconActionButton
+                    tooltip="Copy message"
+                    onClick={() => handleCopyMessage(msg.text)}
+                    tone="neutral"
+                    className="home-muted h-7 w-7 p-1.5"
+                    disabled={!messageText}
+                  >
+                    <LuCopy className="h-3.5 w-3.5" />
+                  </IconActionButton>
+                  {isUserMessage && (
+                    <IconActionButton
+                      tooltip={
+                        isResponseLocked
+                          ? `Wait for ${CHAT_AGENT_NAME} to finish responding`
+                          : "Edit message"
+                      }
+                      onClick={() => handleEditMessage(msg.text)}
+                      tone="neutral"
+                      className="home-muted h-7 w-7 p-1.5"
+                      disabled={isResponseLocked || !messageText}
+                    >
+                      <LuPencilLine className="h-3.5 w-3.5" />
+                    </IconActionButton>
+                  )}
+                </div>
               </div>
             </div>
           </div>
-        ))}
+          );
+        })}
 
         {(isTyping || pending) && (
           <TypingIndicator />
@@ -584,7 +675,7 @@ const ChatWindow: React.FC<{
                 No conversation yet
               </p>
               <p className="home-highlight mt-2 text-sm leading-6">
-                Start chatting with Enspeek AI to refine, create, or organize your questions.
+                Start chatting with {CHAT_AGENT_LABEL} to refine, create, or organize your questions.
               </p>
             </div>
           </div>

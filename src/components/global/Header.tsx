@@ -9,7 +9,7 @@ import type { AppDispatch, RootState } from "../../store/store";
 import { setMessages } from "../../store/ChatSlice";
 import DropDown from "./DropDown";
 import Modal from "../ui/Modal";
-import { cn, getFullName, getInitials } from "../../utils";
+import { cn, getFullName } from "../../utils";
 import Button from "../ui/Button";
 import ModalScaffold from "../ui/modal/ModalScaffold";
 import homepageKeys from "../../api-network/homepage/keys";
@@ -17,6 +17,7 @@ import { syncHomepageUserInfo } from "../../api-network/homepage/query";
 import SupportRequestModal from "../common/support/SupportRequestModal";
 import { getUserAccessConfig, normalizeLoginType } from "../../config/userAccess";
 import { circleIconButtonClass, circleIconContentClass } from "../../constants/uiClasses";
+import AvatarInitials from "../ui/AvatarInitials";
 
 const Header = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -52,7 +53,11 @@ const Header = () => {
   };
   const dispatch = useDispatch<AppDispatch>();
   const fullName = getFullName(firstName, lastName) || firstName || "User";
-  const initials = getInitials(fullName, "U");
+  const initials = [firstName, lastName]
+    .filter((part) => part?.trim())
+    .map((part) => part.trim()[0])
+    .join("")
+    .toUpperCase() || (fullName === "User" ? "U" : fullName.trim()[0]?.toUpperCase() ?? "U");
   const userAccess = getUserAccessConfig(loginType, userType);
   const normalizedLoginType = normalizeLoginType(loginType, userType);
   const isClientLogin = normalizedLoginType === "client";
@@ -253,13 +258,13 @@ const Header = () => {
               </span>
             </button>
           ) : null}
-          <div
+          <AvatarInitials
+            label={fullName}
             title={fullName}
             data-test-id="PROFILE"
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-login-primary text-sm font-semibold text-white"
-          >
-            {initials}
-          </div>
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-[#4f56e6] text-sm font-semibold text-white"
+            initials={initials}
+          />
           <LuChevronDown className="home-muted" size={18} />
         </div>
         {dropdownOpen && (

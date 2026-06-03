@@ -1,9 +1,8 @@
 import * as React from "react";
-import { IoMdSend } from "react-icons/io";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../store/store";
 import { cn, handleKeyPress } from "../../utils";
-import { LuMessageCircle } from "react-icons/lu";
+import { LuMessageCircle, LuSendHorizontal } from "react-icons/lu";
 import { useLocation } from "react-router";
 import NewDropdown from "./NewDropDown";
 import PromptsList from "./PromptsList";
@@ -235,7 +234,7 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
               {isTyping || pending ? (
                 <span className="h-4 w-4 rounded-full border-2 border-white/35 border-t-white animate-spin" />
               ) : (
-                <IoMdSend className="h-5 w-5 text-white" />
+                <LuSendHorizontal className="h-5 w-5 text-white" />
               )}
               <span className="sr-only">Send message</span>
             </Button>
