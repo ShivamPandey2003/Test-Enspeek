@@ -182,7 +182,7 @@ const NewDropdown: React.FC<DropdownProps> = ({
 
   const getPositionClasses = () => {
     const baseClasses =
-      "home-dropdown max-h-[25rem] w-72 overflow-y-auto rounded-[22px] border shadow-xl transition-all duration-200 ease-out";
+      "home-dropdown max-h-[25rem] w-64 overflow-y-auto rounded-[16px] border shadow-xl transition-all duration-200 ease-out";
     
     switch (resolvedPosition) {
       default:
@@ -194,8 +194,8 @@ const NewDropdown: React.FC<DropdownProps> = ({
     <>
       <div ref={menuRef} className={getPositionClasses()} style={menuStyle}>
         {searchable && (
-          <div className="home-surface sticky top-0 z-10 px-3 pb-2 pt-3">
-            <div className="home-dropdown-search flex h-11 items-center gap-2 rounded-2xl border px-3">
+          <div className="home-surface sticky top-0 z-10 px-2.5 pb-2 pt-2.5">
+            <div className="home-dropdown-search flex h-9 items-center gap-2 rounded-xl border px-2.5">
               <HiOutlineSearch className="home-muted h-4 w-4" />
               <Input
                 variant="bare"
@@ -208,7 +208,7 @@ const NewDropdown: React.FC<DropdownProps> = ({
             </div>
           </div>
         )}
-        <div className="p-2.5" role="menu" aria-orientation="vertical">
+        <div className="p-1.5" role="menu" aria-orientation="vertical">
           {filteredItems.length > 0 ? (
             filteredItems.map((item) => (
               <button
@@ -216,7 +216,7 @@ const NewDropdown: React.FC<DropdownProps> = ({
                 onClick={() => handleItemClick(item)}
                 data-test-id={item.label}
                 disabled={item.disabled}
-                className={`home-dropdown-item flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left text-sm transition-colors duration-150 ${
+                className={`home-dropdown-item flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-left text-sm transition-colors duration-150 ${
                   item.disabled
                     ? "cursor-not-allowed text-gray-400"
                     : "cursor-pointer"
@@ -224,20 +224,20 @@ const NewDropdown: React.FC<DropdownProps> = ({
                 role="menuitem"
               >
                 {item.icon && (
-                  <span className="home-dropdown-icon-wrap mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full">
+                  <span className="home-dropdown-icon-wrap flex h-6 w-6 shrink-0 items-center justify-center rounded-full [&>svg]:h-3.5 [&>svg]:w-3.5">
                     {item.icon}
                   </span>
                 )}
-                <span className="flex min-w-0 flex-col pt-0.5">
-                  <span className="text-[15px] font-medium leading-tight">{item.label}</span>
+                <span className="flex min-w-0 flex-col">
+                  <span className="text-[14px] font-medium leading-5">{item.label}</span>
                   {item.description && (
-                    <span className="home-muted mt-1 text-xs">{item.description}</span>
+                    <span className="home-muted mt-0.5 text-xs leading-4">{item.description}</span>
                   )}
                 </span>
               </button>
             ))
           ) : (
-            <div className="home-muted px-3 py-4 text-sm">No results found</div>
+            <div className="home-muted px-3 py-3 text-sm">No results found</div>
           )}
         </div>
       </div>
