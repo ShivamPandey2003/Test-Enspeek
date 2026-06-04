@@ -14,6 +14,30 @@ interface QuotaProps {
   totalQuota?: number;
 }
 
+interface StatCardProps {
+  label: string;
+  value: number;
+  icon: React.ReactNode;
+  className: string;
+}
+
+const StatCard: React.FC<StatCardProps> = ({
+  label,
+  value,
+  icon,
+  className,
+}) => (
+  <div className={`rounded-[14px] px-3 py-2 ${className}`}>
+    <div className="flex items-center justify-between gap-3">
+      <div className="flex min-w-0 items-center gap-2">
+        {icon}
+        <p className="truncate text-sm font-medium">{label}</p>
+      </div>
+      <p className="shrink-0 text-right text-[16px] font-bold">{value}</p>
+    </div>
+  </div>
+);
+
 const Quota: React.FC<QuotaProps> = ({
   studyID,
   complete,
@@ -43,17 +67,17 @@ const Quota: React.FC<QuotaProps> = ({
   const progress = safeTotalQuota > 0 ? Math.min((complete / safeTotalQuota) * 100, 100) : 0;
 
   return (
-    <section className="questionnaire-card mt-6 w-full rounded-[24px] border home-border-soft p-6 shadow-sm">
-      <div className="flex flex-col gap-5">
-        <div className="flex items-start justify-between gap-4">
+    <section className="questionnaire-card w-full rounded-[18px] border home-border-soft p-4 shadow-sm">
+      <div className="flex flex-col gap-3">
+        <div className="flex items-center justify-between gap-3">
           <div>
-            <h2 className="questionnaire-heading text-[16px] font-bold">
+            <h2 className="questionnaire-heading text-[15px] font-bold">
               Response Overview
             </h2>
           </div>
-          <div className="min-w-[116px]">
+          <div className="min-w-[108px]">
             {!isEditingTotal ? (
-              <div className="flex items-center justify-end gap-2">
+              <div className="flex items-center justify-end gap-1.5">
                 <span className="home-muted text-sm font-medium">
                   Total Quota
                 </span>
@@ -64,23 +88,25 @@ const Quota: React.FC<QuotaProps> = ({
                   tone="primary"
                   tooltip="Edit total quota"
                   onClick={() => setIsEditingTotal(true)}
+                  className="h-8 w-8"
                 >
                   <LuPencilLine size={16} />
                 </IconActionButton>
               </div>
             ) : (
-              <div className="flex items-center justify-end gap-2">
+              <div className="flex items-center justify-end gap-1.5">
                 <Input
                   variant="questionnaire"
                   type="number"
                   value={editTotal}
                   onChange={(e) => setEditTotal(Number(e.target.value))}
-                  className="w-20 rounded-xl px-3 py-2 text-sm"
+                  className="h-8 min-h-8 w-16 rounded-lg px-1.5 py-0 text-sm"
                 />
                 <IconActionButton
                   tone="success"
                   tooltip="Set total quota"
                   onClick={handleSaveTotal}
+                  className="h-8 w-8"
                 >
                   <AiOutlineSave size={18} />
                 </IconActionButton>
@@ -91,6 +117,7 @@ const Quota: React.FC<QuotaProps> = ({
                     setEditTotal(safeTotalQuota);
                     setIsEditingTotal(false);
                   }}
+                  className="h-8 w-8"
                 >
                   <MdCancel size={18} />
                 </IconActionButton>
@@ -100,13 +127,13 @@ const Quota: React.FC<QuotaProps> = ({
         </div>
 
         <div>
-          <div className="mb-2 flex items-center justify-between gap-3">
-            <span className="questionnaire-label">Progress</span>
+          <div className="mb-1.5 flex items-center justify-between gap-3">
+            <span className="questionnaire-label text-sm">Progress</span>
             <span className="questionnaire-heading text-[14px] font-bold">
               {`${complete} / ${safeTotalQuota}`}
             </span>
           </div>
-          <div className="h-3 w-full overflow-hidden rounded-full bg-[var(--color-brand-primary-softest)]">
+          <div className="h-2 w-full overflow-hidden rounded-full bg-[var(--color-brand-primary-softest)]">
             <div
               className="h-full rounded-full bg-login-primary transition-all"
               style={{ width: `${progress}%` }}
@@ -114,67 +141,26 @@ const Quota: React.FC<QuotaProps> = ({
           </div>
         </div>
 
-        {!isEditingTotal ? (
-          <div className="grid gap-4 md:grid-cols-3">
-            <div className="rounded-[20px] bg-[var(--color-questionnaire-open-bg)] p-4">
-              <div className="mb-3 flex items-center gap-2 text-[var(--color-questionnaire-open)]">
-                <LuCircleCheck className="h-4 w-4" />
-                <p className="text-sm font-medium">Complete</p>
-              </div>
-              <p className="text-[18px] font-bold text-[var(--color-questionnaire-open)]">
-                {complete}
-              </p>
-            </div>
-            <div className="rounded-[20px] bg-[var(--color-questionnaire-stop-bg)] p-4">
-              <div className="mb-3 flex items-center gap-2 text-[var(--color-questionnaire-stop)]">
-                <LuCircleX className="h-4 w-4" />
-                <p className="text-sm font-medium">Disqualified</p>
-              </div>
-              <p className="text-[18px] font-bold text-[var(--color-questionnaire-stop)]">
-                {disqualified}
-              </p>
-            </div>
-            <div className="rounded-[20px] bg-[var(--color-study-progress-bg)] p-4">
-              <div className="mb-3 flex items-center gap-2 text-[var(--color-study-progress)]">
-                <LuClock3 className="h-4 w-4" />
-                <p className="text-sm font-medium">Incomplete</p>
-              </div>
-              <p className="text-[18px] font-bold text-[var(--color-study-progress)]">
-                {incomplete}
-              </p>
-            </div>
-          </div>
-        ) : (
-          <div className="grid gap-4 md:grid-cols-3">
-            <div className="rounded-[20px] bg-[var(--color-questionnaire-open-bg)] p-4">
-              <div className="mb-3 flex items-center gap-2 text-[var(--color-questionnaire-open)]">
-                <LuCircleCheck className="h-4 w-4" />
-                <p className="text-sm font-medium">Complete</p>
-              </div>
-              <p className="text-[18px] font-bold text-[var(--color-questionnaire-open)]">
-                {complete}
-              </p>
-            </div>
-            <div className="rounded-[20px] bg-[var(--color-questionnaire-stop-bg)] p-4">
-              <div className="mb-3 flex items-center gap-2 text-[var(--color-questionnaire-stop)]">
-                <LuCircleX className="h-4 w-4" />
-                <p className="text-sm font-medium">Disqualified</p>
-              </div>
-              <p className="text-[18px] font-bold text-[var(--color-questionnaire-stop)]">
-                {disqualified}
-              </p>
-            </div>
-            <div className="rounded-[20px] bg-[var(--color-study-progress-bg)] p-4">
-              <div className="mb-3 flex items-center gap-2 text-[var(--color-study-progress)]">
-                <LuClock3 className="h-4 w-4" />
-                <p className="text-sm font-medium">Incomplete</p>
-              </div>
-              <p className="text-[18px] font-bold text-[var(--color-study-progress)]">
-                {incomplete}
-              </p>
-            </div>
-          </div>
-        )}
+        <div className="grid gap-2 md:grid-cols-3">
+          <StatCard
+            label="Complete"
+            value={complete}
+            icon={<LuCircleCheck className="h-4 w-4 shrink-0" />}
+            className="bg-[var(--color-questionnaire-open-bg)] text-[var(--color-questionnaire-open)]"
+          />
+          <StatCard
+            label="Disqualified"
+            value={disqualified}
+            icon={<LuCircleX className="h-4 w-4 shrink-0" />}
+            className="bg-[var(--color-questionnaire-stop-bg)] text-[var(--color-questionnaire-stop)]"
+          />
+          <StatCard
+            label="Incomplete"
+            value={incomplete}
+            icon={<LuClock3 className="h-4 w-4 shrink-0" />}
+            className="bg-[var(--color-study-progress-bg)] text-[var(--color-study-progress)]"
+          />
+        </div>
       </div>
     </section>
   );
