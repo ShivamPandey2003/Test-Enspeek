@@ -51,7 +51,7 @@ export default function PublishSurvey() {
   }
 
   return (
-    <div className="questionnaire-page-bg flex h-full min-h-0 flex-col overflow-hidden">
+    <div className="home-surface flex h-full min-h-0 flex-col overflow-hidden">
       <div className="flex h-full min-h-0 flex-col overflow-hidden">
         <div className="flex h-full min-h-0 flex-col overflow-hidden">
           <div className="flex h-full min-h-0 w-full flex-col overflow-hidden">
@@ -118,7 +118,7 @@ export default function PublishSurvey() {
                     </section>
                   </>
                 ) : (
-                  <div className="questionnaire-card rounded-[18px] border home-border-soft px-4 py-4 text-center shadow-sm">
+                  <div className="relative overflow-hidden rounded-[18px] border home-border-soft bg-white px-4 py-4 text-center shadow-sm">
                     <p className="questionnaire-heading text-sm md:text-base">
                       Research is not active yet. Activate it to enable data
                       collection and generate the live link.

@@ -98,7 +98,7 @@ const Header: React.FC<CrosstabHeaderProps> = ({
           <>
             <Button
               variant="theme"
-              className="report-toolbar-btn bg-[var(--color-questionnaire-multi)] px-4 text-white hover:opacity-90"
+              className="report-toolbar-btn bg-[var(--color-questionnaire-multi)] text-white hover:opacity-90"
               onClick={() => dispatch(setIsBannerSettingsOpen(true))}
             >
               <LuSettings2 />
@@ -106,7 +106,7 @@ const Header: React.FC<CrosstabHeaderProps> = ({
             <div className="relative" ref={dropdownRef}>
               <Button
                 variant="theme"
-                className="report-toolbar-btn bg-[var(--color-study-progress)] px-4 text-white hover:opacity-90"
+                className="report-toolbar-btn bg-[var(--color-study-progress)] text-white hover:opacity-90"
                 onClick={() =>
                   dispatch(setIsDownloadDropdownOpen(!isDownloadDropdownOpen))
                 }
@@ -154,7 +154,7 @@ const Header: React.FC<CrosstabHeaderProps> = ({
           <Button
             data-test-id="SAVE_QUESTION"
             variant="theme"
-            className="report-toolbar-btn px-5"
+            className="report-toolbar-btn"
             onClick={() => {
               if (selectedQuestions.length === 0) {
                 toast.error(

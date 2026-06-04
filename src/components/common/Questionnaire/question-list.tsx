@@ -2,9 +2,8 @@ import { useEffect, type DragEvent } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
-import { MdArrowForwardIos } from "react-icons/md";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
-import { LuBotMessageSquare, LuPlus, LuSparkles } from "react-icons/lu";
+import { LuArrowRight, LuBotMessageSquare, LuPlus, LuSparkles } from "react-icons/lu";
 import type { AppDispatch, RootState } from "../../../store/store";
 import { cn, getTimeGreeting, normalizeDisplayName } from "../../../utils";
 import { setEditingQuestion } from "../../../store/QuestionSlice";
@@ -88,11 +87,11 @@ export default function QuestionList() {
   }
 
   return (
-    <div className="questionnaire-page-bg relative flex h-full min-h-0 flex-col overflow-hidden">
+    <div className="home-surface relative flex h-full min-h-0 flex-col overflow-hidden">
       <PageSubheader
         left={
           <div className="flex flex-wrap items-center gap-2.5">
-            <h1 className="questionnaire-heading text-[18px] font-semibold leading-none md:text-[20px]">
+            <h1 className="questionnaire-heading text-[16px] font-semibold leading-none">
               Questionnaire
             </h1>
           </div>
@@ -113,15 +112,15 @@ export default function QuestionList() {
               <Button
                 data-test-id="NEXTTOSURVEY"
                 variant="theme"
-                size="sm"
-                className="min-h-9 px-3 py-1.5"
+                size="default"
+                className="h-8"
                 onClick={() => {
                   navigate("/publish-survey", {
                     state: { studyID },
                   });
                 }}
               >
-                Next <MdArrowForwardIos />
+                Next <LuArrowRight />
               </Button>
             </>
           ) : null

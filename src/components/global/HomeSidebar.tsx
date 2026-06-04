@@ -7,6 +7,7 @@ import { setFilterStudys } from "../../store/CrosstabStudySlice";
 import Input from "../ui/Input";
 import Button from "../ui/Button";
 import { HiSearch } from "react-icons/hi";
+import { LuX } from "react-icons/lu";
 import DeleteModel from "../common/list/DeleteModel";
 import ListingCopyModel from "./ListingCopyModal";
 import ArchiveModel from "../common/list/ArchiveModel";
@@ -47,6 +48,7 @@ const HomeSidebar: React.FC = () => {
   const studies = Studys as StudyListItem[];
   const filteredStudies = FilterStudys as StudyListItem[];
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [page, setPage] = useState<number>(1);
   const [pageInput, setPageInput] = useState<string>("1");
   const activeTabRef = useRef<StudyListSelection>("myactive");
@@ -69,6 +71,7 @@ const HomeSidebar: React.FC = () => {
 
       if (detail.resetSearch) {
         setSearchTerm("");
+        setIsSearchOpen(false);
       }
 
       setPage(1);
@@ -162,52 +165,85 @@ const HomeSidebar: React.FC = () => {
   return (
     <div className="home-surface flex h-full w-full shrink-0 flex-col border-r home-border md:w-[340px]">
       <div className="border-b home-border-soft px-3 py-3">
-        <div className="grid grid-cols-3 gap-1 text-sm">
-          <Button
-            variant={activeTab === "myactive" ? "theme" : "secondary"}
-            className={cn(
-              "min-w-0 px-2 text-center text-[12px] leading-none",
-              activeTab === "myactive"
-                ? "shadow-sm hover:bg-login-primary-hover"
-                : "home-muted border-transparent bg-transparent shadow-none hover:border-transparent hover:bg-transparent hover:text-[var(--color-text-strong)]"
-            )}
-            onClick={() => setActiveTab("myactive")}
-          >
-            {`Active (${activeCount})`}
-          </Button>
-          <Button
-            variant={activeTab === "allactive" ? "theme" : "secondary"}
-            className={cn(
-              "min-w-0 px-2 text-center text-[12px] leading-none",
-              activeTab === "allactive"
-                ? "shadow-sm hover:bg-login-primary-hover"
-                : "home-muted border-transparent bg-transparent shadow-none hover:border-transparent hover:bg-transparent hover:text-[var(--color-text-strong)]"
-            )}
-            onClick={() => setActiveTab("allactive")}
-          >
-            {`All (${allCount})`}
-          </Button>
-          <Button
-            variant={activeTab === "isarchived" ? "theme" : "secondary"}
-            className={cn(
-              "min-w-0 px-2 text-center text-[12px] leading-none",
-              activeTab === "isarchived"
-                ? "shadow-sm hover:bg-login-primary-hover"
-                : "home-muted border-transparent bg-transparent shadow-none hover:border-transparent hover:bg-transparent hover:text-[var(--color-text-strong)]"
-            )}
-            onClick={() => setActiveTab("isarchived")}
-          >
-            {`Archive (${archivedCount})`}
-          </Button>
-        </div>
-        <div className="home-search-bg mt-3 flex h-9 items-center rounded-[14px] px-3">
-          <HiSearch className="home-muted h-4 w-4" />
-          <Input
-            placeholder="Search studies..."
-            className="home-text h-full border-0 bg-transparent px-2 text-sm home-chat-placeholder focus:outline-none focus-visible:ring-0"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+        <div className="flex h-8 items-center gap-1.5">
+          {isSearchOpen ? (
+            <>
+              <div className="home-search-bg flex h-8 min-w-0 flex-1 items-center rounded-[14px] px-2.5">
+                <HiSearch className="home-muted h-4 w-4" />
+                <Input
+                  placeholder="Search studies..."
+                  className="home-text h-full border-0 bg-transparent px-2 text-sm home-chat-placeholder focus:outline-none focus-visible:ring-0"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  autoFocus
+                />
+              </div>
+              <Button
+                type="button"
+                variant="secondary"
+                size="icon"
+                aria-label="Close study search"
+                className="h-8 w-8 border-transparent bg-transparent shadow-none"
+                onClick={() => {
+                  setSearchTerm("");
+                  setIsSearchOpen(false);
+                }}
+              >
+                <LuX className="h-4 w-4" />
+              </Button>
+            </>
+          ) : (
+            <>
+              <div className="grid min-w-0 flex-1 grid-cols-3 gap-1 text-sm">
+                <Button
+                  variant={activeTab === "myactive" ? "theme" : "secondary"}
+                  className={cn(
+                    "h-8 min-w-0 px-2 text-center text-[12px] leading-none",
+                    activeTab === "myactive"
+                      ? "shadow-sm hover:bg-login-primary-hover"
+                      : "home-muted border-transparent bg-transparent shadow-none hover:border-transparent hover:bg-transparent hover:text-[var(--color-text-strong)]"
+                  )}
+                  onClick={() => setActiveTab("myactive")}
+                >
+                  {`Active (${activeCount})`}
+                </Button>
+                <Button
+                  variant={activeTab === "allactive" ? "theme" : "secondary"}
+                  className={cn(
+                    "h-8 min-w-0 px-2 text-center text-[12px] leading-none",
+                    activeTab === "allactive"
+                      ? "shadow-sm hover:bg-login-primary-hover"
+                      : "home-muted border-transparent bg-transparent shadow-none hover:border-transparent hover:bg-transparent hover:text-[var(--color-text-strong)]"
+                  )}
+                  onClick={() => setActiveTab("allactive")}
+                >
+                  {`All (${allCount})`}
+                </Button>
+                <Button
+                  variant={activeTab === "isarchived" ? "theme" : "secondary"}
+                  className={cn(
+                    "h-8 min-w-0 px-2 text-center text-[12px] leading-none",
+                    activeTab === "isarchived"
+                      ? "shadow-sm hover:bg-login-primary-hover"
+                      : "home-muted border-transparent bg-transparent shadow-none hover:border-transparent hover:bg-transparent hover:text-[var(--color-text-strong)]"
+                  )}
+                  onClick={() => setActiveTab("isarchived")}
+                >
+                  {`Archive (${archivedCount})`}
+                </Button>
+              </div>
+              <Button
+                type="button"
+                variant="secondary"
+                size="icon"
+                aria-label="Search studies"
+                className="h-8 w-8 border-transparent bg-transparent shadow-none"
+                onClick={() => setIsSearchOpen(true)}
+              >
+                <HiSearch className="h-4 w-4" />
+              </Button>
+            </>
+          )}
         </div>
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto p-3">

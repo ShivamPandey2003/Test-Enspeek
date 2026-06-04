@@ -27,8 +27,8 @@ const RowOptions: React.FC<RowOptions> = ({
 }) => {
   return (
     <div className="flex min-h-9 items-center gap-1.5 rounded-[12px] px-0.5 py-0.5">
-      <label htmlFor={`row-${optionKey}`} className="questionnaire-label w-8 shrink-0 text-sm font-medium leading-tight">
-        R{optionKey}.
+      <label htmlFor={`row-${optionKey}`} className="questionnaire-label w-5 shrink-0 text-sm font-medium leading-tight">
+        R{optionKey}:
       </label>
       <Input
         id={`row-${optionKey}`}

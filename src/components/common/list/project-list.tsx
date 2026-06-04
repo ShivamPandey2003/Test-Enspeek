@@ -38,7 +38,7 @@ export default function ProjectListing() {
   }
 
   return (
-    <div className="home-page-bg relative flex h-full min-h-0 w-full justify-center overflow-hidden">
+    <div className="home-surface relative flex h-full min-h-0 w-full justify-center overflow-hidden">
       {messages.length > 0 ? (
         <div className="h-full min-h-0 w-full">
           <ChatWindow surface="page" />

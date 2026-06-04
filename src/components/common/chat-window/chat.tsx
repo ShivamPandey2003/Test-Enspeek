@@ -333,7 +333,7 @@ const ChatWindow: React.FC<{
                         "inline-block max-w-[min(100%,820px)] rounded-[16px] px-3 py-2 text-left text-sm shadow-sm",
                         isUserMessage
                           ? "bg-[#4f56e6] text-white shadow-md"
-                          : "home-surface home-text border home-border shadow-[0_8px_22px_rgba(15,23,42,0.12)]"
+                          : "home-surface home-text border home-border shadow-[0_6px_16px_rgba(15,23,42,0.08)]"
                       )
                 }
               >

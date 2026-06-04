@@ -98,11 +98,11 @@ const QuestionAccordionItem: React.FC<QuestionAccordionItem> = ({
               </div>
             </div>
           </div>
-          <div className="ml-auto hidden items-center justify-end gap-2 md:flex">
+          <div className="ml-auto hidden h-full items-center justify-end gap-2 md:flex">
             <button
               type="button"
               title="Add or edit logic"
-              className="questionnaire-label questionnaire-clickable inline-flex h-7 items-center gap-1.5 rounded-full px-1.5 text-[12px] font-semibold leading-none"
+              className="questionnaire-clickable inline-flex h-6 items-center gap-1.5 rounded-full px-1.5 text-[12px] font-semibold leading-none text-login-primary"
               onClick={openLogicModal}
             >
               <LuGitBranchPlus className="h-4 w-4" />
@@ -186,7 +186,7 @@ const QuestionAccordionItem: React.FC<QuestionAccordionItem> = ({
         </div>
       </div>
       <AccordionContent>
-        <div className="questionnaire-card questionnaire-border rounded-b-[20px] border border-t-0 px-3 pb-4 pt-1.5 md:px-4">
+        <div className="questionnaire-card questionnaire-border rounded-b-[20px] border border-t-0 px-3 pb-3 pt-1 md:px-4">
           {logic2Skip &&
             Object.entries(logic2Skip).map(([type, message]) => (
               <p key={type} className="questionnaire-delete mb-1 text-sm leading-snug">
@@ -195,22 +195,22 @@ const QuestionAccordionItem: React.FC<QuestionAccordionItem> = ({
               </p>
             ))}
 
-          <div className="questionnaire-border space-y-3 border-t pt-2.5">
+          <div className="questionnaire-border space-y-2 border-t pt-2">
             <div>
-              <p className="questionnaire-label leading-tight">
+              <p className="questionnaire-label text-[14px] leading-tight">
                 Question Text
               </p>
-              <p className="questionnaire-heading mt-1.5 text-[16px] leading-snug">
+              <p className="questionnaire-heading mt-1 text-[14px] leading-snug">
                 {Data.qText}
               </p>
             </div>
 
             {Data.qNote3 && (
               <div>
-                <p className="questionnaire-label leading-tight">
+                <p className="questionnaire-label text-[14px] leading-tight">
                   Instruction
                 </p>
-                <p className="questionnaire-heading mt-1.5 text-[16px] leading-snug italic">
+                <p className="questionnaire-heading mt-1 text-[14px] leading-snug italic">
                   {Data.qNote3}
                 </p>
               </div>
@@ -218,24 +218,24 @@ const QuestionAccordionItem: React.FC<QuestionAccordionItem> = ({
 
             {!!Data.rowOptionList?.length && (
               <div>
-                <p className="questionnaire-label leading-tight">
+                <p className="questionnaire-label text-[14px] leading-tight">
                   Answer Options
                 </p>
-                <div className="mt-1.5 space-y-1">
+                <div className="mt-1 space-y-0.5">
                   {Data.rowOptionList &&
                     Data.rowOptionList.map((key, index) => (
                     <div
                       key={key.optionID}
-                      className="rounded-[12px] px-1 py-1"
+                      className="rounded-[12px] px-0.5 py-0.5"
                     >
-                      <div className="flex items-center gap-2">
-                        <label className="questionnaire-label w-7 shrink-0 pt-0.5 leading-tight">{`R${
+                      <div className="flex items-center gap-1">
+                        <label className="questionnaire-label w-6 shrink-0 text-[14px] leading-tight">{`R${
                           index + 1
-                        }`}</label>
-                        <div className="flex w-full min-w-0 items-center justify-between gap-2">
+                        }:`}</label>
+                        <div className="flex w-full min-w-0 items-center justify-between gap-1.5">
                           <label
                             htmlFor={`option-${index}`}
-                            className="questionnaire-heading text-[15px] leading-snug"
+                            className="questionnaire-heading text-[14px] leading-snug"
                           >
                             {key.optionText}
                           </label>

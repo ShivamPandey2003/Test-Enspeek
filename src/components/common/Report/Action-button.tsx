@@ -147,7 +147,7 @@ const ActionButton: React.FC<ActionButtonProps> = ({
   };
 
   const subGroupToggle = () => {
-    if (!!subgroupOn) {
+    if (subgroupOn) {
       dispatch(setSide_by_side("0"));
     } else {
       dispatch(setSelected(sideBySideVariables?.[0]?.qID ?? ""));
@@ -187,7 +187,7 @@ const ActionButton: React.FC<ActionButtonProps> = ({
         <div className="flex items-center gap-2">
           <Button
             data-test-id="GROUP_TOGGLE"
-            className="report-toolbar-btn report-title border home-border-soft bg-white px-4 hover:bg-white hover:text-[var(--color-text-strong)] [&_svg]:size-5"
+            className="report-toolbar-btn report-title border home-border-soft bg-white hover:bg-white hover:text-[var(--color-text-strong)] [&_svg]:size-5"
             onClick={subGroupToggle}
           >
             {subgroupOn ? (
@@ -268,7 +268,7 @@ const ActionButton: React.FC<ActionButtonProps> = ({
         <Link
           to={"/crosstab"}
           state={{ studyID: state.studyID }}
-          className="platform-btn-pill report-toolbar-btn inline-flex h-10 items-center gap-2 bg-login-primary px-5 text-sm font-bold text-white hover:bg-login-primary-hover"
+          className="platform-btn-pill report-toolbar-btn inline-flex h-8 items-center justify-center gap-2 px-2 py-1 text-sm bg-login-primary text-white hover:bg-login-primary-hover"
         >
           Next <LuArrowRight className="h-4 w-4" />
         </Link>

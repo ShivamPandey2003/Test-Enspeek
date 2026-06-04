@@ -23,6 +23,7 @@ import {
 } from "react-icons/lu";
 import { getStudyStateTheme } from "../../utils/studyStateTheme";
 import { formatStudyDate } from "../../utils/studyListing";
+import AvatarInitials from "../ui/AvatarInitials";
 
 type StudyCardProps = {
   id: string;
@@ -35,6 +36,20 @@ type StudyCardProps = {
   launch: number;
   studystate: string;
   activeTab: "myactive" | "allactive" | "isarchived";
+};
+
+const getOwnerInitials = (owner?: string) => {
+  const value = (owner || "").trim();
+
+  if (!value) return "U";
+  if (value.includes("@")) return value[0]?.toUpperCase() || "U";
+
+  const parts = value.split(/\s+/).filter(Boolean);
+
+  if (parts.length === 0) return "U";
+  if (parts.length === 1) return parts[0][0]?.toUpperCase() || "U";
+
+  return `${parts[0][0] ?? ""}${parts[parts.length - 1][0] ?? ""}`.toUpperCase();
 };
 
 export const StudyCard: React.FC<StudyCardProps> = ({
@@ -54,7 +69,6 @@ export const StudyCard: React.FC<StudyCardProps> = ({
   const cleanStatus = (status || "").replace(/\|\s*\d+\s*questions?/i, "").trim();
   const stateTheme = getStudyStateTheme(studystate || cleanStatus);
   const displayOwnerName = normalizeDisplayName(owner, "Study Owner");
-  const hasOwner = Boolean((owner || "").trim());
   const isOwner = share !== 0;
   const canOpenQuestionnaire = activeTab !== "isarchived";
   const displayState = studystate || cleanStatus || "Draft";
@@ -148,21 +162,28 @@ export const StudyCard: React.FC<StudyCardProps> = ({
       <div className="home-surface group relative w-full cursor-default overflow-visible rounded-[16px] border home-border-soft px-3 py-3 shadow-sm transition-shadow duration-200 hover:shadow-md">
         <div className={cn("absolute bottom-2.5 left-0 top-2.5 w-[3px] rounded-r-full opacity-0 transition-opacity duration-200 group-hover:opacity-100", stateTheme.accentClass)} />
         <div className="flex items-start justify-between gap-2">
-          <div className="min-w-0 flex-1">
-            <h3
-              data-test-id={name}
-              title={name}
-              className={cn(
-                "home-heading line-clamp-2 pr-1 text-[14px] font-semibold leading-5",
-                canOpenQuestionnaire ? "cursor-pointer" : "cursor-default"
-              )}
-              onClick={() => {
-                if (!canOpenQuestionnaire) return;
-                navigate("/questionnaire", { state: { studyID: id } });
-              }}
-            >
-              {name}
-            </h3>
+          <div className="flex min-w-0 flex-1 items-start gap-2">
+            <AvatarInitials
+              label={displayOwnerName}
+              title={displayOwnerName}
+              initials={getOwnerInitials(owner)}
+              className={cn("mt-0.5 h-7 w-7 text-[11px]", stateTheme.avatarClass)}
+            />
+            <div className="min-w-0 flex-1">
+              <h3
+                data-test-id={name}
+                title={name}
+                className={cn(
+                  "home-heading line-clamp-2 pr-1 text-[14px] font-semibold leading-5",
+                  canOpenQuestionnaire ? "cursor-pointer" : "cursor-default"
+                )}
+                onClick={() => {
+                  if (!canOpenQuestionnaire) return;
+                  navigate("/questionnaire", { state: { studyID: id } });
+                }}
+              >
+                {name}
+              </h3>
             <div className="mt-2 flex min-w-0 items-center gap-1.5 overflow-hidden whitespace-nowrap text-[12px] leading-4">
               <span
                 className={cn(
@@ -173,40 +194,35 @@ export const StudyCard: React.FC<StudyCardProps> = ({
               >
                 {displayState}
               </span>
-              {hasOwner && (
-                <>
-                  <span className="home-muted shrink-0">•</span>
-                  <span className="home-subtle min-w-0 truncate" title={displayOwnerName}>
-                    {displayOwnerName}
-                  </span>
-                </>
-              )}
               {createdDate && (
                 <>
-                  <span className="home-muted shrink-0">•</span>
+                  <span className="home-muted shrink-0">&bull;</span>
                   <span className="home-subtle shrink-0 whitespace-nowrap">
                     {createdDate}
                   </span>
                 </>
               )}
             </div>
+            </div>
           </div>
-          {showMenu && (
-            <NewDropdown
-              className="-mr-1"
-              trigger={
-                <div
-                  data-test-id={`${name}_CLICK`}
-                  className="home-muted hover:bg-home-panel flex h-8 w-8 cursor-pointer items-center justify-center rounded-full transition-colors"
-                >
-                  <HiOutlineDotsVertical className="h-5 w-5" />
-                </div>
-              }
-              items={dropdownItem}
-              position="bottom-right"
-              searchable={false}
-            />
-          )}
+          <div className="flex shrink-0 items-center gap-1">
+            {showMenu && (
+              <NewDropdown
+                className="-mr-1"
+                trigger={
+                  <div
+                    data-test-id={`${name}_CLICK`}
+                    className="home-muted hover:bg-home-panel flex h-8 w-8 cursor-pointer items-center justify-center rounded-full transition-colors"
+                  >
+                    <HiOutlineDotsVertical className="h-5 w-5" />
+                  </div>
+                }
+                items={dropdownItem}
+                position="bottom-right"
+                searchable={false}
+              />
+            )}
+          </div>
         </div>
       </div>
     </>

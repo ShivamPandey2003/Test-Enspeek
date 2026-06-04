@@ -82,7 +82,7 @@ const PublishSurveyHeader: FC<PublishSurveyHeaderProps> = ({
         <PageSubheader
           left={
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="questionnaire-heading text-[18px] font-semibold leading-none md:text-[20px]">
+              <h1 className="questionnaire-heading text-[16px] font-semibold leading-none">
                 Publish Research
               </h1>
             </div>

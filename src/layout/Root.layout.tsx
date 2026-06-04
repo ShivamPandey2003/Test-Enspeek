@@ -37,12 +37,12 @@ const Root_layout = () => {
       <Header />
       <div className={cn("relative flex flex-1 overflow-hidden", isHome ? "flex-col items-stretch md:flex-row" : "flex-col items-stretch xl:flex-row")}>
         {!isHome && !isFullWidthPage ? <Sidebar /> : isHome ? <HomeSidebar /> : null}
-        <div className={cn("min-h-0 flex-1 transition-all duration-300 overflow-hidden", isHome ? "h-full w-full" : "h-full", isFullWidthPage ? "w-full" : isHome ? "w-full" : usePanelChatLayout ? "w-full xl:w-[68%]" : Boolean(!isHome && !hasQuestionnaire) ? "w-full" : "w-full xl:w-[70%]")}>
+        <div className={cn("min-h-0 flex-1 transition-all duration-300 overflow-hidden", isHome ? "h-full w-full" : "h-full", isFullWidthPage ? "w-full" : isHome ? "w-full" : usePanelChatLayout ? "w-full xl:w-[68%]" : !isHome && !hasQuestionnaire ? "w-full" : "w-full xl:w-[70%]")}>
           <Outlet />
           {(!isHome && !isFullWidthPage && (submitItems.length > 0 || isForceShowChat) && !usePanelChatLayout) && <ChatTextArea />}
         </div>
         {showRightChat && (
-          <div className={cn("w-full border-t home-border xl:border-t-0", usePanelChatLayout ? "h-[44vh] xl:h-full xl:w-[32%] xl:border-l" : "h-[46vh] xl:h-full xl:w-[30%] xl:border-l")} id="otherChat">
+          <div className={cn("home-surface w-full border-t home-border xl:border-t-0", usePanelChatLayout ? "h-[44vh] xl:h-full xl:w-[32%] xl:border-l" : "h-[46vh] xl:h-full xl:w-[30%] xl:border-l")} id="otherChat">
             {usePanelChatLayout ? (
               <div className="flex h-full min-h-0 flex-col overflow-hidden">
                 <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden">

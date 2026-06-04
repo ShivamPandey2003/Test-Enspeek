@@ -22,13 +22,13 @@ export default function CrosstabHeader({
   const dispatch = useDispatch();
   const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
 
-  const {} = useCrosstabStudyInfo(location.state.studyID);
+  useCrosstabStudyInfo(location.state.studyID);
 
   return (
     <PageSubheader
       left={
         <div className="flex flex-wrap items-center gap-3">
-          <h1 className="questionnaire-heading text-[18px] font-semibold leading-none md:text-[22px]">
+          <h1 className="questionnaire-heading text-[16px] font-semibold leading-none">
             Banner List
           </h1>
         </div>
@@ -38,7 +38,7 @@ export default function CrosstabHeader({
           <Button
             data-test-id="CREATE_BANNER"
             variant="theme"
-            className="report-toolbar-btn px-4"
+            className="report-toolbar-btn"
             onClick={() => dispatch(setIsAddBannerModalOpen(true))}
           >
             <LuPlus />

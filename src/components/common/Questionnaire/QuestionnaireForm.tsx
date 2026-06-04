@@ -67,6 +67,8 @@ const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({ onClose }) => {
   const { mutate: editQuestion, isPending: isEditPending } =
     useEditQuestionMutation(studyID);
   const isSaving = data ? isEditPending : isCreatePending;
+  const editFieldInputClass =
+    "questionnaire-heading min-h-8 border-b border-[color:var(--color-login-primary)]/35 px-1.5 py-0 text-[14px] focus-visible:border-[color:var(--color-login-primary)]/35 focus-visible:ring-0";
 
   const closeForm = () => {
     dispatch(setEditingQuestion(null));
@@ -213,7 +215,7 @@ const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({ onClose }) => {
   };
 
   return (
-    <div className="questionnaire-page-bg z-50 mb-2 w-full p-2 md:p-3">
+    <div className="home-surface z-50 mb-2 w-full p-2 md:p-3">
       <div className="w-full">
         <div className="questionnaire-card questionnaire-card-edit questionnaire-edit-frame overflow-hidden rounded-[22px]">
           <div className="questionnaire-border border-b px-2.5 py-1.5 md:px-3">
@@ -361,8 +363,9 @@ const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({ onClose }) => {
                 Question Text <span className="text-[var(--color-core-danger)]">*</span>
               </label>
               <Input
-                variant="questionnaire"
+                variant="bare"
                 className={cn(
+                  editFieldInputClass,
                   errors.qtext
                     ? "border-[var(--color-core-danger)] pr-10"
                     : ""
@@ -382,8 +385,8 @@ const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({ onClose }) => {
                 Question Text 2 (Optional)
               </label>
               <Input
-                variant="questionnaire"
-                className=""
+                variant="bare"
+                className={editFieldInputClass}
                 value={qtext2}
                 onChange={(e) => setQtext2(e.target.value)}
                 placeholder="Additional context..."
@@ -394,8 +397,8 @@ const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({ onClose }) => {
                 Respondent Instruction
               </label>
               <Input
-                variant="questionnaire"
-                className=""
+                variant="bare"
+                className={editFieldInputClass}
                 value={qInstruction}
                 onChange={(e) => setQinstruction(e.target.value)}
                 placeholder={
@@ -420,7 +423,7 @@ const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({ onClose }) => {
                       Add options:
                     </span>
                     <Input
-                      variant="questionnaire"
+                      variant="bare"
                       type="number"
                       min={0}
                       max={50}
@@ -435,7 +438,7 @@ const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({ onClose }) => {
                         }
                       }}
                       placeholder="0"
-                      className="h-8 min-h-8 w-[60px] rounded-lg px-1.5 py-0 text-center text-sm"
+                      className={cn(editFieldInputClass, "h-8 w-[60px] text-center text-sm")}
                     />
                     <Button
                       variant="theme"

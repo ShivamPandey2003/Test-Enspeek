@@ -23,7 +23,7 @@ const AvatarInitials = ({
       className
     )}
   >
-    <span className="block translate-y-px leading-none">
+    <span className="block leading-none">
       {initials}
     </span>
   </div>
