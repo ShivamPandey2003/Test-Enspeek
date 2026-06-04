@@ -115,16 +115,17 @@ export default function OptionLogic({
   }, [submitItems, qID, rowIndex]);
 
   return (
-    <div>
+    <div className="min-w-0">
       {logic.map((row, idx) => (
         <div key={row.row} className="flex items-center">
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex min-w-0 items-center gap-1">
             {(row.value || row.terminate) && (
               <IconActionButton
                 type="button"
                 tone="neutral"
                 tooltip="Reset logic"
                 onClick={() => handleReset(idx)}
+                className="h-7 w-7 p-1"
               >
                 <TbRefresh className="h-4 w-4" />
               </IconActionButton>
@@ -138,23 +139,24 @@ export default function OptionLogic({
               disabled={!!row.value}
               className={
                 row.terminate
-                  ? "questionnaire-logic-chip-danger"
-                  : "questionnaire-logic-chip-muted"
+                  ? "questionnaire-logic-chip-danger min-h-7 rounded-full px-1.5 py-0.5 text-[11px] font-semibold"
+                  : "questionnaire-logic-chip-muted min-h-7 rounded-full px-1.5 py-0.5 text-[11px] font-semibold"
               }
             >
               <LuBan className="h-4 w-4" />
               <span>
-                {row.terminate ? "Termination Applied" : "Apply Termination"}
+                {row.terminate ? "Terminated" : "Termination"}
               </span>
             </Button>
 
             <div
               title={row.value?.trim() ? "Update skip logic" : "Apply skip logic"}
-              className="relative min-w-[144px]"
+              className="relative min-w-[96px]"
             >
               <Select
                 variant="questionnaire"
-                className={`w-full rounded-full py-2 pl-3 pr-9 text-sm font-semibold ${
+                hideIcon
+                className={`min-h-7 w-full rounded-full py-0.5 pl-2 pr-6 text-[11px] font-semibold ${
                   row.value?.trim() ? "questionnaire-logic-select-active" : ""
                 } ${row.terminate ? "opacity-50 cursor-not-allowed" : ""}`}
                 value={row.value}

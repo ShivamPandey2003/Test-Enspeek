@@ -12,17 +12,17 @@ type IconActionTone =
 
 const toneClassMap: Record<IconActionTone, string> = {
   neutral:
-    "questionnaire-clickable crosstab-muted rounded-full p-2 transition-colors hover:bg-[var(--color-brand-primary-softest)] hover:text-login-primary",
+    "questionnaire-clickable crosstab-muted rounded-full p-1.5 transition-colors hover:bg-[var(--color-brand-primary-softest)] hover:text-login-primary",
   primary:
-    "questionnaire-clickable rounded-full p-2 text-login-primary transition-colors hover:bg-[var(--color-brand-primary-softest)]",
+    "questionnaire-clickable rounded-full p-1.5 text-login-primary transition-colors hover:bg-[var(--color-brand-primary-softest)]",
   info:
-    "questionnaire-clickable rounded-full p-2 text-[var(--color-brand-info)] transition-colors hover:bg-[var(--color-brand-info-soft)]",
+    "questionnaire-clickable rounded-full p-1.5 text-[var(--color-brand-info)] transition-colors hover:bg-[var(--color-brand-info-soft)]",
   success:
-    "questionnaire-clickable rounded-full p-2 text-[var(--color-questionnaire-multi)] transition-colors hover:bg-[var(--color-questionnaire-open-bg)]",
+    "questionnaire-clickable rounded-full p-1.5 text-[var(--color-questionnaire-multi)] transition-colors hover:bg-[var(--color-questionnaire-open-bg)]",
   warning:
-    "questionnaire-clickable rounded-full p-2 text-[var(--color-study-progress)] transition-colors hover:bg-[var(--color-home-panel-soft)]",
+    "questionnaire-clickable rounded-full p-1.5 text-[var(--color-study-progress)] transition-colors hover:bg-[var(--color-home-panel-soft)]",
   danger:
-    "questionnaire-clickable rounded-full p-2 text-[var(--color-questionnaire-stop)] transition-colors hover:bg-[var(--color-questionnaire-stop-bg)]",
+    "questionnaire-clickable rounded-full p-1.5 text-[var(--color-questionnaire-stop)] transition-colors hover:bg-[var(--color-questionnaire-stop-bg)]",
 };
 
 type IconActionButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {

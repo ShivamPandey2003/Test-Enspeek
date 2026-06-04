@@ -91,8 +91,8 @@ export default function QuestionList() {
     <div className="questionnaire-page-bg relative flex h-full min-h-0 flex-col overflow-hidden">
       <PageSubheader
         left={
-          <div className="flex flex-wrap items-center gap-3">
-            <h1 className="questionnaire-heading text-[18px] font-semibold leading-none md:text-[22px]">
+          <div className="flex flex-wrap items-center gap-2.5">
+            <h1 className="questionnaire-heading text-[18px] font-semibold leading-none md:text-[20px]">
               Questionnaire
             </h1>
           </div>
@@ -100,8 +100,8 @@ export default function QuestionList() {
         right={
           submitItems.length > 0 ? (
             <>
-              <div className="questionnaire-question-count inline-flex min-h-[34px] items-center gap-2.5">
-                <div className="flex items-center gap-2">
+              <div className="questionnaire-question-count inline-flex min-h-8 items-center gap-2">
+                <div className="flex items-center gap-1.5">
                   <span className="questionnaire-question-count-value text-sm font-semibold md:text-base">
                     {submitItems.length}
                   </span>
@@ -113,6 +113,8 @@ export default function QuestionList() {
               <Button
                 data-test-id="NEXTTOSURVEY"
                 variant="theme"
+                size="sm"
+                className="min-h-9 px-3 py-1.5"
                 onClick={() => {
                   navigate("/publish-survey", {
                     state: { studyID },
@@ -124,7 +126,7 @@ export default function QuestionList() {
             </>
           ) : null
         }
-        rightClassName="justify-between gap-4 md:justify-end md:gap-5"
+        rightClassName="justify-between gap-2.5 md:justify-end md:gap-3"
       />
       <div className="flex flex-1 min-h-0">
         <div

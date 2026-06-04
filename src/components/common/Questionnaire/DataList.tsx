@@ -1,4 +1,4 @@
-import { useState, type FC, type DragEvent, useRef } from "react";
+import { useState, type DragEvent, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../../../store/store";
 import { Accordion } from "../../ui/Accrodion";
@@ -13,9 +13,7 @@ import { setAllSubmitItems, setEditingQuestion } from "../../../store/QuestionSl
 import { setIsAddingQuestion } from "../../../store/TriggerSlice";
 import { useLocation } from "react-router";
 
-interface DataListProps { }
-
-const DataList: FC<DataListProps> = () => {
+const DataList = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { state } = useLocation();
   const studyID = state?.studyID;
@@ -60,7 +58,7 @@ const DataList: FC<DataListProps> = () => {
   };
 
   return (
-    <div className="w-full px-3 py-4 md:px-6 md:py-6">
+    <div className="w-full px-2 py-2 md:px-4 md:py-3">
       {isRearrangePending && (
         <div className="flex items-center justify-center w-full h-full">
           <AiOutlineLoading3Quarters
@@ -69,7 +67,7 @@ const DataList: FC<DataListProps> = () => {
           />
         </div>
       )}
-      <Accordion type="multiple" className="w-full space-y-4" ref={MainDiv}>
+      <Accordion type="multiple" className="w-full space-y-2.5" ref={MainDiv}>
         {submittedItems.map((data, index) => (
           <div
             key={data.qID}

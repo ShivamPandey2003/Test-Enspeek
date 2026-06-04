@@ -10,7 +10,7 @@ const inputVariants = cva(
         default:
           "rounded-lg border-[var(--color-brand-primary)] bg-[var(--color-surface-base)] text-sm text-[var(--color-text-default)] placeholder:text-[var(--color-text-muted)] focus-visible:ring-2 focus-visible:ring-[color:var(--color-brand-primary)]/20",
         questionnaire:
-          "questionnaire-input questionnaire-heading questionnaire-border rounded-[18px] px-4 py-3.5 text-base focus-visible:ring-0",
+          "questionnaire-heading min-h-9 rounded-xl border border-[color:var(--color-login-primary)]/35 bg-white px-1.5 py-0 text-[15px] text-[var(--color-login-input-text)] placeholder:text-[var(--color-text-muted)] focus-visible:border-[color:var(--color-login-primary)]/35 focus-visible:ring-0",
         crosstab:
           "questionnaire-input questionnaire-heading questionnaire-border rounded-[16px] px-4 py-3 text-sm focus-visible:ring-0",
         modal:

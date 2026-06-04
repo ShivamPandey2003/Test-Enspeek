@@ -10,7 +10,7 @@ const textareaVariants = cva(
         default:
           "rounded-lg border-[var(--color-border-default)] bg-[var(--color-surface-base)] px-4 py-3 text-sm text-[var(--color-text-default)] placeholder:text-[var(--color-text-muted)] focus-visible:ring-2 focus-visible:ring-[color:var(--color-brand-primary)]/20",
         questionnaire:
-          "questionnaire-input questionnaire-heading questionnaire-border rounded-[18px] px-4 py-3.5 text-base focus-visible:ring-0",
+          "questionnaire-heading rounded-xl border-0 bg-white px-2.5 py-1.5 text-[15px] text-[var(--color-login-input-text)] placeholder:text-[var(--color-text-muted)] shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--color-login-primary)_22%,transparent)] focus-visible:ring-2 focus-visible:ring-[color:var(--color-login-primary)]/40",
         modal:
           "modal-textarea px-4 py-3 text-sm",
       },

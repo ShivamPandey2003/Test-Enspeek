@@ -213,20 +213,21 @@ const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({ onClose }) => {
   };
 
   return (
-    <div className="questionnaire-page-bg z-50 mb-4 w-full p-2 md:p-6">
+    <div className="questionnaire-page-bg z-50 mb-2 w-full p-2 md:p-3">
       <div className="w-full">
-        <div className="questionnaire-card questionnaire-card-edit questionnaire-edit-frame overflow-hidden rounded-[26px]">
-          <div className="border-b questionnaire-border px-4 py-4 md:px-6">
-            <div className="flex flex-wrap items-start justify-between gap-4 lg:flex-nowrap">
-              <div className="flex min-w-0 items-center gap-3">
+        <div className="questionnaire-card questionnaire-card-edit questionnaire-edit-frame overflow-hidden rounded-[22px]">
+          <div className="questionnaire-border border-b px-2.5 py-1.5 md:px-3">
+            <div className="flex min-h-8 flex-wrap items-center justify-between gap-2 lg:flex-nowrap">
+              <div className="flex min-w-0 items-center gap-2.5">
                 <span className="questionnaire-muted hidden md:inline-flex">
-                  <LuGripVertical className="h-5 w-5" />
+                  <LuGripVertical className="h-4 w-4" />
                 </span>
-                <span className="question-type-default rounded-full px-4 py-1.5 text-sm font-semibold">
+                <span className="questionnaire-heading shrink-0 text-[14px] font-semibold leading-tight">
                   {data?.qID || `CQ${id || ""}`}
+                  {data ? ":" : ""}
                 </span>
                 <div className="min-w-0">
-                  <h2 className="questionnaire-heading truncate text-lg font-semibold md:text-[22px]">
+                  <h2 className="questionnaire-heading truncate text-[14px] font-semibold leading-tight md:text-[15px]">
                     {data
                       ? displayEditLabel || qtext || data?.qText || "Question"
                       : qtext || label || "Question"}
@@ -234,10 +235,11 @@ const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({ onClose }) => {
                 </div>
               </div>
 
-              <div className="flex w-full flex-wrap items-center justify-end gap-3 lg:w-auto">
+              <div className="flex w-full flex-wrap items-center justify-end gap-1.5 lg:w-auto">
                 <Button
                   variant="success"
-                  className="capitalize"
+                  size="sm"
+                  className="h-8 capitalize"
                   onClick={data ? handleUpdate : handleCreate}
                   disabled={isSaving}
                 >
@@ -255,7 +257,7 @@ const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({ onClose }) => {
                     </>
                   ) : (
                     <>
-                      <LuSave className="h-4 w-4" />
+                      <LuSave className="h-3.5 w-3.5" />
                       {data ? "Save" : "Submit"}
                     </>
                   )}
@@ -263,7 +265,8 @@ const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({ onClose }) => {
                 <Button
                   type="button"
                   variant="cancel"
-                  className="border-gray-300 px-5 text-[var(--color-text-strong)] hover:bg-gray-50"
+                  size="sm"
+                  className="h-8 border-gray-300 px-2.5 text-[var(--color-text-strong)] hover:bg-gray-50"
                   onClick={closeForm}
                   disabled={isSaving}
                 >
@@ -275,20 +278,20 @@ const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({ onClose }) => {
                   variant="secondary"
                   size="icon"
                   tooltip="Collapse"
-                  className="questionnaire-muted shadow-none"
+                  className="questionnaire-muted h-8 w-8 shadow-none"
                   onClick={closeForm}
                 >
-                  <LuChevronDown className="h-5 w-5" />
+                  <LuChevronDown className="h-4 w-4" />
                 </Button>
               </div>
             </div>
           </div>
 
-          <div className="px-4 py-5 pr-2 md:px-6 md:pr-3">
+          <div className="px-3 py-3 pr-2 md:px-4 md:pr-3">
             {!data && (
-              <div className="mb-6 grid gap-4 md:grid-cols-[1fr_2fr_1fr]">
+              <div className="mb-4 grid gap-3 md:grid-cols-[1fr_2fr_1fr]">
                 <div className="w-full">
-                  <label className="questionnaire-label mb-3 block text-[15px]">
+                  <label className="questionnaire-label mb-1.5 block text-sm leading-tight">
                     QID <span className="text-[var(--color-core-danger)]">*</span>
                   </label>
                   <Input
@@ -296,7 +299,7 @@ const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({ onClose }) => {
                     className={cn(
                       errors.id
                         ? "border-[var(--color-core-danger)] pr-10"
-                        : "questionnaire-border border"
+                        : ""
                     )}
                     value={id}
                     onChange={(e) => {
@@ -311,7 +314,7 @@ const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({ onClose }) => {
                 </div>
 
                 <div className="w-full">
-                  <label className="questionnaire-label mb-3 block text-[15px]">
+                  <label className="questionnaire-label mb-1.5 block text-sm leading-tight">
                     Question label <span className="text-[var(--color-core-danger)]">*</span>
                   </label>
                   <Input
@@ -319,7 +322,7 @@ const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({ onClose }) => {
                     className={cn(
                       errors.label
                         ? "border-[var(--color-core-danger)] pr-10"
-                        : "questionnaire-border border"
+                        : ""
                     )}
                     value={label}
                     onChange={(e) => {
@@ -332,7 +335,7 @@ const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({ onClose }) => {
                   />
                 </div>
                 <div className="flex w-full flex-col">
-                  <label htmlFor="qType" className="questionnaire-label mb-2 text-sm font-medium">
+                  <label htmlFor="qType" className="questionnaire-label mb-1.5 text-sm font-medium leading-tight">
                     Question Type
                   </label>
                   <Select
@@ -353,8 +356,8 @@ const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({ onClose }) => {
               </div>
             )}
 
-            <div className="mb-5 w-full">
-              <label className="questionnaire-label mb-3 block text-[15px]">
+            <div className="mb-3.5 w-full">
+              <label className="questionnaire-label mb-1.5 block text-sm leading-tight">
                 Question Text <span className="text-[var(--color-core-danger)]">*</span>
               </label>
               <Input
@@ -362,7 +365,7 @@ const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({ onClose }) => {
                 className={cn(
                   errors.qtext
                     ? "border-[var(--color-core-danger)] pr-10"
-                    : "questionnaire-border border"
+                    : ""
                 )}
                 value={qtext}
                 onChange={(e) => {
@@ -374,25 +377,25 @@ const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({ onClose }) => {
                 placeholder="Enter your question"
               />
             </div>
-            <div className="mb-5 w-full">
-              <label className="questionnaire-label mb-3 block text-[15px]">
+            <div className="mb-3.5 w-full">
+              <label className="questionnaire-label mb-1.5 block text-sm leading-tight">
                 Question Text 2 (Optional)
               </label>
               <Input
                 variant="questionnaire"
-                className="questionnaire-border border"
+                className=""
                 value={qtext2}
                 onChange={(e) => setQtext2(e.target.value)}
                 placeholder="Additional context..."
               />
             </div>
-            <div className="mb-5">
-              <label className="questionnaire-label mb-3 block text-[15px]">
+            <div className="mb-3.5">
+              <label className="questionnaire-label mb-1.5 block text-sm leading-tight">
                 Respondent Instruction
               </label>
               <Input
                 variant="questionnaire"
-                className="questionnaire-border border"
+                className=""
                 value={qInstruction}
                 onChange={(e) => setQinstruction(e.target.value)}
                 placeholder={
@@ -401,9 +404,9 @@ const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({ onClose }) => {
               />
             </div>
             {isSelectableType === "stop" && (
-              <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:gap-6">
+              <div className="mb-3 flex flex-col gap-2.5 md:flex-row md:items-center md:gap-4">
                 <label className="questionnaire-label">Select stop condition</label>
-                <Select variant="questionnaire" className="max-w-[220px] py-2">
+                <Select variant="questionnaire" className="max-w-[220px]">
                   <option>Terminated</option>
                   <option>Completed</option>
                 </Select>
@@ -411,9 +414,9 @@ const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({ onClose }) => {
             )}
             {show && (
               <>
-                <div className="mb-5 flex flex-wrap items-end gap-3 lg:gap-4">
-                  <div className="flex flex-wrap items-end gap-3">
-                    <span className="questionnaire-label pb-3 text-base font-medium">
+                <div className="mb-4 flex flex-wrap items-center gap-2.5 lg:gap-3">
+                  <div className="flex min-w-0 flex-nowrap items-center gap-2">
+                    <span className="questionnaire-label whitespace-nowrap text-sm font-medium leading-none">
                       Add options:
                     </span>
                     <Input
@@ -432,11 +435,12 @@ const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({ onClose }) => {
                         }
                       }}
                       placeholder="0"
-                      className="h-[46px] w-[82px] rounded-lg border px-4 text-center text-base"
+                      className="h-8 min-h-8 w-[60px] rounded-lg px-1.5 py-0 text-center text-sm"
                     />
                     <Button
                       variant="theme"
                       size="default"
+                      className="h-8"
                       onClick={createOption}
                       disabled={isSaving}
                     >
@@ -444,14 +448,14 @@ const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({ onClose }) => {
                     </Button>
                   </div>
                   {isSelectableType === "multiple-select" && (
-                    <div className="flex flex-wrap items-end gap-3">
+                    <div className="flex flex-wrap items-end gap-2.5">
                       <div className="w-full md:w-32">
-                        <label className="questionnaire-label mb-3 block text-[15px]">
+                        <label className="questionnaire-label mb-1.5 block text-sm leading-tight">
                           Min Selection
                         </label>
                         <Input
                           variant="questionnaire"
-                          className="questionnaire-border border"
+                          className=""
                           type="number"
                           min={1}
                           value={minSelection}
@@ -460,12 +464,12 @@ const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({ onClose }) => {
                         />
                       </div>
                       <div className="w-full md:w-32">
-                        <label className="questionnaire-label mb-3 block text-[15px]">
+                        <label className="questionnaire-label mb-1.5 block text-sm leading-tight">
                           Max Selection
                         </label>
                         <Input
                           variant="questionnaire"
-                          className="questionnaire-border border"
+                          className=""
                           type="number"
                           min={1}
                           value={maxSelection}
@@ -477,11 +481,11 @@ const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({ onClose }) => {
                   )}
                 </div>
 
-                <div className="mt-4">
-                  <h3 className="questionnaire-label mb-3 text-base font-medium">
+                <div className="mt-3">
+                  <h3 className="questionnaire-label mb-2 text-sm font-medium leading-tight">
                     Answer Options
                   </h3>
-                  <div className="space-y-3">
+                  <div className="space-y-1">
                     {options.map((option, index) => (
                       <RowOptions
                         key={index}
@@ -492,6 +496,8 @@ const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({ onClose }) => {
                         select={option.other}
                         onSelect={(val) => updateSpecify(index, val)}
                         error={optionErrors[index]}
+                        qID={data?.qID}
+                        optionID={option.optionID}
                       />
                     ))}
                   </div>

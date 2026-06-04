@@ -11,7 +11,7 @@ const selectVariants = cva(
         default:
           "rounded-lg border-[var(--color-border-default)] bg-[var(--color-surface-base)] px-4 py-3 text-sm text-[var(--color-text-default)] focus-visible:ring-2 focus-visible:ring-[color:var(--color-brand-primary)]/20",
         questionnaire:
-          "questionnaire-logic-select rounded-lg px-4 py-3 text-sm",
+          "questionnaire-logic-select min-h-10 rounded-lg px-3 py-2 text-sm",
         crosstab:
           "questionnaire-input questionnaire-heading questionnaire-border rounded-lg px-4 py-3 text-sm focus-visible:ring-0",
         modal:
