@@ -178,8 +178,8 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
       >
         <div
           className={cn(
-            "flex items-center gap-3 overflow-visible p-3",
-            isPanelPlacement && "px-4 py-4 md:px-5"
+            "flex items-center gap-3 overflow-visible p-2",
+            isPanelPlacement && ""
           )}
           style={{ maxHeight: "400px" }}
         >
