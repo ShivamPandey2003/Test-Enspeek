@@ -63,6 +63,7 @@ const ChatWindow: React.FC<{
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
   const scrollContainerRef = React.useRef<HTMLDivElement>(null);
   const messageRowRefs = React.useRef<Array<HTMLDivElement | null>>([]);
+  const messageContentRefs = React.useRef<Array<HTMLDivElement | null>>([]);
   const scrollTimersRef = React.useRef<number[]>([]);
   const latestRowObserverRef = React.useRef<ResizeObserver | null>(null);
   const previousChatStateRef = React.useRef({
@@ -177,8 +178,11 @@ const ChatWindow: React.FC<{
   const isHomePageSurface =
     pathname === "/" && (surface === "auto" || surface === "page");
   const isResponseLocked = isTyping || pending;
-  const handleCopyMessage = async (text?: string) => {
-    const readableText = getReadableMessageText(text);
+  const handleCopyMessage = async (index: number, text?: string, includeRenderedContent = true) => {
+    const renderedText = includeRenderedContent
+      ? messageContentRefs.current[index]?.innerText?.trim()
+      : "";
+    const readableText = renderedText || getReadableMessageText(text);
 
     if (!readableText) {
       toast.warning("No message text to copy.");
@@ -326,6 +330,9 @@ const ChatWindow: React.FC<{
               />
               <div className={cn("flex min-w-0 max-w-full flex-col", isUserMessage && "items-end")}>
                 <div
+                ref={(element) => {
+                  messageContentRefs.current[index] = element;
+                }}
                 className={
                   msg.sdata || msg.crosstab
                     ? "max-w-[min(100%,860px)]"
@@ -631,7 +638,7 @@ const ChatWindow: React.FC<{
                 >
                   <IconActionButton
                     tooltip="Copy message"
-                    onClick={() => handleCopyMessage(msg.text)}
+                    onClick={() => handleCopyMessage(index, msg.text, !msg.sdata && !msg.crosstab)}
                     tone="neutral"
                     className="home-muted h-7 w-7 p-1.5"
                     disabled={!messageText}
