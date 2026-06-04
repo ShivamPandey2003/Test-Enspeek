@@ -18,7 +18,12 @@ import PageSubheader from "../../ui/PageSubheader";
 
 interface CrosstabHeaderProps {
   dropdownRef: RefObject<HTMLDivElement | null>;
-  dropDownData: any[];
+  dropDownData: Array<{
+    Title: string;
+    Icon?: React.ElementType;
+    checked?: boolean;
+    onClick?: () => void;
+  }>;
 }
 
 const Header: React.FC<CrosstabHeaderProps> = ({
@@ -119,12 +124,12 @@ const Header: React.FC<CrosstabHeaderProps> = ({
                 </div>
               )}
             </div>
-            <div className="crosstab-soft-panel flex h-10 items-center rounded-[16px] px-3">
+            <div className="crosstab-soft-panel flex h-8 items-center rounded-full px-2.5">
               <Select
                 variant="bare"
                 value={selectedBanner}
                 onChange={(e) => setSelectedBanner(e.target.value)}
-                className="home-text h-full pr-2 leading-none"
+                className="home-text h-full pr-2 text-sm leading-none"
               >
                 {BannersAll.map((banner) => (
                   <option key={banner.bannerid} value={banner.bannerid}>
@@ -135,7 +140,7 @@ const Header: React.FC<CrosstabHeaderProps> = ({
               <Button
                 type="button"
                 variant="theme"
-                size="sm"
+                size="default"
                 onClick={() =>
                   navigate("/crosstab/table-list", {
                     state: {
@@ -144,9 +149,9 @@ const Header: React.FC<CrosstabHeaderProps> = ({
                     },
                   })
                 }
-                className="ml-2 px-2.5 py-1.5 text-xs"
+                className="ml-2 h-6 border-l border-white/35 pl-2 text-xs"
               >
-                Go <LuArrowRight className="ml-1 h-3.5 w-3.5" />
+                Go <LuArrowRight className="h-3.5 w-3.5" />
               </Button>
             </div>
           </>

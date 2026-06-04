@@ -26,7 +26,7 @@ const PageSubheader: React.FC<PageSubheaderProps> = ({
       <div className="flex w-full flex-col gap-1.5 md:flex-row md:items-center md:justify-between">
         <div
           className={cn(
-            "min-w-0 md:flex md:min-h-[34px] md:items-center",
+            "min-w-0 md:flex md:min-h-8 md:items-center",
             leftClassName
           )}
         >
@@ -35,7 +35,7 @@ const PageSubheader: React.FC<PageSubheaderProps> = ({
         {right ? (
           <div
             className={cn(
-              "flex min-h-[34px] flex-wrap items-center justify-end gap-2",
+              "flex min-h-8 flex-wrap items-center justify-end gap-2",
               rightClassName
             )}
           >

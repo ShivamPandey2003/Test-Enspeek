@@ -44,11 +44,11 @@ export default function CrosstabHeader({
             <LuPlus />
             Banner
           </Button>
-          <div className="crosstab-soft-panel flex h-10 min-w-[220px] items-center px-3">
+          <div className="crosstab-soft-panel flex h-8 min-w-[220px] items-center rounded-full px-2.5">
             <LuSearch className="crosstab-muted h-4 w-4" />
             <Input
               placeholder="Search banner..."
-              className="home-text border-0 bg-transparent px-2 py-0 focus:outline-none focus-visible:ring-0"
+              className="home-text h-full border-0 bg-transparent px-2 py-0 text-sm focus:outline-none focus-visible:ring-0"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               onKeyUp={(e) =>
