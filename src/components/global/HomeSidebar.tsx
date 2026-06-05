@@ -188,6 +188,7 @@ const HomeSidebar: React.FC = () => {
                   setSearchTerm("");
                   setIsSearchOpen(false);
                 }}
+                title="Close search"
               >
                 <LuX className="h-4 w-4" />
               </Button>
@@ -239,6 +240,7 @@ const HomeSidebar: React.FC = () => {
                 aria-label="Search studies"
                 className="h-8 w-8 border-transparent bg-transparent shadow-none"
                 onClick={() => setIsSearchOpen(true)}
+                title="Search studies"
               >
                 <HiSearch className="h-4 w-4" />
               </Button>
