@@ -240,7 +240,7 @@ const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({ onClose }) => {
               <div className="flex w-full flex-wrap items-center justify-end gap-1.5 lg:w-auto">
                 <Button
                   variant="success"
-                  size="sm"
+                  size="default"
                   className="h-8 capitalize"
                   onClick={data ? handleUpdate : handleCreate}
                   disabled={isSaving}
@@ -267,7 +267,7 @@ const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({ onClose }) => {
                 <Button
                   type="button"
                   variant="cancel"
-                  size="sm"
+                  size="default"
                   className="h-8 border-gray-300 px-2.5 text-[var(--color-text-strong)] hover:bg-gray-50"
                   onClick={closeForm}
                   disabled={isSaving}

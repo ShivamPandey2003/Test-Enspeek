@@ -170,7 +170,7 @@ const ChatSuggestionBlock = ({
                   key={`${item}-${itemIndex}`}
                   type="button"
                   variant="chip"
-                  size="sm"
+                  size="default"
                   disabled={isDisabled}
                   className="h-auto min-h-8 rounded-full border home-border bg-white px-2.5 py-1.5 text-left text-[13px] font-semibold leading-snug shadow-sm hover:bg-[var(--color-brand-primary-softest)]"
                   onClick={() => handleSuggestionClick(item)}
@@ -672,7 +672,7 @@ const ChatWindow: React.FC<{
                           <Button
                             type="button"
                             variant={isChart ? "theme" : "outline"}
-                            size="sm"
+                            size="default"
                             className={`rounded-md ${
                               isChart
                                 ? "text-white"
@@ -694,7 +694,7 @@ const ChatWindow: React.FC<{
                             <Button
                               type="button"
                               variant={isTable ? "theme" : "outline"}
-                              size="sm"
+                              size="default"
                               className={`rounded-md ${
                                 isTable
                                   ? "text-white"

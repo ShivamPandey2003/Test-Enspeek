@@ -270,7 +270,7 @@ const OtpLoginPage = () => {
             <Button
               type="button"
               variant={mode === "signin" ? "theme" : "ghost"}
-              size="sm"
+              size="default"
               className="rounded-full px-5"
               onClick={() => setMode("signin")}
             >
@@ -279,7 +279,7 @@ const OtpLoginPage = () => {
             <Button
               type="button"
               variant={mode === "signup" ? "theme" : "ghost"}
-              size="sm"
+              size="default"
               className="rounded-full px-5"
               onClick={() => setMode("signup")}
             >

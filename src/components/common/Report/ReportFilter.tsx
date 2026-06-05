@@ -56,10 +56,10 @@ const ReportFilter: React.FC<ReportFilterProps> = ({
         </SimpleAccordion>
       </div>
       <div className="flex justify-between px-4 py-3">
-        <Button variant="theme" size="sm" onClick={onClose}>
+        <Button variant="theme" size="default" onClick={onClose}>
           Apply
         </Button>
-        <Button variant="cancel" size="sm" onClick={onClear}>
+        <Button variant="cancel" size="default" onClick={onClear}>
           Clear
         </Button>
       </div>

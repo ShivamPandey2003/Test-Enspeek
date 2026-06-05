@@ -128,7 +128,7 @@ export default function ShareStudyModal({
                 >
                   <span className="text-sm theme-text-strong">{email}</span>
                   <Button
-                    size="sm"
+                    size="default"
                     onClick={() => addEmail(email)}
                     className="px-3 py-1 text-xs"
                   >
