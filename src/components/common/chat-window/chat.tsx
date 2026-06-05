@@ -22,8 +22,10 @@ import AvatarInitials from "../../ui/AvatarInitials";
 import { CHAT_AGENT_INITIALS, CHAT_AGENT_LABEL, CHAT_AGENT_NAME } from "../../../config/chatAgent";
 import { FOCUS_CHAT_INPUT_EVENT } from "../../../utils/modalFocus";
 import { LuCopy, LuPencilLine } from "react-icons/lu";
+import useAiChat from "../../../api-network/global/ai-chat";
 
 const RESPONSE_SCROLL_GAP = 12;
+const CHAT_SUGGESTION_DELAY_MS = 3000;
 
 const getUserInitials = (firstName?: string, lastName?: string) => {
   const parts = [firstName, lastName]
@@ -71,6 +73,119 @@ const toChartNumber = (value: unknown) => {
   return Number.isFinite(parsedValue) ? parsedValue : 0;
 };
 
+const getValidSuggestion = (suggestion: unknown) => {
+  const suggestionValue = toRecord(suggestion);
+  const message = toDisplayText(suggestionValue.message).trim();
+  const list = toArray<unknown>(suggestionValue.list)
+    .map((item) => toDisplayText(item).trim())
+    .filter(Boolean);
+
+  if (!message && list.length === 0) return null;
+
+  return { message, list };
+};
+
+const ChatSuggestionBlock = ({
+  suggestion,
+  disabled,
+  onSend,
+  onVisible,
+}: {
+  suggestion: unknown;
+  disabled: boolean;
+  onSend: (value: string) => boolean;
+  onVisible: () => void;
+}) => {
+  const [isVisible, setIsVisible] = useState(false);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
+  const onVisibleRef = React.useRef(onVisible);
+  const validSuggestion = React.useMemo(
+    () => getValidSuggestion(suggestion),
+    [suggestion]
+  );
+
+  useEffect(() => {
+    onVisibleRef.current = onVisible;
+  }, [onVisible]);
+
+  useEffect(() => {
+    setIsVisible(false);
+    setHasSubmitted(false);
+
+    if (!validSuggestion) return;
+
+    window.requestAnimationFrame(() => {
+      onVisibleRef.current();
+    });
+
+    const timer = window.setTimeout(() => {
+      setIsVisible(true);
+      onVisibleRef.current();
+    }, CHAT_SUGGESTION_DELAY_MS);
+
+    return () => window.clearTimeout(timer);
+  }, [validSuggestion]);
+
+  if (!validSuggestion) return null;
+
+  const isDisabled = disabled || hasSubmitted;
+  const handleSuggestionClick = (value: string) => {
+    if (isDisabled) return;
+
+    const didSend = onSend(value);
+    if (didSend) {
+      setHasSubmitted(true);
+    }
+  };
+
+  return (
+    <div
+      className="mb-4 mt-6 flex w-full justify-start"
+    >
+      <div className="flex max-w-full items-start gap-2.5">
+        <AvatarInitials
+          label={CHAT_AGENT_NAME}
+          title={CHAT_AGENT_NAME}
+          initials={CHAT_AGENT_INITIALS}
+          className="home-avatar-ai mt-0.5 h-9 w-9 text-[12px] shadow-sm"
+        />
+        <div className="min-w-0 max-w-[min(100%,820px)]">
+          {!isVisible ? (
+            <TypingIndicator className="mb-0" />
+          ) : null}
+          {isVisible && validSuggestion.message ? (
+            <div className="home-surface home-text inline-block rounded-[16px] border home-border px-3 py-2 text-left text-sm shadow-[0_6px_16px_rgba(15,23,42,0.08)]">
+              <div
+                className="break-words text-[14px] leading-6"
+                dangerouslySetInnerHTML={{
+                  __html: formatRichText(validSuggestion.message),
+                }}
+              />
+            </div>
+          ) : null}
+          {isVisible && validSuggestion.list.length > 0 ? (
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {validSuggestion.list.map((item, itemIndex) => (
+                <Button
+                  key={`${item}-${itemIndex}`}
+                  type="button"
+                  variant="chip"
+                  size="sm"
+                  disabled={isDisabled}
+                  className="h-auto min-h-8 rounded-full border home-border bg-white px-2.5 py-1.5 text-left text-[13px] font-semibold leading-snug shadow-sm hover:bg-[var(--color-brand-primary-softest)]"
+                  onClick={() => handleSuggestionClick(item)}
+                >
+                  {item}
+                </Button>
+              ))}
+            </div>
+          ) : null}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const ChatWindow: React.FC<{
   surface?: "auto" | "page" | "card";
   scrollMode?: "internal" | "external";
@@ -81,6 +196,7 @@ const ChatWindow: React.FC<{
   const { messages, isTyping, pending } = useSelector(
     (state: RootState) => state.chat
   );
+  const { sendMessage } = useAiChat();
   const { firstName, lastName } = useSelector((state: RootState) => state.user);
   const { pathname } = useLocation();
   const dispatch = useDispatch<AppDispatch>();
@@ -326,8 +442,8 @@ const ChatWindow: React.FC<{
           const showMessageActions = !msg.sdata && !msg.crosstab;
 
           return (
+          <React.Fragment key={index}>
           <div
-            key={index}
             ref={(element) => {
               messageRowRefs.current[index] = element;
             }}
@@ -722,6 +838,15 @@ const ChatWindow: React.FC<{
               </div>
             </div>
           </div>
+          {!isUserMessage && msg.suggestion ? (
+            <ChatSuggestionBlock
+              suggestion={msg.suggestion}
+              disabled={isResponseLocked}
+              onSend={(value) => sendMessage(value)}
+              onVisible={scheduleBottomScroll}
+            />
+          ) : null}
+          </React.Fragment>
           );
         })}
 

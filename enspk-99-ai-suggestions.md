@@ -3,9 +3,9 @@
 ## Objective
 
 - [x] Define the new AI Suggestions feature before coding.
-- [ ] Render backend-provided AI suggestions below the main AI response.
-- [ ] Let users click suggestion buttons to send that suggestion directly to the AI.
-- [ ] Keep the feature UI-only/frontend-only except using the existing chat send flow.
+- [x] Render backend-provided AI suggestions below the main AI response.
+- [x] Let users click suggestion buttons to send that suggestion directly to the AI.
+- [x] Keep the feature UI-only/frontend-only except using the existing chat send flow.
 
 ## Confirmed Business Logic
 
@@ -21,8 +21,9 @@ suggestion: {
 ```
 
 - [x] `suggestion.message` appears below the main AI response, not inside the same main message bubble.
-- [x] Suggestions should render after a 1 second delay once the main AI response is already rendered.
+- [x] Suggestions should render after a 3 second delay once the main AI response is already rendered.
   Clarification: It should feel like the AI responded again with guidance.
+- [x] Show the existing chat thinking indicator during the suggestion delay.
 - [x] Suggestion UI should support all response types.
   Clarification: Normal messages, questionnaire responses, study list responses, graph/table responses, and future response types may show suggestions.
 - [x] `suggestion.message` uses the same message-bubble style as normal AI text.
@@ -37,43 +38,56 @@ suggestion: {
 
 ## Steps To Be Done
 
-- [ ] Store the `suggestion` payload from chat API responses in chat message history.
-- [ ] Render the main AI response first as current behavior.
-- [ ] Render the suggestion block after a 1 second delay.
-- [ ] Create/extend a reusable suggestion UI component if it keeps chat rendering maintainable.
-- [ ] Style suggestion message as an AI guidance bubble.
-- [ ] Style suggestion list items as compact white rounded buttons.
-- [ ] Wire suggestion button click to existing chat send flow.
-- [ ] Disable suggestion buttons while AI is typing or request is pending.
-- [ ] Ensure no copy/edit action row appears below suggestions.
-- [ ] Run focused lint for changed files.
-- [ ] Run `npm run build`.
+- [x] Store the `suggestion` payload from chat API responses in chat message history.
+- [x] Remove temporary dummy suggestion fallback before production.
+  Clarification: Suggestions now render only when backend returns `suggestion`.
+- [x] Render the main AI response first as current behavior.
+- [x] Render the suggestion block after a 3 second delay.
+- [x] Create/extend a reusable suggestion UI component if it keeps chat rendering maintainable.
+- [x] Style suggestion message as an AI guidance bubble.
+- [x] Style suggestion list items as compact white rounded buttons.
+- [x] Wire suggestion button click to existing chat send flow.
+- [x] Disable suggestion buttons while AI is typing or request is pending.
+- [x] Ensure no copy/edit action row appears below suggestions.
+- [x] Run focused lint for changed files.
+- [x] Run `npm run build`.
 
 ## Acceptance Criteria
 
-- [ ] Main AI response renders first.
-- [ ] Suggestion block appears about 1 second later.
-- [ ] Suggestion message renders below the main AI response.
-- [ ] Suggestion buttons render below suggestion message when provided.
-- [ ] Suggestion buttons send exact text directly to AI.
-- [ ] Sent suggestion appears as a normal user message in chat history.
-- [ ] Suggestion buttons are disabled during pending/typing state.
-- [ ] Suggestions work for all chat response types.
-- [ ] Suggestions do not show copy buttons.
-- [ ] Missing/empty suggestion data does not render anything or break chat.
+- [x] Main AI response renders first.
+- [x] Suggestion block appears about 3 seconds later.
+- [x] Suggestion message renders below the main AI response.
+- [x] Suggestion buttons render below suggestion message when provided.
+- [x] Suggestion buttons send exact text directly to AI.
+- [x] Sent suggestion appears as a normal user message in chat history.
+- [x] Suggestion buttons are disabled during pending/typing state.
+- [x] Suggestions work for all chat response types.
+- [x] Suggestions do not show copy buttons.
+- [x] Missing/empty suggestion data does not render anything or break chat.
 
 ## Edge Cases
 
-- [ ] `suggestion` missing, `null`, or not an object.
-- [ ] `suggestion.message` missing, empty, or not a string.
-- [ ] `suggestion.list` missing, empty, or not an array.
-- [ ] `suggestion.list` contains non-string values.
-- [ ] User clicks multiple suggestion buttons quickly.
-- [ ] User clicks suggestion while AI is typing/pending.
-- [ ] Long suggestion button text on mobile.
-- [ ] Suggestion attached to graph/table response.
-- [ ] Suggestion attached to questionnaire response.
-- [ ] Suggestion attached to study list response.
+- [x] `suggestion` missing, `null`, or not an object.
+- [x] `suggestion.message` missing, empty, or not a string.
+- [x] `suggestion.list` missing, empty, or not an array.
+- [x] `suggestion.list` contains non-string values.
+- [x] User clicks multiple suggestion buttons quickly.
+  Clarification: Suggestion buttons disable immediately after the first successful click to prevent duplicate sends before Redux pending state updates.
+- [x] User clicks suggestion while AI is typing/pending.
+- [x] Long suggestion button text on mobile.
+- [x] Suggestion attached to graph/table response.
+- [x] Suggestion attached to questionnaire response.
+- [x] Suggestion attached to study list response.
+
+## Automated Verification
+
+- [x] Re-reviewed implementation for invalid suggestion payloads.
+- [x] Re-reviewed implementation for duplicate quick-click sends.
+- [x] Re-reviewed implementation for all response types storing `suggestion`.
+- [x] Focused lint completed for `src/components/common/chat-window/chat.tsx`.
+  Note: Existing hook dependency warnings remain; no new lint errors were introduced.
+- [x] `npm run build` completed successfully.
+  Note: Existing Vite large chunk warning remains.
 
 ## Browser Verification Checklist
 
