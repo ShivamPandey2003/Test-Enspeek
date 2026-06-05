@@ -298,6 +298,7 @@ const ChatWindow: React.FC<{
             msg.response && !Array.isArray(msg.response) && typeof msg.response === "object"
               ? Object.keys(msg.response)
               : [];
+          const showMessageActions = !msg.sdata && !msg.crosstab;
 
           return (
           <div
@@ -630,37 +631,39 @@ const ChatWindow: React.FC<{
                 )}
               </>
                 </div>
-                <div
-                  className={cn(
-                    "mt-1.5 flex items-center gap-1.5",
-                    isUserMessage ? "justify-end" : "justify-start"
-                  )}
-                >
-                  <IconActionButton
-                    tooltip="Copy message"
-                    onClick={() => handleCopyMessage(index, msg.text, !msg.sdata && !msg.crosstab)}
-                    tone="neutral"
-                    className="home-muted h-7 w-7 p-1.5"
-                    disabled={!messageText}
+                {showMessageActions && (
+                  <div
+                    className={cn(
+                      "mt-1.5 flex items-center gap-1.5",
+                      isUserMessage ? "justify-end" : "justify-start"
+                    )}
                   >
-                    <LuCopy className="h-3.5 w-3.5" />
-                  </IconActionButton>
-                  {isUserMessage && (
                     <IconActionButton
-                      tooltip={
-                        isResponseLocked
-                          ? `Wait for ${CHAT_AGENT_NAME} to finish responding`
-                          : "Edit message"
-                      }
-                      onClick={() => handleEditMessage(msg.text)}
+                      tooltip="Copy message"
+                      onClick={() => handleCopyMessage(index, msg.text)}
                       tone="neutral"
                       className="home-muted h-7 w-7 p-1.5"
-                      disabled={isResponseLocked || !messageText}
+                      disabled={!messageText}
                     >
-                      <LuPencilLine className="h-3.5 w-3.5" />
+                      <LuCopy className="h-3.5 w-3.5" />
                     </IconActionButton>
-                  )}
-                </div>
+                    {isUserMessage && (
+                      <IconActionButton
+                        tooltip={
+                          isResponseLocked
+                            ? `Wait for ${CHAT_AGENT_NAME} to finish responding`
+                            : "Edit message"
+                        }
+                        onClick={() => handleEditMessage(msg.text)}
+                        tone="neutral"
+                        className="home-muted h-7 w-7 p-1.5"
+                        disabled={isResponseLocked || !messageText}
+                      >
+                        <LuPencilLine className="h-3.5 w-3.5" />
+                      </IconActionButton>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </div>
