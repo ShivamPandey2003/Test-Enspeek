@@ -865,7 +865,7 @@ const ChatWindow: React.FC<{
                 No conversation yet
               </p>
               <p className="home-highlight mt-2 text-sm leading-6">
-                Start chatting with {CHAT_AGENT_LABEL} to refine, create, or organize your questions.
+                Ask {CHAT_AGENT_LABEL} for help with studies, questionnaires, reports, or the next step in your workflow.
               </p>
             </div>
           </div>
