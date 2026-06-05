@@ -391,7 +391,7 @@ const PlanLimitRow = ({
   const remaining = Math.max(allowed - used, 0);
 
   return (
-    <div className="rounded-md border border-[color:var(--color-brand-primary)]/16 bg-white px-4 py-3">
+    <div className="rounded-md border border-[var(--color-brand-primary)]/16 bg-white px-4 py-3">
       <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_300px] sm:items-center">
         <div className="min-w-0">
           <p className="text-[15px] font-bold text-login-primary">{label}</p>

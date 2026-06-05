@@ -88,7 +88,7 @@ const OtpForm: React.FC<OtpFormProps> = ({
             }
             inputMode="numeric"
             maxLength={1}
-            className="h-12 w-12 rounded-xl px-0 text-center text-lg font-semibold sm:h-14 sm:w-14 border border-[color:var(--color-brand-primary)]/50"
+            className="h-12 w-12 rounded-xl px-0 text-center text-lg font-semibold sm:h-14 sm:w-14 border border-[var(--color-brand-primary)]/50"
           />
         ))}
       </div>

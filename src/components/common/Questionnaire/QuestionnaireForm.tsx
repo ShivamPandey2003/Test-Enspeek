@@ -68,7 +68,7 @@ const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({ onClose }) => {
     useEditQuestionMutation(studyID);
   const isSaving = data ? isEditPending : isCreatePending;
   const editFieldInputClass =
-    "questionnaire-heading min-h-8 border-b border-[color:var(--color-login-primary)]/35 px-1.5 py-0 text-[14px] focus-visible:border-[color:var(--color-login-primary)]/35 focus-visible:ring-0";
+    "questionnaire-heading min-h-8 border-b border-[var(--color-login-primary)]/35 px-1.5 py-0 text-[14px] focus-visible:border-[var(--color-login-primary)]/35 focus-visible:ring-0";
 
   const closeForm = () => {
     dispatch(setEditingQuestion(null));

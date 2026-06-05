@@ -67,7 +67,7 @@ const SetSubgroupModal: React.FC<SetSubgroupModalProps> = ({
           {options.map((option, index) => (
             <label
               key={index}
-              className="bg-white border border-[color:var(--color-brand-primary)]/16 cursor-pointer flex items-center p-2 rounded space-x-3"
+              className="bg-white border border-[var(--color-brand-primary)]/16 cursor-pointer flex items-center p-2 rounded space-x-3"
             >
               <Radio
                 name="benefit"

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../../store/store";
 import { StudyCard } from "./card";
@@ -45,8 +45,14 @@ const getStudyNumber = (study: StudyListItem, key: string) => {
 const HomeSidebar: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"myactive" | "allactive" | "isarchived">("myactive");
   const { Studys, FilterStudys } = useSelector((state: RootState) => state.study);
-  const studies = Studys as StudyListItem[];
-  const filteredStudies = FilterStudys as StudyListItem[];
+  const studies = useMemo(
+    () => (Array.isArray(Studys) ? (Studys as StudyListItem[]) : []),
+    [Studys]
+  );
+  const filteredStudies = useMemo(
+    () => (Array.isArray(FilterStudys) ? (FilterStudys as StudyListItem[]) : []),
+    [FilterStudys]
+  );
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [page, setPage] = useState<number>(1);

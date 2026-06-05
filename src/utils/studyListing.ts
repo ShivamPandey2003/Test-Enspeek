@@ -60,16 +60,17 @@ export const getStudySearchText = (study: StudyListItem) => {
 };
 
 export const filterStudiesBySearch = (
-  studies: StudyListItem[] = [],
+  studies: StudyListItem[] | null | undefined = [],
   searchTerm: string
 ) => {
+  const safeStudies = Array.isArray(studies) ? studies : [];
   const normalizedSearch = searchTerm.trim().toLowerCase();
 
   if (!normalizedSearch) {
-    return studies;
+    return safeStudies;
   }
 
-  return studies.filter((study) =>
-    getStudySearchText(study).includes(normalizedSearch)
+  return safeStudies.filter((study) =>
+    study && getStudySearchText(study).includes(normalizedSearch)
   );
 };

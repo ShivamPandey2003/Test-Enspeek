@@ -417,7 +417,7 @@ const SignupApprovalPendingMessage = ({
   email: string;
   source: "signin" | "signup";
 }) => (
-  <div className="rounded-2xl border border-[color:var(--color-brand-primary)]/20 bg-[var(--color-login-input)] px-5 py-5 text-center">
+  <div className="rounded-2xl border border-[var(--color-brand-primary)]/20 bg-[var(--color-login-input)] px-5 py-5 text-center">
     <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-login-primary/10 text-login-primary">
       <LuClock3 className="h-6 w-6" />
     </div>

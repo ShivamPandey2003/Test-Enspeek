@@ -35,7 +35,7 @@ const RowOptions: React.FC<RowOptions> = ({
         variant="bare"
         value={Value}
         onChange={(e)=>onChange(e.target.value)}
-        className={`questionnaire-heading min-h-8 flex-1 border-b border-[color:var(--color-login-primary)]/35 px-1.5 py-0 text-[15px] focus-visible:border-[color:var(--color-login-primary)]/35 focus-visible:ring-0 ${
+        className={`questionnaire-heading min-h-8 flex-1 border-b border-[var(--color-login-primary)]/35 px-1.5 py-0 text-[15px] focus-visible:border-[var(--color-login-primary)]/35 focus-visible:ring-0 ${
           error ? "ring-1 ring-red-400" : ""
         }`}
         required
