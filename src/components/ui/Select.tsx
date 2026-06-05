@@ -15,7 +15,7 @@ const selectVariants = cva(
         crosstab:
           "questionnaire-input questionnaire-heading questionnaire-border rounded-lg px-4 py-3 text-sm focus-visible:ring-0",
         modal:
-          "modal-select px-4 py-3 text-sm",
+          "modal-select px-1.5 py-1.5 text-sm",
         bare:
           "border-0 bg-transparent px-0 py-0 text-inherit shadow-none focus-visible:ring-0",
       },

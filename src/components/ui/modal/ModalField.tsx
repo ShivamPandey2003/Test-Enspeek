@@ -21,7 +21,7 @@ export default function ModalField({
   className,
 }: ModalFieldProps) {
   return (
-    <div className={cn("space-y-2", className)}>
+    <div className={cn("space-y-1", className)}>
       <label className={cn("modal-label", labelClassName)}>
         {label}
         {required ? (

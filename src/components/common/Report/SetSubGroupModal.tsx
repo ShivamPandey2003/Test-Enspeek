@@ -32,7 +32,7 @@ const SetSubgroupModal: React.FC<SetSubgroupModalProps> = ({
       onClose={onClose}
       Title={definition.title}
       headerIcon={
-        <span className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[var(--color-brand-primary-softest)] text-login-primary">
+        <span className="inline-flex items-center justify-center rounded-full bg-[var(--color-brand-primary-softest)] text-login-primary">
           <LuListFilter className="h-5 w-5" />
         </span>
       }
@@ -67,7 +67,7 @@ const SetSubgroupModal: React.FC<SetSubgroupModalProps> = ({
           {options.map((option, index) => (
             <label
               key={index}
-              className="flex cursor-pointer items-center space-x-3 rounded-lg bg-white px-4 py-3 shadow-sm"
+              className="bg-white border border-[color:var(--color-brand-primary)]/16 cursor-pointer flex items-center p-2 rounded space-x-3"
             >
               <Radio
                 name="benefit"

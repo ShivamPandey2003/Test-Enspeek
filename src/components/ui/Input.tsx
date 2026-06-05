@@ -14,9 +14,9 @@ const inputVariants = cva(
         crosstab:
           "questionnaire-input questionnaire-heading questionnaire-border rounded-[16px] px-4 py-3 text-sm focus-visible:ring-0",
         modal:
-          "modal-input px-4 py-3 text-sm",
+          "modal-input px-1.5 py-1.5 text-sm",
         modalDanger:
-          "modal-input modal-input-danger px-4 py-3 text-sm",
+          "modal-input modal-input-danger px-1.5 py-1.5 text-sm",
         login:
           "h-12 rounded-xl border-0 bg-[var(--color-login-input)] px-4 text-base text-[var(--color-login-input-text)] placeholder:text-[var(--color-text-muted)] focus-visible:ring-2 focus-visible:ring-[color:var(--color-login-primary)]/40",
         bare:

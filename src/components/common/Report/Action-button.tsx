@@ -261,7 +261,7 @@ const ActionButton: React.FC<ActionButtonProps> = ({
           </Button>
           {showMoreDropdown && (
             <div className="absolute right-0 mt-2 z-10">
-              <DropDown Data={MoreDropdownData} className="w-72 z-20" />
+              <DropDown Data={MoreDropdownData} className="z-20" />
             </div>
           )}
         </div>
