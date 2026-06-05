@@ -46,6 +46,31 @@ const getReadableMessageText = (value?: string) => {
   return parsedText || value.replace(/<[^>]*>/g, "").trim();
 };
 
+const toArray = <T,>(value: unknown): T[] => {
+  return Array.isArray(value) ? value : [];
+};
+
+const toRecord = (value: unknown): Record<string, unknown> => {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : {};
+};
+
+const toDisplayText = (value: unknown, fallback = "") => {
+  if (typeof value === "string" || typeof value === "number") {
+    return String(value);
+  }
+
+  return fallback;
+};
+
+const toChartNumber = (value: unknown) => {
+  if (typeof value === "number") return value;
+
+  const parsedValue = Number(value);
+  return Number.isFinite(parsedValue) ? parsedValue : 0;
+};
+
 const ChatWindow: React.FC<{
   surface?: "auto" | "page" | "card";
   scrollMode?: "internal" | "external";
@@ -403,21 +428,49 @@ const ChatWindow: React.FC<{
                   };
                   if (!qid || !questionData) return null;
 
+                  const dataValues = toRecord(questionData.data);
+                  const firstDataValue = Object.values(dataValues)[0];
+                  const rawRowOptions = toRecord(
+                    questionData._rowoptions ?? questionData._rows
+                  );
+                  const rawColOptions = toRecord(
+                    questionData._coloptions ?? questionData._cols
+                  );
+                  const rawColOrder = toArray<string>(
+                    questionData._colorder ?? questionData._col_order
+                  );
+                  const colOrder =
+                    rawColOrder.length > 0 ? rawColOrder : Object.keys(dataValues);
+                  const rawRowOrder = toArray<string>(
+                    questionData._roworder ?? questionData._row_order
+                  );
+                  const firstColumnData = toRecord(firstDataValue);
+                  const rowOrder =
+                    rawRowOrder.length > 0
+                      ? rawRowOrder
+                      : Object.keys(
+                          firstColumnData && Object.keys(firstColumnData).length > 0
+                            ? firstColumnData
+                            : dataValues
+                        );
+
                   const isChart = activeTab[index] === "chart";
                   const isTable = activeTab[index] === "table";
 
                   const isCrosstab =
-                    typeof Object.values(questionData.data || {})[0] ===
-                    "object";
+                    colOrder.length > 0 &&
+                    firstDataValue !== null &&
+                    typeof firstDataValue === "object";
 
                   const chartData = isCrosstab
-                      ? questionData._colorder.map((colId: string) => ({
-                          name: questionData._coloptions?.[colId] ?? colId,
+                      ? colOrder.map((colId: string) => ({
+                          name: toDisplayText(rawColOptions[colId], colId),
                           color: PRIMARY_CHART_COLOR,
-                          data: questionData._roworder.map((rowId: string) => {
+                          data: rowOrder.map((rowId: string) => {
+                            const columnData = toRecord(dataValues[colId]);
                             return {
-                              name: questionData._rowoptions?.[rowId],
-                            y: questionData.data?.[colId]?.[rowId] ?? 0,
+                              name: toDisplayText(rawRowOptions[rowId], rowId),
+                            y: toChartNumber(columnData[rowId]),
                           };
                         }),
                       }))
@@ -425,33 +478,35 @@ const ChatWindow: React.FC<{
                         {
                           name: "Responses",
                           color: PRIMARY_CHART_COLOR,
-                          data: questionData._roworder.map((rowId: string) => ({
-                            name: questionData._rowoptions?.[rowId],
-                            y: questionData.data?.[rowId] ?? 0,
+                          data: rowOrder.map((rowId: string) => ({
+                            name: toDisplayText(rawRowOptions[rowId], rowId),
+                            y: toChartNumber(dataValues[rowId]),
                           })),
                         },
                       ];
 
-                  const categories = questionData._roworder?.map(
-                    (rowId: string) => questionData._rowoptions?.[rowId]
+                  const categories = rowOrder.map(
+                    (rowId: string) => toDisplayText(rawRowOptions[rowId], rowId)
                   );
 
                   const headers = !isCrosstab
                     ? ["Total"]
-                    : (questionData._colorder || []).map(
+                    : colOrder.map(
                         (colId: string) =>
-                          questionData._coloptions?.[colId] ?? colId
+                          toDisplayText(rawColOptions[colId], colId)
                       );
 
-                  const rows = (questionData._roworder || []).map(
+                  const rows = rowOrder.map(
                     (rowId: string) => {
                       const rowLabel =
-                        questionData._rowoptions?.[rowId] || rowId;
+                        toDisplayText(rawRowOptions[rowId], rowId);
                       const values = !isCrosstab
-                        ? [`${questionData.data?.[rowId] ?? 0}%`]
-                        : (questionData._colorder || []).map(
-                            (colId: string) =>
-                              `${questionData.data?.[colId]?.[rowId] ?? 0}%`
+                        ? [`${toDisplayText(dataValues[rowId], "0")}%`]
+                        : colOrder.map(
+                            (colId: string) => {
+                              const columnData = toRecord(dataValues[colId]);
+                              return `${toDisplayText(columnData[rowId], "0")}%`;
+                            }
                           );
                       return {
                         rowLabel,
@@ -462,11 +517,11 @@ const ChatWindow: React.FC<{
 
                   const baseRow = !isCrosstab
                     ? [questionData.base ?? 0]
-                    : (questionData._colorder || []).map((colId: string) => {
+                    : colOrder.map((colId: string) => {
                         const val =
                           questionData.base?.[colId] ??
                           questionData.responding_base?.[colId]?.[
-                            questionData._roworder?.[0]
+                            rowOrder[0]
                           ];
                         return val ?? 0;
                       });
