@@ -19,41 +19,34 @@ export default function PlatformHero({
   greeting,
   title,
   titleClassName,
-  variant = "home",
 }: PlatformHeroProps) {
-  const isHome = variant === "home";
-
   return (
-    <div
+    <section
       className={cn(
-        "mx-auto flex w-full max-w-6xl flex-col items-center justify-center gap-4 rounded-2xl border border-[var(--color-core-accent)] bg-[color-mix(in_srgb,var(--color-core-accent)_10%,white_90%)] px-5 py-8 text-center shadow-md md:px-6 md:py-10",
-        !isHome && "py-7 md:py-9",
+        "mx-auto flex w-full max-w-6xl flex-col items-center justify-center overflow-hidden rounded-2xl border border-[color-mix(in_srgb,var(--color-brand-primary)_14%,var(--color-border-default)_86%)] bg-[linear-gradient(135deg,color-mix(in_srgb,var(--color-brand-info)_10%,var(--color-surface-softest)_90%)_0%,color-mix(in_srgb,var(--color-brand-primary)_9%,var(--color-surface-soft)_91%)_48%,color-mix(in_srgb,var(--color-text-supporting)_12%,var(--color-surface-softest)_88%)_100%)] px-5 py-5 text-center shadow-md md:px-6 md:py-6",
         className
       )}
     >
-      <div className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--color-core-accent)]">
-        <LuBotMessageSquare className="h-4 w-4" />
-        {greeting}
-      </div>
+      <div className="flex w-full max-w-3xl flex-col items-center">
+        <div className="inline-flex min-h-9 items-center gap-2 rounded-full border border-white/70 bg-white/85 px-4 text-sm font-semibold text-[var(--color-text-strong)] shadow-sm">
+          <LuBotMessageSquare className="h-4 w-4 text-[var(--color-brand-primary)]" />
+          {greeting}
+        </div>
 
-      <div className="mx-auto max-w-full">
         <h2
           className={cn(
-            "font-semibold leading-[1.04] tracking-[-0.035em] text-[var(--color-core-accent)] lg:whitespace-nowrap",
-            isHome
-              ? "text-[clamp(1.9rem,3.2vw,3.25rem)]"
-              : "text-[clamp(1.65rem,2.5vw,2.25rem)]",
+            "mt-5 max-w-[640px] text-[clamp(1.7rem,2.75vw,2.75rem)] font-extrabold leading-[1.08] text-[var(--color-text-strong)]",
             titleClassName
           )}
         >
           {title}
         </h2>
-        <p className="mx-auto mt-3 max-w-full text-[14px] leading-5.5 text-[var(--color-core-accent)] md:text-[15px] md:leading-6 xl:whitespace-nowrap">
+        <p className="mt-4 max-w-[640px] text-[14px] leading-6 text-[var(--color-text-default)] md:text-[15px]">
           {description}
         </p>
-      </div>
 
-      {actions ? <div className="flex justify-center">{actions}</div> : null}
-    </div>
+        {actions ? <div className="mt-5 flex justify-center">{actions}</div> : null}
+      </div>
+    </section>
   );
 }

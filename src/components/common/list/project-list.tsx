@@ -45,7 +45,7 @@ export default function ProjectListing() {
           <div className="platform-page-fade pointer-events-none absolute inset-x-0 bottom-0 z-40 h-[164px]" />
         </div>
       ) : (
-        <div className="h-full min-h-0 w-full overflow-y-auto overflow-x-hidden pb-28 md:pb-32">
+        <div className="h-full min-h-0 w-full overflow-y-auto overflow-x-hidden pb-28">
           <div
             className={cn(
               "mx-auto flex min-h-full w-full max-w-6xl flex-col justify-center gap-3 px-4 py-4 transition-all duration-300 ease-in-out md:gap-4 md:px-6 md:py-6"
@@ -56,31 +56,31 @@ export default function ProjectListing() {
                 <PlatformHero
                   greeting={`${greeting}, ${normalizedFirstName}`}
                   title="Build research by simply describing it."
-                  description="Tell Peek what you want to build. It can help shape studies, draft questions, and guide you toward launch."
+                  description="Tell Enspeek what you want in plain language and it helps you create studies, generate questions, and move toward launch."
                   actions={
                     <>
                       {starterPrompts.map((prompt) => (
-                      <Button
-                        key={prompt.id}
-                        type="button"
-                        variant="outline"
-                        onClick={() => {
-                          if (prompt.id === "activate study") {
-                            openChatWithMessage("Activate Study [Study Name]");
-                          } else if (prompt.message) {
-                            openChatWithMessage(prompt.message);
-                          }
-                          focusChatInput();
-                        }}
-                        className="group h-10 w-auto items-center justify-center rounded-full border-[var(--color-core-accent)] bg-[var(--color-core-accent)] px-4 py-2 text-left leading-normal text-white shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:bg-[var(--color-core-accent)] hover:text-white hover:shadow-md"
-                      >
-                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-white [&>svg]:h-4 [&>svg]:w-4">
-                          {prompt.icon}
-                        </span>
-                        <span className="whitespace-nowrap text-sm font-semibold text-white">
-                          {prompt.label}
-                        </span>
-                      </Button>
+                        <Button
+                          key={prompt.id}
+                          type="button"
+                          variant="theme"
+                          onClick={() => {
+                            if (prompt.id === "activate study") {
+                              openChatWithMessage("Activate Study [Study Name]");
+                            } else if (prompt.message) {
+                              openChatWithMessage(prompt.message);
+                            }
+                            focusChatInput();
+                          }}
+                          className="h-10 w-auto items-center justify-center rounded-full px-4 py-2 text-left leading-normal shadow-md transition-all duration-200 hover:-translate-y-0.5"
+                        >
+                          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-white [&>svg]:h-4 [&>svg]:w-4">
+                            {prompt.icon}
+                          </span>
+                          <span className="whitespace-nowrap text-sm font-semibold text-white">
+                            {prompt.label}
+                          </span>
+                        </Button>
                       ))}
                     </>
                   }

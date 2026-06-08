@@ -195,7 +195,7 @@ const QuestionAccordionItem: React.FC<QuestionAccordionItem> = ({
               </p>
             ))}
 
-          <div className="questionnaire-border space-y-2 border-t pt-2">
+          <div className="questionnaire-border space-y-2 border-t pt-4">
             <div>
               <p className="questionnaire-label text-[14px] leading-tight">
                 Question Text

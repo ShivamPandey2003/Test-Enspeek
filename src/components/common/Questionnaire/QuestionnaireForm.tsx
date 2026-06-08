@@ -2,7 +2,7 @@ import React from "react";
 import { useLocation } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
-import { LuChevronDown, LuGripVertical, LuSave } from "react-icons/lu";
+import { LuChevronDown, LuCirclePlus, LuGripVertical, LuSave } from "react-icons/lu";
 import Button from "../../ui/Button";
 import Input from "../../ui/Input";
 import Select from "../../ui/Select";
@@ -68,7 +68,7 @@ const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({ onClose }) => {
     useEditQuestionMutation(studyID);
   const isSaving = data ? isEditPending : isCreatePending;
   const editFieldInputClass =
-    "questionnaire-heading min-h-8 border-b border-[var(--color-login-primary)]/35 px-1.5 py-0 text-[14px] focus-visible:border-[var(--color-login-primary)]/35 focus-visible:ring-0";
+    "questionnaire-heading min-h-8 border-b border-[var(--color-questionnaire-border)] px-1.5 py-0 text-[14px] focus-visible:border-[var(--color-questionnaire-border)] focus-visible:ring-0";
 
   const closeForm = () => {
     dispatch(setEditingQuestion(null));
@@ -447,6 +447,7 @@ const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({ onClose }) => {
                       onClick={createOption}
                       disabled={isSaving}
                     >
+                      <LuCirclePlus className="h-4 w-4" />
                       Create
                     </Button>
                   </div>
@@ -457,8 +458,8 @@ const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({ onClose }) => {
                           Min Selection
                         </label>
                         <Input
-                          variant="questionnaire"
-                          className=""
+                          variant="bare"
+                          className={editFieldInputClass}
                           type="number"
                           min={1}
                           value={minSelection}
@@ -471,8 +472,8 @@ const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({ onClose }) => {
                           Max Selection
                         </label>
                         <Input
-                          variant="questionnaire"
-                          className=""
+                          variant="bare"
+                          className={editFieldInputClass}
                           type="number"
                           min={1}
                           value={maxSelection}

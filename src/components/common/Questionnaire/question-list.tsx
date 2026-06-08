@@ -151,7 +151,7 @@ export default function QuestionList() {
               }}
             />
           ) : submitItems.length === 0 ? (
-            <div className="flex min-h-full w-full items-center justify-center px-5 pb-24 pt-3 md:px-6 md:pb-36 md:pt-4">
+            <div className="flex min-h-full w-full items-center justify-center px-5 pb-24 pt-3 md:px-6 md:pt-4">
               <div className="mx-auto flex w-full max-w-6xl flex-col gap-4">
                 <div className="w-full">
                   <div className="overflow-hidden">
@@ -163,23 +163,23 @@ export default function QuestionList() {
                       actions={
                         <>
                           {emptyStatePrompts.map((prompt) => (
-                          <Button
-                            key={prompt.title}
-                            type="button"
-                            variant="outline"
-                            onClick={() => {
-                              openChatWithMessage(prompt.text);
-                              focusChatInput();
-                            }}
-                            className="group h-10 w-auto items-center justify-center rounded-full border-[var(--color-core-accent)] bg-[var(--color-core-accent)] px-4 py-2 text-center leading-normal text-white shadow-md transition-all duration-200 hover:-translate-y-0.5 hover:bg-[var(--color-core-accent)] hover:text-white hover:shadow-md"
-                          >
-                            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-white [&>svg]:h-4 [&>svg]:w-4">
-                              {prompt.icon}
-                            </span>
-                            <span className="whitespace-nowrap text-sm font-semibold text-white">
-                              {prompt.title}
-                            </span>
-                          </Button>
+                            <Button
+                              key={prompt.title}
+                              type="button"
+                              variant="theme"
+                              onClick={() => {
+                                openChatWithMessage(prompt.text);
+                                focusChatInput();
+                              }}
+                              className="h-10 w-auto items-center justify-center rounded-full px-4 py-2 text-center leading-normal shadow-md transition-all duration-200 hover:-translate-y-0.5"
+                            >
+                              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-white [&>svg]:h-4 [&>svg]:w-4">
+                                {prompt.icon}
+                              </span>
+                              <span className="whitespace-nowrap text-sm font-semibold text-white">
+                                {prompt.title}
+                              </span>
+                            </Button>
                           ))}
                         </>
                       }
