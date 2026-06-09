@@ -138,7 +138,7 @@ export default function PublishSurvey() {
                           data-test-id="ACTIVATE"
                           variant="theme"
                           className={cn(
-                            "relative h-8",
+                            "relative",
                             highlightActivate &&
                             "platform-activate-glow"
                           )}

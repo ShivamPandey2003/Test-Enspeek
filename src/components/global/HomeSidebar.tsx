@@ -217,7 +217,7 @@ const HomeSidebar: React.FC = () => {
                 <Button
                   variant={activeTab === "allactive" ? "theme" : "secondary"}
                   className={cn(
-                    "h-8 min-w-0 px-2 text-center text-[12px] leading-none",
+                    "min-w-0 text-center text-[12px] leading-none",
                     activeTab === "allactive"
                       ? "shadow-sm hover:bg-login-primary-hover"
                       : "home-muted border-transparent bg-transparent shadow-none hover:border-transparent hover:bg-transparent hover:text-[var(--color-text-strong)]"
@@ -327,7 +327,7 @@ const HomeSidebar: React.FC = () => {
               placeholder="1"
             />
             <span className="home-muted text-xs font-medium">{`of ${totalPages}`}</span>
-            <Button type="button" variant="theme" size="xs" onClick={handleGoToPage}>
+            <Button type="button" variant="theme" size="default" onClick={handleGoToPage}>
               Go
             </Button>
           </div>

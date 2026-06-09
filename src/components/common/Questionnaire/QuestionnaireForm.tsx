@@ -241,7 +241,7 @@ const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({ onClose }) => {
                 <Button
                   variant="success"
                   size="default"
-                  className="h-8 capitalize"
+                  className="capitalize"
                   onClick={data ? handleUpdate : handleCreate}
                   disabled={isSaving}
                 >
@@ -268,7 +268,7 @@ const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({ onClose }) => {
                   type="button"
                   variant="cancel"
                   size="default"
-                  className="h-8 border-gray-300 px-2.5 text-[var(--color-text-strong)] hover:bg-gray-50"
+                  className="border-gray-300 text-[var(--color-text-strong)] hover:bg-gray-50"
                   onClick={closeForm}
                   disabled={isSaving}
                 >
@@ -280,7 +280,7 @@ const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({ onClose }) => {
                   variant="secondary"
                   size="icon"
                   tooltip="Collapse"
-                  className="questionnaire-muted h-8 w-8 shadow-none"
+                  className="questionnaire-muted shadow-none"
                   onClick={closeForm}
                 >
                   <LuChevronDown className="h-4 w-4" />
@@ -443,7 +443,7 @@ const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({ onClose }) => {
                     <Button
                       variant="theme"
                       size="default"
-                      className="h-8"
+                      className=""
                       onClick={createOption}
                       disabled={isSaving}
                     >

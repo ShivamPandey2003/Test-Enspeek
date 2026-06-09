@@ -93,7 +93,7 @@ const PublishSurveyHeader: FC<PublishSurveyHeaderProps> = ({
               <>
                 <Button
                   data-test-id="FACEBOOK_SURVEY"
-                  className="h-8 bg-[var(--color-brand-info)] text-white hover:brightness-95"
+                  className="bg-[var(--color-brand-info)] text-white hover:brightness-95"
                   onClick={() => {
                     dispatch(setIsFbModalOpen(true));
                   }}
@@ -103,7 +103,7 @@ const PublishSurveyHeader: FC<PublishSurveyHeaderProps> = ({
                 </Button>
                 <Button
                   variant="success"
-                  className="h-8 hover:brightness-95"
+                  className="hover:brightness-95"
                   data-test-id="WHATSAPP_SURVEY"
                   onClick={() => {
                     dispatch(setIsWhatsappModalOpen(true));
@@ -130,7 +130,7 @@ const PublishSurveyHeader: FC<PublishSurveyHeaderProps> = ({
                   disabled
                   data-test-id="INITIATE_DISABLED"
                   aria-disabled="true"
-                  className="pointer-events-none h-8 border-[var(--color-border-soft)] bg-[var(--color-surface-soft)] text-[var(--color-text-muted)] shadow-none opacity-55 grayscale-[0.2] saturate-[0.75]"
+                  className="pointer-events-none border-[var(--color-border-soft)] bg-[var(--color-surface-soft)] text-[var(--color-text-muted)] shadow-none opacity-55 grayscale-[0.2] saturate-[0.75]"
                 >
                   <FaUsers /> Initiate Sample Collection
                 </Button>
@@ -140,7 +140,7 @@ const PublishSurveyHeader: FC<PublishSurveyHeaderProps> = ({
               <Button
                 data-test-id="INITIATE"
                 variant="theme"
-                className="h-8"
+                className=""
                 onClick={() => {
                   setIsOpenInitiate(true);
                 }}
@@ -151,7 +151,7 @@ const PublishSurveyHeader: FC<PublishSurveyHeaderProps> = ({
             {isSurveyActive && launch === 1 && studyInfo.closed === 1 && (
               <Button
                 variant="theme"
-                className="h-8"
+                className=""
                 onClick={() => {
                   setIsOpenInitiate(true);
                 }}
@@ -169,7 +169,7 @@ const PublishSurveyHeader: FC<PublishSurveyHeaderProps> = ({
                     data-test-id="PUBLISH_SURVEY_DOWNLOADS"
                     aria-label="Open download history"
                   disabled
-                  className="pointer-events-none h-8 w-8 home-border-soft text-[var(--color-brand-info)] opacity-50 grayscale-[0.2]"
+                  className="pointer-events-none home-border-soft text-[var(--color-brand-info)] opacity-50 grayscale-[0.2]"
                   >
                     <LuDownload className="h-4 w-4" />
                   </Button>
@@ -182,7 +182,7 @@ const PublishSurveyHeader: FC<PublishSurveyHeaderProps> = ({
                 <Button
                   data-test-id="NEXT_TO_REPORT"
                   variant="theme"
-                  className="h-8"
+                  className=""
                   onClick={() => {
                     navigate("/report", { state: { studyID: state.studyID } });
                   }}

@@ -23,7 +23,7 @@ export const SimpleAccordionItem = ({
       <Button
         type="button"
         variant="ghost"
-        className="w-full justify-between rounded-none px-2 py-2 font-medium text-left text-[var(--color-text-strong)] shadow-none hover:bg-[var(--color-surface-soft)]"
+        className="w-full justify-between rounded-none font-medium text-left text-[var(--color-text-strong)] shadow-none hover:bg-[var(--color-surface-soft)]"
         onClick={() => setExpanded((prev) => (prev === id ? "" : id))}
       >
         <span>{title || "Untitled"}</span>
