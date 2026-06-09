@@ -37,6 +37,7 @@ const ActionButton: React.FC<ActionButtonProps> = ({
   const selectDropdownRef = useRef<HTMLDivElement>(null);
   const { tableQList, fliterReportData } = useSelector((state: RootState) => state.filter);
   const { state } = useLocation();
+  const studyID = state?.studyID;
   const navigate = useNavigate();
   const [showSubgroupModal, setshowSubgroupModal] = useState(false);
   const dispatch = useDispatch();
@@ -44,25 +45,25 @@ const ActionButton: React.FC<ActionButtonProps> = ({
 
   const { processDownload } = useReportProcessDownload();
   const { downloadExcel, isDownloadExcelPending } = useReportExcelDownload({
-    studyID: state.studyID,
+    studyID: studyID ?? "",
     cb: ({ studyID, pid }) => {
       processDownload({ studyID, pid });
     },
   });
   const { downloadSpss, isDownloadSpssPending } = useReportSpssDownload({
-    studyID: state.studyID,
+    studyID: studyID ?? "",
     cb: ({ studyID, pid }) => {
       processDownload({ studyID, pid });
     },
   });
   const { downloadTable, isDownloadTablePending } = useReportTableDownload({
-    studyID: state.studyID,
+    studyID: studyID ?? "",
     cb: ({ studyID, pid }) => {
       processDownload({ studyID, pid });
     },
   });
   const { downloadPpt, isDownloadPptPending } = useReportPptDownload({
-    studyID: state.studyID,
+    studyID: studyID ?? "",
     cb: ({ studyID, pid }) => {
       processDownload({ studyID, pid });
     },
@@ -136,12 +137,12 @@ const ActionButton: React.FC<ActionButtonProps> = ({
     },
   ];
 
-  const { sideBySideVariables } = useReportSideBySideVariables(state.studyID);
+  const { sideBySideVariables } = useReportSideBySideVariables(studyID);
 
   const handleSave = async (selectedValue: string) => {
     dispatch(setSelected(selectedValue));
     await queryClient.refetchQueries({
-      queryKey: reportKeys.viewByIdRoot(state.studyID),
+      queryKey: reportKeys.viewByIdRoot(studyID),
       type: "active",
     });
     setshowSubgroupModal(false);
@@ -188,6 +189,7 @@ const ActionButton: React.FC<ActionButtonProps> = ({
         <div className="flex items-center gap-2">
           <Button
             data-test-id="GROUP_TOGGLE"
+            disabled={!studyID}
             className="report-toolbar-btn report-title border home-border-soft bg-white hover:bg-white hover:text-[var(--color-text-strong)] [&_svg]:size-5"
             onClick={subGroupToggle}
           >
@@ -203,6 +205,7 @@ const ActionButton: React.FC<ActionButtonProps> = ({
               data-test-id="GROUP_TOGGLE_ON"
               size="default"
               tooltip="Configure subgroups"
+              disabled={!studyID}
               className="report-toolbar-btn bg-[var(--color-study-progress)] text-white hover:bg-[var(--color-study-progress)] hover:text-white hover:opacity-90"
               onClick={() => {
                 setshowSubgroupModal(true);
@@ -216,6 +219,7 @@ const ActionButton: React.FC<ActionButtonProps> = ({
           <Button
             data-test-id="SELECTOR"
             tooltip="Select report questions"
+            disabled={!studyID}
             onClick={() => setShowPointerDropdown((prev) => !prev)}
             size="default"
             className="report-toolbar-btn bg-[var(--color-brand-primary-soft)] text-white hover:bg-login-primary"
@@ -253,6 +257,7 @@ const ActionButton: React.FC<ActionButtonProps> = ({
             data-test-id="MORE_ACTIONS"
             size="default"
             tooltip="More actions"
+            disabled={!studyID}
             className="report-toolbar-btn bg-[var(--color-questionnaire-multi)] text-white hover:bg-[var(--color-questionnaire-multi)] hover:text-white hover:opacity-90"
             onClick={() => {
               setShowMoreDropdown((prev) => !prev);
@@ -269,8 +274,9 @@ const ActionButton: React.FC<ActionButtonProps> = ({
         <Button
           data-test-id="NEXT_TO_CROSSTAB"
           variant="theme"
+          disabled={!studyID}
           onClick={() => {
-            navigate("/crosstab", { state: { studyID: state.studyID } });
+            navigate("/crosstab", { state: { studyID } });
           }}
         >
           Next <LuArrowRight className="h-4 w-4" />

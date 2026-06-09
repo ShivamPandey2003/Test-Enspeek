@@ -21,8 +21,9 @@ export default function CrosstabHeader({
   const location = useLocation();
   const dispatch = useDispatch();
   const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
+  const studyID = location.state?.studyID;
 
-  useCrosstabStudyInfo(location.state.studyID);
+  useCrosstabStudyInfo(studyID);
 
   return (
     <PageSubheader

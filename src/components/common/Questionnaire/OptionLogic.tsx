@@ -21,10 +21,6 @@ interface OptionLogicProps {
   optionText: string;
 }
 
-const INITIAL_LOGIC: RowLogic[] = [
-  { row: "row1", value: "", terminate: false },
-];
-
 export default function OptionLogic({
   qID,
   rowIndex,
@@ -32,7 +28,9 @@ export default function OptionLogic({
 }: OptionLogicProps) {
   const location = useLocation();
   const studyID = location.state?.studyID;
-  const [logic, setLogic] = useState<RowLogic[]>(INITIAL_LOGIC);
+  const [logic, setLogic] = useState<RowLogic[]>(() => [
+    { row: rowIndex, value: "", terminate: false },
+  ]);
   const submitItems = useSelector(
     (state: RootState) => state.question.submitItems
   );
@@ -103,7 +101,7 @@ export default function OptionLogic({
       if (prev[0]?.value !== apiValue || prev[0]?.terminate !== apiTerminate) {
         return [
           {
-            row: `row${rowIndex + 1}`,
+            row: rowIndex,
             value: apiValue,
             terminate: apiTerminate,
           },
