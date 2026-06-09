@@ -45,7 +45,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ firstname, lastname, email, err
           onChange={(event) => onChange("firstname", event.target.value)}
           placeholder="First name"
           autoComplete="given-name"
-          className="border border-[color:var(--color-brand-primary)]/50"
+          className="border border-[var(--color-brand-primary)]/50"
         />
         {errors.firstname ? (
           <p className="mt-1 text-sm text-[var(--color-core-danger)]">{errors.firstname}</p>
@@ -61,7 +61,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ firstname, lastname, email, err
           onChange={(event) => onChange("lastname", event.target.value)}
           placeholder="Last name"
           autoComplete="family-name"
-          className="border border-[color:var(--color-brand-primary)]/50"
+          className="border border-[var(--color-brand-primary)]/50"
         />
         {errors.lastname ? (
           <p className="mt-1 text-sm text-[var(--color-core-danger)]">{errors.lastname}</p>
@@ -77,7 +77,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ firstname, lastname, email, err
           onChange={(event) => onChange("email", event.target.value)}
           placeholder="Email"
           autoComplete="email"
-          className="border border-[color:var(--color-brand-primary)]/50"
+          className="border border-[var(--color-brand-primary)]/50"
         />
         {errors.email ? (
           <p className="mt-1 text-sm text-[var(--color-core-danger)]">{errors.email}</p>

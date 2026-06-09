@@ -17,7 +17,7 @@ const ReportHeader: React.FC<ReportHeaderProps> = ({
     <PageSubheader
       left={
         <div className="flex flex-wrap items-center gap-2.5">
-          <h1 className="report-title truncate text-[18px] font-semibold leading-none md:text-[24px]">
+          <h1 className="report-title truncate text-[16px] font-semibold leading-none">
             {Title || "Report"}
           </h1>
         </div>

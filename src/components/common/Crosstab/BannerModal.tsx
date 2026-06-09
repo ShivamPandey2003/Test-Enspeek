@@ -89,7 +89,7 @@ const AddBannerModal: React.FC<AddBannerModalProps> = ({
     <DynamicModel
       Title={`${definition.title}: ${name}`}
       headerIcon={
-        <span className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[var(--color-brand-primary-softest)] text-login-primary">
+        <span className="inline-flex items-center justify-center rounded-full bg-[var(--color-brand-primary-softest)] text-login-primary">
           <LuPanelsTopLeft className="h-5 w-5" />
         </span>
       }

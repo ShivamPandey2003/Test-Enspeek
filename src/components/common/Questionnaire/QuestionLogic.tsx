@@ -22,6 +22,47 @@ export interface LogicRow {
   type: "main" | "condition" | "simple";
 }
 
+type LogicPayloadCondition = {
+  _lgic: string;
+  QID: string;
+  optionID: string;
+  param: string;
+  value: string;
+};
+
+type LogicPayloadEntry = LogicPayloadCondition & {
+  extend: LogicPayloadCondition[];
+};
+
+type SavedLogicEntry = {
+  QID?: string;
+  optionID?: string;
+  param?: string | number;
+  _lgic?: string;
+  extend?: SavedLogicEntry[];
+};
+
+type LogicConditionOption = {
+  code: string;
+  show: string;
+};
+
+type LogicVariableOption = {
+  param: string;
+  show: string;
+};
+
+type LogicValueOption = {
+  code: string | number;
+  show: string;
+};
+
+type LogicOption = {
+  mark: string | number;
+  show: string;
+  options?: LogicValueOption[];
+};
+
 interface QuesLogicProp {
   activeTab?: number;
   storeComponent?: string;
@@ -62,6 +103,10 @@ export default function QuestionLogic({
   );
 
   const connectors = ["AND", "OR"];
+  const conditionOptions = (varsData?.condition ?? []) as LogicConditionOption[];
+  const surveyVariables = (varsData?.variables?.survey ?? []) as LogicVariableOption[];
+  const getOptionsForVariable = (variable?: string) =>
+    variable ? ((optsData?.[variable] ?? []) as LogicOption[]) : [];
   const dispatch = useDispatch<AppDispatch>();
   const { state } = useLocation();
   const location = useLocation();
@@ -106,7 +151,7 @@ export default function QuestionLogic({
 
   const generateLogicPayload = (updatedRows: LogicRow[]) => {
     const groups = [...new Set(updatedRows.map((row) => row.groupId))];
-    const logic1Payload: Record<string, any> = {};
+    const logic1Payload: Record<string, LogicPayloadEntry[]> = {};
 
     groups.forEach((groupId) => {
       const groupRows = updatedRows.filter((row) => row.groupId === groupId);
@@ -303,10 +348,10 @@ export default function QuestionLogic({
     const uniqueVariables: string[] = [];
     let groupCounter = 1;
 
-    Object.entries(data).forEach(([logicType, entries]: [string, any]) => {
+    Object.entries(data as Record<string, unknown>).forEach(([logicType, entries]) => {
       if (!Array.isArray(entries)) return;
 
-      entries.forEach((entry: any) => {
+      entries.forEach((entry: SavedLogicEntry) => {
         const groupId = `group-${groupCounter += 1}`;
 
         if (entry.QID) uniqueVariables.push(entry.QID);
@@ -323,7 +368,7 @@ export default function QuestionLogic({
         selectedConditionMap[groupId] = logicType;
 
         if (Array.isArray(entry.extend)) {
-          entry.extend.forEach((ext: any) => {
+          entry.extend.forEach((ext: SavedLogicEntry) => {
             if (ext.QID) uniqueVariables.push(ext.QID);
 
             transformedRows.push({
@@ -420,13 +465,13 @@ export default function QuestionLogic({
         return (
           <div
             key={groupId}
-            className="questionnaire-card questionnaire-border mb-4 w-full rounded-[22px] border px-4 py-4 shadow-sm"
+            className="questionnaire-card questionnaire-border mb-3 w-full rounded-[18px] border px-3 py-3 shadow-sm"
           >
             {mainRow && (
               <div
                 className={cn(
-                  "flex flex-wrap items-center gap-3",
-                  conditionRows.length > 0 && "mb-4"
+                  "flex flex-wrap items-center gap-2.5",
+                  conditionRows.length > 0 && "mb-3"
                 )}
               >
                 <Select
@@ -437,8 +482,8 @@ export default function QuestionLogic({
                   onChange={(e) => handleFirstChange(groupId, e.target.value)}
                 >
                   <option value="">Select condition</option>
-                  {varsData?.condition?.length > 0 &&
-                    varsData.condition.map((cond: any, conditionIndex: number) => (
+                  {conditionOptions.length > 0 &&
+                    conditionOptions.map((cond, conditionIndex) => (
                       <option key={conditionIndex} value={cond.code}>
                         {cond.show}
                       </option>
@@ -453,9 +498,9 @@ export default function QuestionLogic({
                     className="min-w-[220px]"
                   >
                     <option value="">Select variables</option>
-                    {varsData?.variables?.survey?.length > 0 && (
+                    {surveyVariables.length > 0 && (
                       <optgroup label="survey">
-                        {varsData.variables.survey.map((item: any, variableIndex: number) => (
+                        {surveyVariables.map((item, variableIndex) => (
                           <option
                             key={`${item.param}-${variableIndex}`}
                             value={item.param.toLowerCase()}
@@ -469,8 +514,7 @@ export default function QuestionLogic({
                 )}
 
                 {mainRow.variable &&
-                  optsData[mainRow.variable] &&
-                  optsData[mainRow.variable].length > 0 && (
+                  getOptionsForVariable(mainRow.variable).length > 0 && (
                     <Select
                       variant="questionnaire"
                       value={mainRow.option || ""}
@@ -478,7 +522,7 @@ export default function QuestionLogic({
                       className="min-w-[200px]"
                     >
                       <option value="">Select option</option>
-                      {optsData[mainRow.variable].map((opt: any, optionIndex: number) => (
+                      {getOptionsForVariable(mainRow.variable).map((opt, optionIndex) => (
                         <option key={optionIndex} value={opt.mark}>
                           {opt.show}
                         </option>
@@ -494,13 +538,13 @@ export default function QuestionLogic({
                     className="min-w-[200px]"
                   >
                     <option value="">Select value</option>
-                    {optsData[mainRow.variable]
+                    {getOptionsForVariable(mainRow.variable)
                       ?.find(
-                        (opt: any) =>
+                        (opt) =>
                           String(opt.mark).toLowerCase() ===
                           String(mainRow.option).toLowerCase()
                       )
-                      ?.options?.map((opt: any, valueIndex: number) => (
+                      ?.options?.map((opt, valueIndex) => (
                         <option key={valueIndex} value={String(opt.code)}>
                           {opt.show}
                         </option>
@@ -549,8 +593,8 @@ export default function QuestionLogic({
               <div
                 key={row.id}
                 className={cn(
-                  "flex flex-wrap items-center gap-3",
-                  rowIndex !== conditionRows.length - 1 && "mb-4"
+                  "flex flex-wrap items-center gap-2.5",
+                  rowIndex !== conditionRows.length - 1 && "mb-3"
                 )}
               >
                 <div title="AND/OR condition">
@@ -575,9 +619,9 @@ export default function QuestionLogic({
                   className="min-w-[220px]"
                 >
                   <option value="">Select variables</option>
-                  {varsData?.variables?.survey?.length > 0 && (
+                  {surveyVariables.length > 0 && (
                     <optgroup label="survey">
-                      {varsData.variables.survey.map((item: any, variableIndex: number) => (
+                      {surveyVariables.map((item, variableIndex) => (
                         <option
                           key={`${item.param}-${variableIndex}`}
                           value={item.param.toLowerCase()}
@@ -590,8 +634,7 @@ export default function QuestionLogic({
                 </Select>
 
                 {row.variable &&
-                  optsData[row.variable] &&
-                  optsData[row.variable].length > 0 && (
+                  getOptionsForVariable(row.variable).length > 0 && (
                     <Select
                       variant="questionnaire"
                       value={row.option || ""}
@@ -599,7 +642,7 @@ export default function QuestionLogic({
                       className="min-w-[200px]"
                     >
                       <option value="">Select option</option>
-                      {optsData[row.variable].map((opt: any, optionIndex: number) => (
+                      {getOptionsForVariable(row.variable).map((opt, optionIndex) => (
                         <option key={optionIndex} value={opt.mark}>
                           {opt.show}
                         </option>
@@ -615,13 +658,13 @@ export default function QuestionLogic({
                     className="min-w-[200px]"
                   >
                     <option value="">Select value</option>
-                    {optsData[row.variable]
+                    {getOptionsForVariable(row.variable)
                       ?.find(
-                        (opt: any) =>
+                        (opt) =>
                           String(opt.mark).toLowerCase() ===
                           String(row.option).toLowerCase()
                       )
-                      ?.options?.map((opt: any, valueIndex: number) => (
+                      ?.options?.map((opt, valueIndex) => (
                         <option key={valueIndex} value={String(opt.code)}>
                           {opt.show}
                         </option>

@@ -156,7 +156,6 @@ const UserCard: FC<UserCardProps> = ({
                 type="button"
                 variant="ghost"
                 size="icon"
-                className="h-9 w-9 rounded-full"
                 tooltip="User actions"
                 onClick={() => {
                   updateDropdownPosition();

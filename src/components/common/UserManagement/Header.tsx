@@ -20,7 +20,7 @@ const Header:FC<HeaderProp> = ({value, setValue}) => {
           onChange={(e) => setValue(e)}
         />
       </div>
-      <Button className="flex w-full items-center rounded px-4 py-1 text-md text-white md:w-auto bg-primary hover:bg-primary/90">
+      <Button className="flex items-center rounded text-md text-white md:w-auto bg-primary hover:bg-primary/90">
         <LuUserPlus className="mr-2 h-4 w-4" />
         Add New User
       </Button>

@@ -155,7 +155,7 @@ export default function SupportRequestModal({
       }
     >
       {showReviewState ? (
-        <div className="rounded-xl border border-[color:var(--color-brand-primary)]/20 bg-[var(--color-brand-primary-softest)]/45 p-5 text-center">
+        <div className="rounded-xl border border-[var(--color-brand-primary)]/20 bg-[var(--color-brand-primary-softest)]/45 p-5 text-center">
           <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-white text-login-primary shadow-sm">
             <LuBadgeCheck className="h-6 w-6" />
           </span>

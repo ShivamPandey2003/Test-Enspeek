@@ -46,20 +46,20 @@ export const syncHomepageUserInfo = async (
     return response;
 };
 
-export const useStudyList = (enableTab: string) => {
+export const useStudyList = (enableTab: string, page = 1) => {
     const { apiToken } = useSelector((state: RootState) => state.user);
     const dispatch = useDispatch<AppDispatch>();
     const TestFn = async () => {
         const res = await apiRequest(url.studyListing.method, url.studyListing.endpoint, {
             selection: enableTab,
-            page: 1,
+            page,
         });
         dispatch(setStudys(res.response.data));
         dispatch(setFilterStudys(res.response.data));
         return res.response;
     }
     const { data: studyList = {}, isLoading: isListLoading } = queryStructure({
-        queryKey: homepageKeys.studyList(enableTab),
+        queryKey: homepageKeys.studyList(enableTab, page),
         queryFn: TestFn,
         enable: !!apiToken,
     });

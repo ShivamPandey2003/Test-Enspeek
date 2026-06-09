@@ -13,12 +13,14 @@ import {
 } from "../../store/CrossTabDataSlice";
 import { setStudyInfo } from "../../store/CrosstabStudySlice";
 
-export const useCrosstabStudyInfo = (studyID: string) => {
+export const useCrosstabStudyInfo = (studyID?: string) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const { data: StudyInfo } = useSuspenseQuery({
     queryKey: crosstabKeys.studyInfo(studyID),
     queryFn: async () => {
+      if (!studyID) return null;
+
       const res = await apiRequest(url.studyInfo.method, url.studyInfo.endpoint, {
         studyID,
       });

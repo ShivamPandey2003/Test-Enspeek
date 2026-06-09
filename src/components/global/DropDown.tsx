@@ -17,7 +17,7 @@ const DropDown: React.FC<DropDownProps> = ({ className, style, Data, showCheckbo
   return (
     <div
       className={cn(
-        "home-dropdown absolute right-0 z-50 mt-2 overflow-hidden rounded-2xl border p-1.5 shadow-xl",
+        "home-dropdown absolute right-0 z-50 mt-2 overflow-hidden rounded-2xl border p-4 shadow-xl",
         className
       )}
       style={style}
@@ -29,7 +29,7 @@ const DropDown: React.FC<DropDownProps> = ({ className, style, Data, showCheckbo
             key={i}
             data-test-id={Title}
             className={cn(
-              "home-dropdown-item flex cursor-pointer items-center gap-3 rounded-xl px-3.5 py-2.5 text-[14px] font-medium whitespace-nowrap transition-colors",
+              "home-dropdown-item flex cursor-pointer items-center gap-3 rounded-xl p-1 font-medium whitespace-nowrap transition-colors",
               Title === "Delete" && "text-rose-500 hover:bg-rose-50",
               (Title === "Add New Filters" || Title === "Share Study") &&
                 "pointer-events-none opacity-35"

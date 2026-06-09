@@ -21,10 +21,6 @@ interface OptionLogicProps {
   optionText: string;
 }
 
-const INITIAL_LOGIC: RowLogic[] = [
-  { row: "row1", value: "", terminate: false },
-];
-
 export default function OptionLogic({
   qID,
   rowIndex,
@@ -32,7 +28,9 @@ export default function OptionLogic({
 }: OptionLogicProps) {
   const location = useLocation();
   const studyID = location.state?.studyID;
-  const [logic, setLogic] = useState<RowLogic[]>(INITIAL_LOGIC);
+  const [logic, setLogic] = useState<RowLogic[]>(() => [
+    { row: rowIndex, value: "", terminate: false },
+  ]);
   const submitItems = useSelector(
     (state: RootState) => state.question.submitItems
   );
@@ -103,7 +101,7 @@ export default function OptionLogic({
       if (prev[0]?.value !== apiValue || prev[0]?.terminate !== apiTerminate) {
         return [
           {
-            row: `row${rowIndex + 1}`,
+            row: rowIndex,
             value: apiValue,
             terminate: apiTerminate,
           },
@@ -115,16 +113,17 @@ export default function OptionLogic({
   }, [submitItems, qID, rowIndex]);
 
   return (
-    <div>
+    <div className="min-w-0">
       {logic.map((row, idx) => (
         <div key={row.row} className="flex items-center">
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex min-w-0 items-center gap-1">
             {(row.value || row.terminate) && (
               <IconActionButton
                 type="button"
                 tone="neutral"
                 tooltip="Reset logic"
                 onClick={() => handleReset(idx)}
+                className="h-7 w-7 p-1"
               >
                 <TbRefresh className="h-4 w-4" />
               </IconActionButton>
@@ -132,29 +131,30 @@ export default function OptionLogic({
             <Button
               type="button"
               variant={row.terminate ? "danger" : "outline"}
-              size="sm"
+              size="default"
               tooltip={row.terminate ? "Remove termination" : "Apply termination"}
               onClick={() => toggleTerminate(idx)}
               disabled={!!row.value}
               className={
                 row.terminate
-                  ? "questionnaire-logic-chip-danger"
-                  : "questionnaire-logic-chip-muted"
+                  ? "questionnaire-logic-chip-danger min-h-7 rounded-full px-1.5 py-0.5 text-[11px] font-semibold"
+                  : "questionnaire-logic-chip-muted min-h-7 rounded-full px-1.5 py-0.5 text-[11px] font-semibold"
               }
             >
               <LuBan className="h-4 w-4" />
               <span>
-                {row.terminate ? "Termination Applied" : "Apply Termination"}
+                {row.terminate ? "Terminated" : "Termination"}
               </span>
             </Button>
 
             <div
               title={row.value?.trim() ? "Update skip logic" : "Apply skip logic"}
-              className="relative min-w-[144px]"
+              className="relative min-w-[96px]"
             >
               <Select
                 variant="questionnaire"
-                className={`w-full rounded-full py-2 pl-3 pr-9 text-sm font-semibold ${
+                hideIcon
+                className={`min-h-7 w-full rounded-full py-0.5 pl-2 pr-6 text-[11px] font-semibold ${
                   row.value?.trim() ? "questionnaire-logic-select-active" : ""
                 } ${row.terminate ? "opacity-50 cursor-not-allowed" : ""}`}
                 value={row.value}

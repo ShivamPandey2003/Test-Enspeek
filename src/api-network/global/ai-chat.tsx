@@ -135,6 +135,7 @@ export const useChat = () => {
         sdata: data.sdata,
         text: data.message,
         studyID: data.studyID,
+        suggestion: data.suggestion,
       });
       return;
     }
@@ -146,6 +147,7 @@ export const useChat = () => {
       instruction: data.instruction,
       response: data.response || {},
       liveLink: data.liveLink,
+      suggestion: data.suggestion,
     });
 
     if (data.opt === true && data.qid) {

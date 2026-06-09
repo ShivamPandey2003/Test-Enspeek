@@ -149,7 +149,7 @@ export default function EditTableModal({
       description="Update the table details, logic, and row settings, then save the refreshed table configuration."
       descriptionClassName="theme-modal-description"
       headerIcon={
-        <span className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[var(--color-brand-primary-softest)] text-login-primary">
+        <span className="inline-flex items-center justify-center rounded-full bg-[var(--color-brand-primary-softest)] text-login-primary">
           <LuTable className="h-5 w-5" />
         </span>
       }

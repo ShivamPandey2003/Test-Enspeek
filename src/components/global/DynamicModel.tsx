@@ -61,7 +61,6 @@ const DynamicModel: React.FC<DynamicModalProps> = ({
               variant={resolvedButtonVariant}
               onClick={onClick}
               data-test-id="MODEL_BUTTON"
-              className="min-w-[180px]"
               disabled={disable}
             >
               {buttonIcon}
