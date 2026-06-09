@@ -88,7 +88,7 @@ const DesignBanner_Header = () => {
         <Button
           data-test-id="SUBMIT"
           variant="theme"
-          className="report-toolbar-btn"
+          className=""
           onClick={onSubmitHandle}
           disabled={isAddBannerPointerPending}
         >

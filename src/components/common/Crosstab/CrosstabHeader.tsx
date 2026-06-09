@@ -38,7 +38,8 @@ export default function CrosstabHeader({
           <Button
             data-test-id="CREATE_BANNER"
             variant="theme"
-            className="report-toolbar-btn"
+            className=""
+            size="default"
             onClick={() => dispatch(setIsAddBannerModalOpen(true))}
           >
             <LuPlus />
@@ -58,7 +59,7 @@ export default function CrosstabHeader({
           </div>
           <Button
             variant="secondary"
-            size="icon"
+            size="default"
             className="report-toolbar-btn home-border-soft text-[var(--color-brand-info)] hover:bg-[var(--color-brand-primary-softest)]"
             onClick={() => setIsDownloadModalOpen(true)}
           >

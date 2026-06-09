@@ -124,7 +124,7 @@ const Header: React.FC<CrosstabHeaderProps> = ({
                 </div>
               )}
             </div>
-            <div className="crosstab-soft-panel flex h-8 items-center rounded-full px-2.5">
+            <div className="crosstab-soft-panel flex h-8 items-center rounded-full pl-2.5">
               <Select
                 variant="bare"
                 value={selectedBanner}
@@ -149,7 +149,7 @@ const Header: React.FC<CrosstabHeaderProps> = ({
                     },
                   })
                 }
-                className="ml-2 h-6 border-l border-white/35 pl-2 text-xs"
+                className=""
               >
                 Go <LuArrowRight className="h-3.5 w-3.5" />
               </Button>
@@ -159,7 +159,7 @@ const Header: React.FC<CrosstabHeaderProps> = ({
           <Button
             data-test-id="SAVE_QUESTION"
             variant="theme"
-            className="report-toolbar-btn"
+            className=""
             onClick={() => {
               if (selectedQuestions.length === 0) {
                 toast.error(
