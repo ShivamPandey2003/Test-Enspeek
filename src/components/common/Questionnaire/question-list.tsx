@@ -114,7 +114,6 @@ export default function QuestionList() {
                 data-test-id="NEXTTOSURVEY"
                 variant="theme"
                 size="default"
-                className=""
                 onClick={() => {
                   navigate("/publish-survey", {
                     state: { studyID },

@@ -443,7 +443,6 @@ const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({ onClose }) => {
                     <Button
                       variant="theme"
                       size="default"
-                      className=""
                       onClick={createOption}
                       disabled={isSaving}
                     >

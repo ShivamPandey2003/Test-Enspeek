@@ -140,7 +140,6 @@ const PublishSurveyHeader: FC<PublishSurveyHeaderProps> = ({
               <Button
                 data-test-id="INITIATE"
                 variant="theme"
-                className=""
                 onClick={() => {
                   setIsOpenInitiate(true);
                 }}
@@ -151,7 +150,6 @@ const PublishSurveyHeader: FC<PublishSurveyHeaderProps> = ({
             {isSurveyActive && launch === 1 && studyInfo.closed === 1 && (
               <Button
                 variant="theme"
-                className=""
                 onClick={() => {
                   setIsOpenInitiate(true);
                 }}
@@ -175,14 +173,13 @@ const PublishSurveyHeader: FC<PublishSurveyHeaderProps> = ({
                   </Button>
                   {open && (
                     <div className="absolute right-0 z-10 rounded-lg shadow-2xl">
-                      <DropDown Data={rawDataDropdown} className="" />
+                      <DropDown Data={rawDataDropdown} />
                     </div>
                   )}
                 </div>
                 <Button
                   data-test-id="NEXT_TO_REPORT"
                   variant="theme"
-                  className=""
                   onClick={() => {
                     navigate("/report", { state: { studyID: state.studyID } });
                   }}

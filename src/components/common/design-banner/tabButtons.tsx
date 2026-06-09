@@ -65,7 +65,6 @@ const TabButtons: React.FC<TabButtonsProps> = ({
         type="button"
         variant="theme"
         onClick={addBannerPoint}
-        className=""
         disabled={isBannerPointerListPending}
       >
         <LuPlus className="h-4 w-4" />

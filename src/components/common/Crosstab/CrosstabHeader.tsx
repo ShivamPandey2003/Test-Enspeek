@@ -38,7 +38,6 @@ export default function CrosstabHeader({
           <Button
             data-test-id="CREATE_BANNER"
             variant="theme"
-            className=""
             size="default"
             onClick={() => dispatch(setIsAddBannerModalOpen(true))}
           >

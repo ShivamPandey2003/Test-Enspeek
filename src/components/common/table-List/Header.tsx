@@ -149,7 +149,6 @@ const Header: React.FC<CrosstabHeaderProps> = ({
                     },
                   })
                 }
-                className=""
               >
                 Go <LuArrowRight className="h-3.5 w-3.5" />
               </Button>
@@ -159,7 +158,6 @@ const Header: React.FC<CrosstabHeaderProps> = ({
           <Button
             data-test-id="SAVE_QUESTION"
             variant="theme"
-            className=""
             onClick={() => {
               if (selectedQuestions.length === 0) {
                 toast.error(
