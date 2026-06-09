@@ -37,6 +37,7 @@ const ActionButton: React.FC<ActionButtonProps> = ({
   const selectDropdownRef = useRef<HTMLDivElement>(null);
   const { tableQList, fliterReportData } = useSelector((state: RootState) => state.filter);
   const { state } = useLocation();
+  const studyID = state?.studyID;
   const navigate = useNavigate();
   const [showSubgroupModal, setshowSubgroupModal] = useState(false);
   const dispatch = useDispatch();
@@ -44,25 +45,25 @@ const ActionButton: React.FC<ActionButtonProps> = ({
 
   const { processDownload } = useReportProcessDownload();
   const { downloadExcel, isDownloadExcelPending } = useReportExcelDownload({
-    studyID: state.studyID,
+    studyID: studyID ?? "",
     cb: ({ studyID, pid }) => {
       processDownload({ studyID, pid });
     },
   });
   const { downloadSpss, isDownloadSpssPending } = useReportSpssDownload({
-    studyID: state.studyID,
+    studyID: studyID ?? "",
     cb: ({ studyID, pid }) => {
       processDownload({ studyID, pid });
     },
   });
   const { downloadTable, isDownloadTablePending } = useReportTableDownload({
-    studyID: state.studyID,
+    studyID: studyID ?? "",
     cb: ({ studyID, pid }) => {
       processDownload({ studyID, pid });
     },
   });
   const { downloadPpt, isDownloadPptPending } = useReportPptDownload({
-    studyID: state.studyID,
+    studyID: studyID ?? "",
     cb: ({ studyID, pid }) => {
       processDownload({ studyID, pid });
     },
@@ -136,12 +137,12 @@ const ActionButton: React.FC<ActionButtonProps> = ({
     },
   ];
 
-  const { sideBySideVariables } = useReportSideBySideVariables(state.studyID);
+  const { sideBySideVariables } = useReportSideBySideVariables(studyID);
 
   const handleSave = async (selectedValue: string) => {
     dispatch(setSelected(selectedValue));
     await queryClient.refetchQueries({
-      queryKey: reportKeys.viewByIdRoot(state.studyID),
+      queryKey: reportKeys.viewByIdRoot(studyID),
       type: "active",
     });
     setshowSubgroupModal(false);
@@ -269,8 +270,9 @@ const ActionButton: React.FC<ActionButtonProps> = ({
         <Button
           data-test-id="NEXT_TO_CROSSTAB"
           variant="theme"
+          disabled={!studyID}
           onClick={() => {
-            navigate("/crosstab", { state: { studyID: state.studyID } });
+            navigate("/crosstab", { state: { studyID } });
           }}
         >
           Next <LuArrowRight className="h-4 w-4" />

@@ -319,6 +319,20 @@ const ChatWindow: React.FC<{
   const isHomePageSurface =
     pathname === "/" && (surface === "auto" || surface === "page");
   const isResponseLocked = isTyping || pending;
+  const copyTextToClipboard = async (text: string, successMessage: string) => {
+    if (!navigator.clipboard?.writeText) {
+      toast.error("Clipboard API is not supported in this browser.");
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(text);
+      toast.success(successMessage);
+    } catch {
+      toast.error("Unable to copy message.");
+    }
+  };
+
   const handleCopyMessage = async (index: number, text?: string, includeRenderedContent = true) => {
     const renderedText = includeRenderedContent
       ? messageContentRefs.current[index]?.innerText?.trim()
@@ -330,12 +344,7 @@ const ChatWindow: React.FC<{
       return;
     }
 
-    try {
-      await navigator.clipboard.writeText(readableText);
-      toast.success("Message copied.");
-    } catch {
-      toast.error("Unable to copy message.");
-    }
+    await copyTextToClipboard(readableText, "Message copied.");
   };
   const handleEditMessage = (text?: string) => {
     const readableText = getReadableMessageText(text);
@@ -789,9 +798,11 @@ const ChatWindow: React.FC<{
                       tooltip="Copy research link"
                       onClick={() => {
                         if (msg.liveLink) {
-                          navigator.clipboard.writeText(msg.liveLink);
+                          void copyTextToClipboard(
+                            msg.liveLink,
+                            "Research link copied to clipboard!"
+                          );
                         }
-                        toast.success("Research link copied to clipboard!");
                       }}
                       tone="neutral"
                       className="theme-text-muted"

@@ -103,7 +103,7 @@ export default function OptionLogic({
       if (prev[0]?.value !== apiValue || prev[0]?.terminate !== apiTerminate) {
         return [
           {
-            row: `row${rowIndex + 1}`,
+            row: rowIndex,
             value: apiValue,
             terminate: apiTerminate,
           },
