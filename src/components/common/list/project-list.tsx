@@ -38,21 +38,21 @@ export default function ProjectListing() {
   }
 
   return (
-    <div className="home-surface relative flex h-full min-h-0 w-full justify-center overflow-hidden">
+    <div className="relative flex h-full min-h-0 w-full justify-center overflow-hidden">
       {messages.length > 0 ? (
         <div className="h-full min-h-0 w-full">
           <ChatWindow surface="page" />
           <div className="platform-page-fade pointer-events-none absolute inset-x-0 bottom-0 z-40 h-[164px]" />
         </div>
       ) : (
-        <div className="h-full min-h-0 w-full overflow-y-auto overflow-x-hidden pb-28">
+        <div className="h-full min-h-0 w-full overflow-y-auto overflow-x-hidden pb-28 md:pb-32">
           <div
             className={cn(
               "mx-auto flex min-h-full w-full max-w-6xl flex-col justify-center gap-3 px-4 py-4 transition-all duration-300 ease-in-out md:gap-4 md:px-6 md:py-6"
             )}
           >
             <div className="grid gap-4 xl:items-stretch">
-              <div className="h-full overflow-hidden">
+              <div className="h-full overflow-hidden rounded-[30px]">
                 <PlatformHero
                   greeting={`${greeting}, ${normalizedFirstName}`}
                   title="Build research by simply describing it."
@@ -63,7 +63,7 @@ export default function ProjectListing() {
                         <Button
                           key={prompt.id}
                           type="button"
-                          variant="theme"
+                          variant="outline"
                           onClick={() => {
                             if (prompt.id === "activate study") {
                               openChatWithMessage("Activate Study [Study Name]");
@@ -72,12 +72,12 @@ export default function ProjectListing() {
                             }
                             focusChatInput();
                           }}
-                          className="h-10 w-auto items-center justify-center rounded-full px-4 py-2 text-left leading-normal shadow-md transition-all duration-200 hover:-translate-y-0.5"
+                          className="home-panel-soft-bg home-border-soft group h-10 w-auto items-center justify-center rounded-full px-4 py-2 text-left leading-normal transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
                         >
-                          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-white [&>svg]:h-4 [&>svg]:w-4">
+                          <span className="home-dropdown-icon-wrap flex h-7 w-7 shrink-0 items-center justify-center rounded-full [&>svg]:h-4 [&>svg]:w-4">
                             {prompt.icon}
                           </span>
-                          <span className="whitespace-nowrap text-sm font-semibold text-white">
+                          <span className="home-heading whitespace-nowrap text-sm font-semibold">
                             {prompt.label}
                           </span>
                         </Button>
