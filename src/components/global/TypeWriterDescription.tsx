@@ -44,7 +44,7 @@ export const TypewriterDescription: React.FC<TypewriterDescriptionProps> = ({
 
   return (
     <div className={`${className}`}>
-      <span className="">Ask Enspeek to </span>
+      <span>Ask Enspeek to </span>
       <span>{currentText}</span>
     </div>
   );

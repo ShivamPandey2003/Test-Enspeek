@@ -161,7 +161,7 @@ export default function ProfilePage() {
           <section className="questionnaire-card questionnaire-border rounded-xl border bg-white p-6">
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-center gap-3">
-                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[var(--color-brand-primary-softest)] text-login-primary">
+                <span className="flex items-center justify-center rounded-xl bg-[var(--color-brand-primary-softest)] text-login-primary">
                   <LuCreditCard className="h-5 w-5" />
                 </span>
                 <div>

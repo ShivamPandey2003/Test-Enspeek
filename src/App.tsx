@@ -14,7 +14,7 @@ function App() {
     <RouterProvider router={Router} />
     <GlobalModalHost />
     <TooltipLayer />
-    <Toaster position="bottom-right" richColors />
+    <Toaster position="bottom-left" richColors />
     </>
   )
 }

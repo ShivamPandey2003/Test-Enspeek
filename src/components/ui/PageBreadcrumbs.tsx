@@ -21,7 +21,7 @@ const PageBreadcrumbs: React.FC<PageBreadcrumbsProps> = ({
   className,
 }) => {
   return (
-    <div className={cn("flex min-h-[42px] flex-wrap items-center gap-x-2 gap-y-1 text-sm leading-none", className)}>
+    <div className={cn("flex min-h-8 flex-wrap items-center gap-x-2 gap-y-1 text-[16px] leading-none", className)}>
       {prefix && (
         <span className="crosstab-title inline-flex items-center font-semibold leading-none">
           {prefix}

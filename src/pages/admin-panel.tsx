@@ -1671,7 +1671,7 @@ const TicketStatusModalBody = ({
         </span>
         .
       </p>
-      <div className="flex items-center gap-2 rounded-lg border border-[color:var(--color-brand-primary)]/16 bg-[var(--color-brand-primary-softest)]/45 px-4 py-3 text-sm leading-5 text-[var(--color-text-strong)]">
+      <div className="flex items-center gap-2 rounded-lg border border-[var(--color-brand-primary)]/16 bg-[var(--color-brand-primary-softest)]/45 px-4 py-3 text-sm leading-5 text-[var(--color-text-strong)]">
         <LuInfo className="h-4 w-4 shrink-0 text-login-primary" />
         <span>
           Type{" "}

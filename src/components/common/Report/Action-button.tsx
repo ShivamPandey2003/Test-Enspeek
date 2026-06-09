@@ -13,7 +13,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import type { RootState } from "../../../store/store";
 import { useDispatch, useSelector } from "react-redux";
 import { setFliterReportData, setSelected, setSide_by_side } from "../../../store/FiltersSlice";
-import { Link, useLocation } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { setSubgroupOn } from "../../../store/CrosstabSlice";
 import reportKeys from "../../../api-network/report/keys";
 
@@ -37,6 +37,7 @@ const ActionButton: React.FC<ActionButtonProps> = ({
   const selectDropdownRef = useRef<HTMLDivElement>(null);
   const { tableQList, fliterReportData } = useSelector((state: RootState) => state.filter);
   const { state } = useLocation();
+  const navigate = useNavigate();
   const [showSubgroupModal, setshowSubgroupModal] = useState(false);
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
@@ -147,7 +148,7 @@ const ActionButton: React.FC<ActionButtonProps> = ({
   };
 
   const subGroupToggle = () => {
-    if (!!subgroupOn) {
+    if (subgroupOn) {
       dispatch(setSide_by_side("0"));
     } else {
       dispatch(setSelected(sideBySideVariables?.[0]?.qID ?? ""));
@@ -183,11 +184,11 @@ const ActionButton: React.FC<ActionButtonProps> = ({
 
   return (
     <div className="relative">
-      <div className="flex min-h-[42px] flex-wrap items-center gap-2 md:justify-end">
+      <div className="flex min-h-8 flex-wrap items-center gap-2 md:justify-end">
         <div className="flex items-center gap-2">
           <Button
             data-test-id="GROUP_TOGGLE"
-            className="report-toolbar-btn report-title border home-border-soft bg-white px-4 hover:bg-white hover:text-[var(--color-text-strong)] [&_svg]:size-5"
+            className="report-toolbar-btn report-title border home-border-soft bg-white hover:bg-white hover:text-[var(--color-text-strong)] [&_svg]:size-5"
             onClick={subGroupToggle}
           >
             {subgroupOn ? (
@@ -200,7 +201,7 @@ const ActionButton: React.FC<ActionButtonProps> = ({
           {subgroupOn && (
             <Button
               data-test-id="GROUP_TOGGLE_ON"
-              size="icon"
+              size="default"
               tooltip="Configure subgroups"
               className="report-toolbar-btn bg-[var(--color-study-progress)] text-white hover:bg-[var(--color-study-progress)] hover:text-white hover:opacity-90"
               onClick={() => {
@@ -216,7 +217,7 @@ const ActionButton: React.FC<ActionButtonProps> = ({
             data-test-id="SELECTOR"
             tooltip="Select report questions"
             onClick={() => setShowPointerDropdown((prev) => !prev)}
-            size="icon"
+            size="default"
             className="report-toolbar-btn bg-[var(--color-brand-primary-soft)] text-white hover:bg-login-primary"
           >
             <LuHand />
@@ -229,7 +230,7 @@ const ActionButton: React.FC<ActionButtonProps> = ({
         </div>
         <Button
           data-test-id="TABLE"
-          size="icon"
+          size="default"
           tooltip={showTableView ? "View chart mode" : "View table mode"}
           className="report-toolbar-btn report-title border home-border-soft bg-white hover:bg-white hover:text-[var(--color-text-strong)]"
           onClick={() => setShowTableView((prev) => !prev)}
@@ -237,7 +238,7 @@ const ActionButton: React.FC<ActionButtonProps> = ({
           {showTableView ? <LuChartColumnBig /> : <LuTable2 />}
         </Button>
         <Button
-          size="icon"
+          size="default"
           tooltip="Filters"
           className="report-toolbar-btn bg-[var(--color-brand-info)] text-white hover:opacity-90"
           onClick={() => {
@@ -250,7 +251,7 @@ const ActionButton: React.FC<ActionButtonProps> = ({
         <div className="relative" ref={dropdownRef}>
           <Button
             data-test-id="MORE_ACTIONS"
-            size="icon"
+            size="default"
             tooltip="More actions"
             className="report-toolbar-btn bg-[var(--color-questionnaire-multi)] text-white hover:bg-[var(--color-questionnaire-multi)] hover:text-white hover:opacity-90"
             onClick={() => {
@@ -261,17 +262,19 @@ const ActionButton: React.FC<ActionButtonProps> = ({
           </Button>
           {showMoreDropdown && (
             <div className="absolute right-0 mt-2 z-10">
-              <DropDown Data={MoreDropdownData} className="w-72 z-20" />
+              <DropDown Data={MoreDropdownData} className="z-20" />
             </div>
           )}
         </div>
-        <Link
-          to={"/crosstab"}
-          state={{ studyID: state.studyID }}
-          className="platform-btn-pill report-toolbar-btn inline-flex h-10 items-center gap-2 bg-login-primary px-5 text-sm font-bold text-white hover:bg-login-primary-hover"
+        <Button
+          data-test-id="NEXT_TO_CROSSTAB"
+          variant="theme"
+          onClick={() => {
+            navigate("/crosstab", { state: { studyID: state.studyID } });
+          }}
         >
           Next <LuArrowRight className="h-4 w-4" />
-        </Link>
+        </Button>
       </div>
       {showFilter && (
         <ReportFilter onClose={() => setShowFilter(false)} onClear={() => { }} />

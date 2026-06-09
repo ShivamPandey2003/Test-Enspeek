@@ -67,7 +67,7 @@ const SampleCollectionModel: FC<SampleCollectionModalProps> = ({
     <DynamicModel
       Title={title}
       headerIcon={
-        <span className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[var(--color-brand-primary-softest)] text-login-primary">
+        <span className="inline-flex items-center justify-center rounded-full bg-[var(--color-brand-primary-softest)] text-login-primary">
           <LuUsers className="h-5 w-5" />
         </span>
       }

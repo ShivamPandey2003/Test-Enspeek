@@ -17,7 +17,7 @@ const Pagination:React.FC<PaginationProps> = ({table}) => {
         <Button
           type="button"
           variant="outline"
-          size="sm"
+          size="default"
           onClick={() => table.previousPage()}
           disabled={!table.getCanPreviousPage()}
         >
@@ -26,7 +26,7 @@ const Pagination:React.FC<PaginationProps> = ({table}) => {
         <Button
           type="button"
           variant="outline"
-          size="sm"
+          size="default"
           onClick={() => table.nextPage()}
           disabled={!table.getCanNextPage()}
         >

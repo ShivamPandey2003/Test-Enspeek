@@ -3,7 +3,7 @@ import TypingIndicator from "./typing-indicator";
 import Question_Format from "./Question-format";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../../../store/store";
-import { setMessages } from "../../../store/ChatSlice";
+import { setMessage, setMessages } from "../../../store/ChatSlice";
 import { useLocation } from "react-router";
 import { cn, formatRichText } from "../../../utils";
 import { FaChartBar, FaCopy, FaExpandArrowsAlt, FaTable } from "react-icons/fa";
@@ -14,12 +14,177 @@ import TableAndChartModal from "../Report/TableAndChartModal";
 import TableModal from "../Crosstab/TableModal";
 import { toast } from "sonner";
 import { PRIMARY_CHART_COLOR } from "../../../utils/chartColors";
-import { getFullName, getInitials } from "../../../utils";
+import { getFullName } from "../../../utils";
 import { LuBotMessageSquare, LuSparkles } from "react-icons/lu";
 import Button from "../../ui/Button";
 import IconActionButton from "../../ui/IconActionButton";
+import AvatarInitials from "../../ui/AvatarInitials";
+import { CHAT_AGENT_INITIALS, CHAT_AGENT_LABEL, CHAT_AGENT_NAME } from "../../../config/chatAgent";
+import { FOCUS_CHAT_INPUT_EVENT } from "../../../utils/modalFocus";
+import { LuCopy, LuPencilLine } from "react-icons/lu";
+import useAiChat from "../../../api-network/global/ai-chat";
 
 const RESPONSE_SCROLL_GAP = 12;
+const CHAT_SUGGESTION_DELAY_MS = 3000;
+
+const getUserInitials = (firstName?: string, lastName?: string) => {
+  const parts = [firstName, lastName]
+    .map((part) => part?.trim())
+    .filter(Boolean) as string[];
+
+  if (parts.length === 0) return "U";
+  if (parts.length === 1) return parts[0][0]?.toUpperCase() ?? "U";
+
+  return `${parts[0][0] ?? ""}${parts[1][0] ?? ""}`.toUpperCase();
+};
+
+const getReadableMessageText = (value?: string) => {
+  if (!value) return "";
+
+  const parser = new DOMParser();
+  const documentValue = parser.parseFromString(value, "text/html");
+  const parsedText = documentValue.body.textContent?.trim();
+
+  return parsedText || value.replace(/<[^>]*>/g, "").trim();
+};
+
+const toArray = <T,>(value: unknown): T[] => {
+  return Array.isArray(value) ? value : [];
+};
+
+const toRecord = (value: unknown): Record<string, unknown> => {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : {};
+};
+
+const toDisplayText = (value: unknown, fallback = "") => {
+  if (typeof value === "string" || typeof value === "number") {
+    return String(value);
+  }
+
+  return fallback;
+};
+
+const toChartNumber = (value: unknown) => {
+  if (typeof value === "number") return value;
+
+  const parsedValue = Number(value);
+  return Number.isFinite(parsedValue) ? parsedValue : 0;
+};
+
+const getValidSuggestion = (suggestion: unknown) => {
+  const suggestionValue = toRecord(suggestion);
+  const message = toDisplayText(suggestionValue.message).trim();
+  const list = toArray<unknown>(suggestionValue.list)
+    .map((item) => toDisplayText(item).trim())
+    .filter(Boolean);
+
+  if (!message && list.length === 0) return null;
+
+  return { message, list };
+};
+
+const ChatSuggestionBlock = ({
+  suggestion,
+  disabled,
+  onSend,
+  onVisible,
+}: {
+  suggestion: unknown;
+  disabled: boolean;
+  onSend: (value: string) => boolean;
+  onVisible: () => void;
+}) => {
+  const [isVisible, setIsVisible] = useState(false);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
+  const onVisibleRef = React.useRef(onVisible);
+  const validSuggestion = React.useMemo(
+    () => getValidSuggestion(suggestion),
+    [suggestion]
+  );
+
+  useEffect(() => {
+    onVisibleRef.current = onVisible;
+  }, [onVisible]);
+
+  useEffect(() => {
+    setIsVisible(false);
+    setHasSubmitted(false);
+
+    if (!validSuggestion) return;
+
+    window.requestAnimationFrame(() => {
+      onVisibleRef.current();
+    });
+
+    const timer = window.setTimeout(() => {
+      setIsVisible(true);
+      onVisibleRef.current();
+    }, CHAT_SUGGESTION_DELAY_MS);
+
+    return () => window.clearTimeout(timer);
+  }, [validSuggestion]);
+
+  if (!validSuggestion) return null;
+
+  const isDisabled = disabled || hasSubmitted;
+  const handleSuggestionClick = (value: string) => {
+    if (isDisabled) return;
+
+    const didSend = onSend(value);
+    if (didSend) {
+      setHasSubmitted(true);
+    }
+  };
+
+  return (
+    <div
+      className="mb-4 mt-6 flex w-full justify-start"
+    >
+      <div className="flex max-w-full items-start gap-2.5">
+        <AvatarInitials
+          label={CHAT_AGENT_NAME}
+          title={CHAT_AGENT_NAME}
+          initials={CHAT_AGENT_INITIALS}
+          className="home-avatar-ai mt-0.5 h-9 w-9 text-[12px] shadow-sm"
+        />
+        <div className="min-w-0 max-w-[min(100%,820px)]">
+          {!isVisible ? (
+            <TypingIndicator className="mb-0" />
+          ) : null}
+          {isVisible && validSuggestion.message ? (
+            <div className="home-surface home-text inline-block rounded-[16px] border home-border px-3 py-2 text-left text-sm shadow-[0_6px_16px_rgba(15,23,42,0.08)]">
+              <div
+                className="break-words text-[14px] leading-6"
+                dangerouslySetInnerHTML={{
+                  __html: formatRichText(validSuggestion.message),
+                }}
+              />
+            </div>
+          ) : null}
+          {isVisible && validSuggestion.list.length > 0 ? (
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {validSuggestion.list.map((item, itemIndex) => (
+                <Button
+                  key={`${item}-${itemIndex}`}
+                  type="button"
+                  variant="chip"
+                  size="default"
+                  disabled={isDisabled}
+                  className="h-auto min-h-8 rounded-full border home-border bg-white px-2.5 py-1.5 text-left text-[13px] font-semibold leading-snug shadow-sm hover:bg-[var(--color-brand-primary-softest)]"
+                  onClick={() => handleSuggestionClick(item)}
+                >
+                  {item}
+                </Button>
+              ))}
+            </div>
+          ) : null}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const ChatWindow: React.FC<{
   surface?: "auto" | "page" | "card";
@@ -31,6 +196,7 @@ const ChatWindow: React.FC<{
   const { messages, isTyping, pending } = useSelector(
     (state: RootState) => state.chat
   );
+  const { sendMessage } = useAiChat();
   const { firstName, lastName } = useSelector((state: RootState) => state.user);
   const { pathname } = useLocation();
   const dispatch = useDispatch<AppDispatch>();
@@ -38,6 +204,7 @@ const ChatWindow: React.FC<{
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
   const scrollContainerRef = React.useRef<HTMLDivElement>(null);
   const messageRowRefs = React.useRef<Array<HTMLDivElement | null>>([]);
+  const messageContentRefs = React.useRef<Array<HTMLDivElement | null>>([]);
   const scrollTimersRef = React.useRef<number[]>([]);
   const latestRowObserverRef = React.useRef<ResizeObserver | null>(null);
   const previousChatStateRef = React.useRef({
@@ -148,9 +315,36 @@ const ChatWindow: React.FC<{
   const [selectedCrosstab, setSelectedCrosstab] = useState<number | null>(null);
   const [isCrosstabModalOpen, setIsCrosstabModalOpen] = useState(false);
   const fullName = getFullName(firstName, lastName) || firstName || "User";
-  const userInitials = getInitials(fullName, "U");
+  const userInitials = getUserInitials(firstName, lastName);
   const isHomePageSurface =
     pathname === "/" && (surface === "auto" || surface === "page");
+  const isResponseLocked = isTyping || pending;
+  const handleCopyMessage = async (index: number, text?: string, includeRenderedContent = true) => {
+    const renderedText = includeRenderedContent
+      ? messageContentRefs.current[index]?.innerText?.trim()
+      : "";
+    const readableText = renderedText || getReadableMessageText(text);
+
+    if (!readableText) {
+      toast.warning("No message text to copy.");
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(readableText);
+      toast.success("Message copied.");
+    } catch {
+      toast.error("Unable to copy message.");
+    }
+  };
+  const handleEditMessage = (text?: string) => {
+    const readableText = getReadableMessageText(text);
+
+    if (!readableText || isResponseLocked) return;
+
+    dispatch(setMessage(readableText));
+    window.dispatchEvent(new Event(FOCUS_CHAT_INPUT_EVENT));
+  };
   useEffect(() => {
     const defaultTabs: { [key: number]: "chart" | "table" } = {};
     messages.forEach((_, i) => {
@@ -222,11 +416,11 @@ const ChatWindow: React.FC<{
           "min-h-0 flex-1",
           scrollMode === "internal" && "overflow-y-auto",
           surface === "page"
-            ? "home-page-bg"
+            ? "home-surface"
             : surface === "card"
               ? "home-surface"
               : pathname === "/"
-                ? "home-page-bg"
+                ? "home-surface"
                 : "home-surface"
         )}
         style={scrollMode === "internal" ? { scrollbarGutter: "stable" } : undefined}
@@ -238,50 +432,63 @@ const ChatWindow: React.FC<{
               : "px-4 pb-3 pt-4 md:px-6 md:pt-6"
           )}
         >
-        {messages.map((msg, index) => (
+        {messages.map((msg, index) => {
+          const isUserMessage = msg.sender === "user";
+          const messageText = getReadableMessageText(msg.text);
+          const responseKeys =
+            msg.response && !Array.isArray(msg.response) && typeof msg.response === "object"
+              ? Object.keys(msg.response)
+              : [];
+          const showMessageActions = !msg.sdata && !msg.crosstab;
+
+          return (
+          <React.Fragment key={index}>
           <div
-            key={index}
             ref={(element) => {
               messageRowRefs.current[index] = element;
             }}
             data-test-id={`${msg.sender}-${index}`}
             className={cn(
-              "mb-6 flex w-full",
-              msg.sender === "user" ? "justify-end" : "justify-start"
+              "mb-4 flex w-full",
+              isUserMessage ? "justify-end" : "justify-start"
             )}
           >
             <div
               className={cn(
-                "flex max-w-full items-start gap-3",
-                msg.sender === "user" && "flex-row-reverse"
+                "flex max-w-full items-start gap-2.5",
+                isUserMessage && "flex-row-reverse"
               )}
             >
-              <div
-                title={msg.sender === "user" ? fullName : "Enspeek AI"}
+              <AvatarInitials
+                label={isUserMessage ? fullName : CHAT_AGENT_NAME}
+                title={isUserMessage ? fullName : CHAT_AGENT_NAME}
+                initials={isUserMessage ? userInitials : CHAT_AGENT_INITIALS}
                 className={cn(
-                  "mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold",
-                  msg.sender === "user"
-                    ? "home-avatar-user"
+                  "mt-0.5 h-9 w-9 text-[12px] shadow-sm",
+                  isUserMessage
+                    ? "bg-[#4f56e6] text-white"
                     : "home-avatar-ai"
                 )}
-              >
-                {msg.sender === "user" ? userInitials : "AI"}
-              </div>
-              <div
+              />
+              <div className={cn("flex min-w-0 max-w-full flex-col", isUserMessage && "items-end")}>
+                <div
+                ref={(element) => {
+                  messageContentRefs.current[index] = element;
+                }}
                 className={
                   msg.sdata || msg.crosstab
                     ? "max-w-[min(100%,860px)]"
                     : cn(
-                        "inline-block max-w-[min(100%,820px)] rounded-[22px] px-5 py-4 text-left text-sm shadow-sm",
-                        msg.sender === "user"
-                          ? "bg-[var(--color-brand-info-soft)] text-[var(--color-text-strong)]"
-                          : "home-surface home-text border home-border"
+                        "inline-block max-w-[min(100%,820px)] rounded-[16px] px-3 py-2 text-left text-sm shadow-sm",
+                        isUserMessage
+                          ? "bg-[#4f56e6] text-white shadow-md"
+                          : "home-surface home-text border home-border shadow-[0_6px_16px_rgba(15,23,42,0.08)]"
                       )
                 }
               >
               {(!msg.questions || msg.questions.add) && !msg.sdata && (
                 <div
-                  className="break-words text-[15px] leading-7"
+                  className="break-words text-[14px] leading-6"
                   dangerouslySetInnerHTML={{ __html: formatRichText(msg.text) }}
                 />
               )}
@@ -289,7 +496,7 @@ const ChatWindow: React.FC<{
                 msg.questions.length === 0 &&
                 !msg.sdata && (
                   <div
-                    className="break-words text-[15px] leading-7"
+                    className="break-words text-[14px] leading-6"
                     dangerouslySetInnerHTML={{ __html: formatRichText(msg.text) }}
                   />
                 )}
@@ -301,14 +508,14 @@ const ChatWindow: React.FC<{
               )}
               {Array.isArray(msg.response) ? (
                 <ul className="list-disc px-6">
-                  {msg.response.map((item: any) => (
+                  {msg.response.map((item: { studyID: string; studyName: string }) => (
                     <li key={item.studyID}>{item.studyName}</li>
                   ))}
                 </ul>
               ) : (
-                typeof msg.response === "object" && (
+                responseKeys.length > 0 && (
                   <div className="mt-2">
-                    {Object.keys(msg.response).map((key, index) => (
+                    {responseKeys.map((key, index) => (
                       <p className="mt-1 break-words" key={index}>
                         <strong>{key}:</strong>{" "}
                         <span className="text-gray-500">
@@ -337,21 +544,49 @@ const ChatWindow: React.FC<{
                   };
                   if (!qid || !questionData) return null;
 
+                  const dataValues = toRecord(questionData.data);
+                  const firstDataValue = Object.values(dataValues)[0];
+                  const rawRowOptions = toRecord(
+                    questionData._rowoptions ?? questionData._rows
+                  );
+                  const rawColOptions = toRecord(
+                    questionData._coloptions ?? questionData._cols
+                  );
+                  const rawColOrder = toArray<string>(
+                    questionData._colorder ?? questionData._col_order
+                  );
+                  const colOrder =
+                    rawColOrder.length > 0 ? rawColOrder : Object.keys(dataValues);
+                  const rawRowOrder = toArray<string>(
+                    questionData._roworder ?? questionData._row_order
+                  );
+                  const firstColumnData = toRecord(firstDataValue);
+                  const rowOrder =
+                    rawRowOrder.length > 0
+                      ? rawRowOrder
+                      : Object.keys(
+                          firstColumnData && Object.keys(firstColumnData).length > 0
+                            ? firstColumnData
+                            : dataValues
+                        );
+
                   const isChart = activeTab[index] === "chart";
                   const isTable = activeTab[index] === "table";
 
                   const isCrosstab =
-                    typeof Object.values(questionData.data || {})[0] ===
-                    "object";
+                    colOrder.length > 0 &&
+                    firstDataValue !== null &&
+                    typeof firstDataValue === "object";
 
                   const chartData = isCrosstab
-                      ? questionData._colorder.map((colId: any) => ({
-                          name: questionData._coloptions?.[colId] ?? colId,
+                      ? colOrder.map((colId: string) => ({
+                          name: toDisplayText(rawColOptions[colId], colId),
                           color: PRIMARY_CHART_COLOR,
-                          data: questionData._roworder.map((rowId: any) => {
+                          data: rowOrder.map((rowId: string) => {
+                            const columnData = toRecord(dataValues[colId]);
                             return {
-                              name: questionData._rowoptions?.[rowId],
-                            y: questionData.data?.[colId]?.[rowId] ?? 0,
+                              name: toDisplayText(rawRowOptions[rowId], rowId),
+                            y: toChartNumber(columnData[rowId]),
                           };
                         }),
                       }))
@@ -359,33 +594,35 @@ const ChatWindow: React.FC<{
                         {
                           name: "Responses",
                           color: PRIMARY_CHART_COLOR,
-                          data: questionData._roworder.map((rowId: any) => ({
-                            name: questionData._rowoptions?.[rowId],
-                            y: questionData.data?.[rowId] ?? 0,
+                          data: rowOrder.map((rowId: string) => ({
+                            name: toDisplayText(rawRowOptions[rowId], rowId),
+                            y: toChartNumber(dataValues[rowId]),
                           })),
                         },
                       ];
 
-                  const categories = questionData._roworder?.map(
-                    (rowId: any) => questionData._rowoptions?.[rowId]
+                  const categories = rowOrder.map(
+                    (rowId: string) => toDisplayText(rawRowOptions[rowId], rowId)
                   );
 
                   const headers = !isCrosstab
                     ? ["Total"]
-                    : (questionData._colorder || []).map(
+                    : colOrder.map(
                         (colId: string) =>
-                          questionData._coloptions?.[colId] ?? colId
+                          toDisplayText(rawColOptions[colId], colId)
                       );
 
-                  const rows = (questionData._roworder || []).map(
+                  const rows = rowOrder.map(
                     (rowId: string) => {
                       const rowLabel =
-                        questionData._rowoptions?.[rowId] || rowId;
+                        toDisplayText(rawRowOptions[rowId], rowId);
                       const values = !isCrosstab
-                        ? [`${questionData.data?.[rowId] ?? 0}%`]
-                        : (questionData._colorder || []).map(
-                            (colId: string) =>
-                              `${questionData.data?.[colId]?.[rowId] ?? 0}%`
+                        ? [`${toDisplayText(dataValues[rowId], "0")}%`]
+                        : colOrder.map(
+                            (colId: string) => {
+                              const columnData = toRecord(dataValues[colId]);
+                              return `${toDisplayText(columnData[rowId], "0")}%`;
+                            }
                           );
                       return {
                         rowLabel,
@@ -396,11 +633,11 @@ const ChatWindow: React.FC<{
 
                   const baseRow = !isCrosstab
                     ? [questionData.base ?? 0]
-                    : (questionData._colorder || []).map((colId: string) => {
+                    : colOrder.map((colId: string) => {
                         const val =
                           questionData.base?.[colId] ??
                           questionData.responding_base?.[colId]?.[
-                            questionData._roworder?.[0]
+                            rowOrder[0]
                           ];
                         return val ?? 0;
                       });
@@ -435,7 +672,7 @@ const ChatWindow: React.FC<{
                           <Button
                             type="button"
                             variant={isChart ? "theme" : "outline"}
-                            size="sm"
+                            size="default"
                             className={`rounded-md ${
                               isChart
                                 ? "text-white"
@@ -457,7 +694,7 @@ const ChatWindow: React.FC<{
                             <Button
                               type="button"
                               variant={isTable ? "theme" : "outline"}
-                              size="sm"
+                              size="default"
                               className={`rounded-md ${
                                 isTable
                                   ? "text-white"
@@ -564,10 +801,54 @@ const ChatWindow: React.FC<{
                   </div>
                 )}
               </>
+                </div>
+                {showMessageActions && (
+                  <div
+                    className={cn(
+                      "mt-1.5 flex items-center gap-1.5",
+                      isUserMessage ? "justify-end" : "justify-start"
+                    )}
+                  >
+                    <IconActionButton
+                      tooltip="Copy message"
+                      onClick={() => handleCopyMessage(index, msg.text)}
+                      tone="neutral"
+                      className="home-muted h-7 w-7 p-1.5"
+                      disabled={!messageText}
+                    >
+                      <LuCopy className="h-3.5 w-3.5" />
+                    </IconActionButton>
+                    {isUserMessage && (
+                      <IconActionButton
+                        tooltip={
+                          isResponseLocked
+                            ? `Wait for ${CHAT_AGENT_NAME} to finish responding`
+                            : "Edit message"
+                        }
+                        onClick={() => handleEditMessage(msg.text)}
+                        tone="neutral"
+                        className="home-muted h-7 w-7 p-1.5"
+                        disabled={isResponseLocked || !messageText}
+                      >
+                        <LuPencilLine className="h-3.5 w-3.5" />
+                      </IconActionButton>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </div>
-        ))}
+          {!isUserMessage && msg.suggestion ? (
+            <ChatSuggestionBlock
+              suggestion={msg.suggestion}
+              disabled={isResponseLocked}
+              onSend={(value) => sendMessage(value)}
+              onVisible={scheduleBottomScroll}
+            />
+          ) : null}
+          </React.Fragment>
+          );
+        })}
 
         {(isTyping || pending) && (
           <TypingIndicator />
@@ -584,7 +865,7 @@ const ChatWindow: React.FC<{
                 No conversation yet
               </p>
               <p className="home-highlight mt-2 text-sm leading-6">
-                Start chatting with Enspeek AI to refine, create, or organize your questions.
+                Ask {CHAT_AGENT_LABEL} for help with studies, questionnaires, reports, or the next step in your workflow.
               </p>
             </div>
           </div>

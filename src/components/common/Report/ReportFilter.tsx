@@ -26,7 +26,7 @@ const ReportFilter: React.FC<ReportFilterProps> = ({
           variant="ghost"
           size="icon"
           onClick={onClose}
-          className="absolute left-3 top-1/2 h-6 w-6 -translate-y-1/2 rounded-full bg-white/90 p-0 text-login-primary shadow-none hover:bg-white"
+          className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-white/90 text-login-primary shadow-none hover:bg-white"
         >
           <IoMdClose />
         </Button>
@@ -56,10 +56,10 @@ const ReportFilter: React.FC<ReportFilterProps> = ({
         </SimpleAccordion>
       </div>
       <div className="flex justify-between px-4 py-3">
-        <Button variant="theme" size="sm" onClick={onClose}>
+        <Button variant="theme" size="default" onClick={onClose}>
           Apply
         </Button>
-        <Button variant="cancel" size="sm" onClick={onClear}>
+        <Button variant="cancel" size="default" onClick={onClear}>
           Clear
         </Button>
       </div>

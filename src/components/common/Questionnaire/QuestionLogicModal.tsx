@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useLocation } from "react-router";
 import { toast } from "sonner";
-import { LuSave } from "react-icons/lu";
+import { LuRotateCcw, LuSave } from "react-icons/lu";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../../store/store";
 import QuestionLogic from "./QuestionLogic";
@@ -91,7 +91,10 @@ export default function QuesLogicModal({
                 </span>
               </>
             ) : (
-              "Reset Logic"
+              <>
+                <LuRotateCcw className="h-4 w-4" />
+                Reset Logic
+              </>
             )}
           </Button>
           <Button

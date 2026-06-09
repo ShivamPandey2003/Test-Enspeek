@@ -22,13 +22,13 @@ export default function CrosstabHeader({
   const dispatch = useDispatch();
   const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
 
-  const {} = useCrosstabStudyInfo(location.state.studyID);
+  useCrosstabStudyInfo(location.state.studyID);
 
   return (
     <PageSubheader
       left={
         <div className="flex flex-wrap items-center gap-3">
-          <h1 className="questionnaire-heading text-[18px] font-semibold leading-none md:text-[22px]">
+          <h1 className="questionnaire-heading text-[16px] font-semibold leading-none">
             Banner List
           </h1>
         </div>
@@ -38,17 +38,17 @@ export default function CrosstabHeader({
           <Button
             data-test-id="CREATE_BANNER"
             variant="theme"
-            className="report-toolbar-btn px-4"
+            size="default"
             onClick={() => dispatch(setIsAddBannerModalOpen(true))}
           >
             <LuPlus />
             Banner
           </Button>
-          <div className="crosstab-soft-panel flex h-10 min-w-[220px] items-center px-3">
+          <div className="crosstab-soft-panel flex h-8 min-w-[220px] items-center rounded-full px-2.5">
             <LuSearch className="crosstab-muted h-4 w-4" />
             <Input
               placeholder="Search banner..."
-              className="home-text border-0 bg-transparent px-2 py-0 focus:outline-none focus-visible:ring-0"
+              className="home-text h-full border-0 bg-transparent px-2 py-0 text-sm focus:outline-none focus-visible:ring-0"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               onKeyUp={(e) =>
@@ -58,7 +58,7 @@ export default function CrosstabHeader({
           </div>
           <Button
             variant="secondary"
-            size="icon"
+            size="default"
             className="report-toolbar-btn home-border-soft text-[var(--color-brand-info)] hover:bg-[var(--color-brand-primary-softest)]"
             onClick={() => setIsDownloadModalOpen(true)}
           >

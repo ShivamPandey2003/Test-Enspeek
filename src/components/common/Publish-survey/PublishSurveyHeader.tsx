@@ -81,8 +81,8 @@ const PublishSurveyHeader: FC<PublishSurveyHeaderProps> = ({
     <>
         <PageSubheader
           left={
-            <div className="flex flex-wrap items-center gap-3">
-              <h1 className="questionnaire-heading text-[18px] font-semibold leading-none md:text-[22px]">
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="questionnaire-heading text-[16px] font-semibold leading-none">
                 Publish Research
               </h1>
             </div>
@@ -98,7 +98,7 @@ const PublishSurveyHeader: FC<PublishSurveyHeaderProps> = ({
                     dispatch(setIsFbModalOpen(true));
                   }}
                 >
-                  <FaFacebookF className="text-base" />
+                  <FaFacebookF className="text-sm" />
                   <span>Share on Facebook</span>
                 </Button>
                 <Button
@@ -109,7 +109,7 @@ const PublishSurveyHeader: FC<PublishSurveyHeaderProps> = ({
                     dispatch(setIsWhatsappModalOpen(true));
                   }}
                 >
-                  <FaWhatsapp className="text-base" />
+                  <FaWhatsapp className="text-sm" />
                   <span>Share on WhatsApp</span>
                 </Button>
               </>
@@ -166,21 +166,20 @@ const PublishSurveyHeader: FC<PublishSurveyHeaderProps> = ({
                     size="icon"
                     data-test-id="PUBLISH_SURVEY_DOWNLOADS"
                     aria-label="Open download history"
-                    disabled
-                    className="pointer-events-none home-border-soft text-[var(--color-brand-info)] opacity-50 grayscale-[0.2]"
+                  disabled
+                  className="pointer-events-none home-border-soft text-[var(--color-brand-info)] opacity-50 grayscale-[0.2]"
                   >
                     <LuDownload className="h-4 w-4" />
                   </Button>
                   {open && (
                     <div className="absolute right-0 z-10 rounded-lg shadow-2xl">
-                      <DropDown Data={rawDataDropdown} className="" />
+                      <DropDown Data={rawDataDropdown} />
                     </div>
                   )}
                 </div>
                 <Button
                   data-test-id="NEXT_TO_REPORT"
                   variant="theme"
-                  className="px-6"
                   onClick={() => {
                     navigate("/report", { state: { studyID: state.studyID } });
                   }}
@@ -191,8 +190,8 @@ const PublishSurveyHeader: FC<PublishSurveyHeaderProps> = ({
             )}
           </>
         }
-        leftClassName="flex min-h-[42px] flex-wrap items-center gap-3"
-        rightClassName="gap-3"
+        leftClassName="flex min-h-8 flex-wrap items-center gap-2"
+        rightClassName="gap-2"
       />
       <SampleCollectionModel
         isOpen={isOpenInitiate}
