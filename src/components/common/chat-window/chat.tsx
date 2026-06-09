@@ -319,19 +319,22 @@ const ChatWindow: React.FC<{
   const isHomePageSurface =
     pathname === "/" && (surface === "auto" || surface === "page");
   const isResponseLocked = isTyping || pending;
-  const copyTextToClipboard = async (text: string, successMessage: string) => {
-    if (!navigator.clipboard?.writeText) {
-      toast.error("Clipboard API is not supported in this browser.");
-      return;
-    }
+  const copyTextToClipboard = React.useCallback(
+    async (text: string, successMessage: string) => {
+      if (!navigator.clipboard?.writeText) {
+        toast.error("Clipboard API is not supported in this browser.");
+        return;
+      }
 
-    try {
-      await navigator.clipboard.writeText(text);
-      toast.success(successMessage);
-    } catch {
-      toast.error("Unable to copy message.");
-    }
-  };
+      try {
+        await navigator.clipboard.writeText(text);
+        toast.success(successMessage);
+      } catch {
+        toast.error("Unable to copy message.");
+      }
+    },
+    []
+  );
 
   const handleCopyMessage = async (index: number, text?: string, includeRenderedContent = true) => {
     const renderedText = includeRenderedContent

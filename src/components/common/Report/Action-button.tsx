@@ -189,6 +189,7 @@ const ActionButton: React.FC<ActionButtonProps> = ({
         <div className="flex items-center gap-2">
           <Button
             data-test-id="GROUP_TOGGLE"
+            disabled={!studyID}
             className="report-toolbar-btn report-title border home-border-soft bg-white hover:bg-white hover:text-[var(--color-text-strong)] [&_svg]:size-5"
             onClick={subGroupToggle}
           >
@@ -204,6 +205,7 @@ const ActionButton: React.FC<ActionButtonProps> = ({
               data-test-id="GROUP_TOGGLE_ON"
               size="default"
               tooltip="Configure subgroups"
+              disabled={!studyID}
               className="report-toolbar-btn bg-[var(--color-study-progress)] text-white hover:bg-[var(--color-study-progress)] hover:text-white hover:opacity-90"
               onClick={() => {
                 setshowSubgroupModal(true);
@@ -217,6 +219,7 @@ const ActionButton: React.FC<ActionButtonProps> = ({
           <Button
             data-test-id="SELECTOR"
             tooltip="Select report questions"
+            disabled={!studyID}
             onClick={() => setShowPointerDropdown((prev) => !prev)}
             size="default"
             className="report-toolbar-btn bg-[var(--color-brand-primary-soft)] text-white hover:bg-login-primary"
@@ -254,6 +257,7 @@ const ActionButton: React.FC<ActionButtonProps> = ({
             data-test-id="MORE_ACTIONS"
             size="default"
             tooltip="More actions"
+            disabled={!studyID}
             className="report-toolbar-btn bg-[var(--color-questionnaire-multi)] text-white hover:bg-[var(--color-questionnaire-multi)] hover:text-white hover:opacity-90"
             onClick={() => {
               setShowMoreDropdown((prev) => !prev);
