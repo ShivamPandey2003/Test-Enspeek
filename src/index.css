@@ -965,7 +965,7 @@ body{
 }
 
 .platform-auth-card {
-  border-color: color-mix(in srgb, var(--color-core-surface) 30%, transparent);
-  background-color: color-mix(in srgb, var(--color-login-card) 95%, transparent);
-  box-shadow: 0 20px 60px var(--color-shadow-strong);
+  border-color: color-mix(in srgb, var(--color-border-default) 88%, transparent);
+  background-color: var(--color-surface-base);
+  box-shadow: 0 22px 56px color-mix(in srgb, var(--color-core-text-strong) 14%, transparent);
 }

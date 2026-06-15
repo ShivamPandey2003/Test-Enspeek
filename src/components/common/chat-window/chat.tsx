@@ -3,7 +3,7 @@ import TypingIndicator from "./typing-indicator";
 import Question_Format from "./Question-format";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../../../store/store";
-import { setMessage, setMessages } from "../../../store/ChatSlice";
+import { setMessages } from "../../../store/ChatSlice";
 import { useLocation } from "react-router";
 import { cn, formatRichText } from "../../../utils";
 import { FaChartBar, FaCopy, FaExpandArrowsAlt, FaTable } from "react-icons/fa";
@@ -15,38 +15,15 @@ import TableModal from "../Crosstab/TableModal";
 import { toast } from "sonner";
 import { PRIMARY_CHART_COLOR } from "../../../utils/chartColors";
 import { getFullName } from "../../../utils";
-import { LuBotMessageSquare, LuSparkles } from "react-icons/lu";
+import { LuBotMessageSquare, LuSparkles, LuUserRound } from "react-icons/lu";
 import Button from "../../ui/Button";
 import IconActionButton from "../../ui/IconActionButton";
-import AvatarInitials from "../../ui/AvatarInitials";
-import { CHAT_AGENT_INITIALS, CHAT_AGENT_LABEL, CHAT_AGENT_NAME } from "../../../config/chatAgent";
-import { FOCUS_CHAT_INPUT_EVENT } from "../../../utils/modalFocus";
-import { LuCopy, LuPencilLine } from "react-icons/lu";
+import { CHAT_AGENT_AVATAR_LABEL, CHAT_AGENT_LABEL, CHAT_AGENT_NAME } from "../../../config/chatAgent";
+import { ChatAgentIcon } from "../../../assets/icons";
 import useAiChat from "../../../api-network/global/ai-chat";
 
 const RESPONSE_SCROLL_GAP = 12;
 const CHAT_SUGGESTION_DELAY_MS = 3000;
-
-const getUserInitials = (firstName?: string, lastName?: string) => {
-  const parts = [firstName, lastName]
-    .map((part) => part?.trim())
-    .filter(Boolean) as string[];
-
-  if (parts.length === 0) return "U";
-  if (parts.length === 1) return parts[0][0]?.toUpperCase() ?? "U";
-
-  return `${parts[0][0] ?? ""}${parts[1][0] ?? ""}`.toUpperCase();
-};
-
-const getReadableMessageText = (value?: string) => {
-  if (!value) return "";
-
-  const parser = new DOMParser();
-  const documentValue = parser.parseFromString(value, "text/html");
-  const parsedText = documentValue.body.textContent?.trim();
-
-  return parsedText || value.replace(/<[^>]*>/g, "").trim();
-};
 
 const toArray = <T,>(value: unknown): T[] => {
   return Array.isArray(value) ? value : [];
@@ -83,6 +60,93 @@ const getValidSuggestion = (suggestion: unknown) => {
   if (!message && list.length === 0) return null;
 
   return { message, list };
+};
+
+const ChatAvatar = ({
+  type,
+  label,
+  title,
+}: {
+  type: "ai" | "user";
+  label: string;
+  title: string;
+}) => (
+  <div className="mt-0.5 flex w-10 shrink-0 flex-col items-center gap-1">
+    <div
+      aria-label={title}
+      title={title}
+      className={cn(
+        "inline-flex h-9 w-9 select-none items-center justify-center rounded-full text-center shadow-sm",
+        type === "user"
+          ? "bg-brand-primary text-white"
+          : "border border-border-default bg-white"
+      )}
+    >
+      {type === "user" ? (
+        <LuUserRound className="h-5 w-5" />
+      ) : (
+        <img
+          src={ChatAgentIcon}
+          alt=""
+          aria-hidden="true"
+          className="h-6 w-6 object-contain"
+        />
+      )}
+    </div>
+    <span className="max-w-12 truncate pb-0.5 text-center text-[10px] font-semibold leading-4 text-text-supporting">
+      {label}
+    </span>
+  </div>
+);
+
+const TruncatedSuggestionButton = ({
+  item,
+  disabled,
+  onClick,
+}: {
+  item: string;
+  disabled: boolean;
+  onClick: () => void;
+}) => {
+  const textRef = React.useRef<HTMLSpanElement>(null);
+  const [isTruncated, setIsTruncated] = React.useState(false);
+
+  React.useLayoutEffect(() => {
+    const textElement = textRef.current;
+    if (!textElement) return;
+
+    const updateTruncation = () => {
+      setIsTruncated(textElement.scrollWidth > textElement.clientWidth);
+    };
+
+    updateTruncation();
+
+    if (typeof ResizeObserver === "undefined") {
+      window.addEventListener("resize", updateTruncation);
+      return () => window.removeEventListener("resize", updateTruncation);
+    }
+
+    const observer = new ResizeObserver(updateTruncation);
+    observer.observe(textElement);
+
+    return () => observer.disconnect();
+  }, [item]);
+
+  return (
+    <Button
+      type="button"
+      variant="chip"
+      size="default"
+      disabled={disabled}
+      title={isTruncated ? item : undefined}
+      className="h-auto min-h-8 min-w-0 max-w-full rounded-full border home-border bg-white px-2.5 py-1.5 text-left text-[13px] font-semibold leading-snug shadow-sm hover:bg-brand-primary-softest"
+      onClick={onClick}
+    >
+      <span ref={textRef} className="block min-w-0 max-w-full truncate">
+        {item}
+      </span>
+    </Button>
+  );
 };
 
 const ChatSuggestionBlock = ({
@@ -143,11 +207,10 @@ const ChatSuggestionBlock = ({
       className="mb-4 mt-6 flex w-full justify-start"
     >
       <div className="flex max-w-full items-start gap-2.5">
-        <AvatarInitials
-          label={CHAT_AGENT_NAME}
+        <ChatAvatar
+          type="ai"
+          label={CHAT_AGENT_AVATAR_LABEL}
           title={CHAT_AGENT_NAME}
-          initials={CHAT_AGENT_INITIALS}
-          className="home-avatar-ai mt-0.5 h-9 w-9 text-[12px] shadow-sm"
         />
         <div className="min-w-0 max-w-[min(100%,820px)]">
           {!isVisible ? (
@@ -164,19 +227,14 @@ const ChatSuggestionBlock = ({
             </div>
           ) : null}
           {isVisible && validSuggestion.list.length > 0 ? (
-            <div className="mt-2 flex flex-wrap gap-1.5">
+            <div className="mt-2 flex max-w-full flex-wrap gap-1.5">
               {validSuggestion.list.map((item, itemIndex) => (
-                <Button
+                <TruncatedSuggestionButton
                   key={`${item}-${itemIndex}`}
-                  type="button"
-                  variant="chip"
-                  size="default"
                   disabled={isDisabled}
-                  className="h-auto min-h-8 rounded-full border home-border bg-white px-2.5 py-1.5 text-left text-[13px] font-semibold leading-snug shadow-sm hover:bg-[var(--color-brand-primary-softest)]"
+                  item={item}
                   onClick={() => handleSuggestionClick(item)}
-                >
-                  {item}
-                </Button>
+                />
               ))}
             </div>
           ) : null}
@@ -204,7 +262,6 @@ const ChatWindow: React.FC<{
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
   const scrollContainerRef = React.useRef<HTMLDivElement>(null);
   const messageRowRefs = React.useRef<Array<HTMLDivElement | null>>([]);
-  const messageContentRefs = React.useRef<Array<HTMLDivElement | null>>([]);
   const scrollTimersRef = React.useRef<number[]>([]);
   const latestRowObserverRef = React.useRef<ResizeObserver | null>(null);
   const previousChatStateRef = React.useRef({
@@ -315,7 +372,7 @@ const ChatWindow: React.FC<{
   const [selectedCrosstab, setSelectedCrosstab] = useState<number | null>(null);
   const [isCrosstabModalOpen, setIsCrosstabModalOpen] = useState(false);
   const fullName = getFullName(firstName, lastName) || firstName || "User";
-  const userInitials = getUserInitials(firstName, lastName);
+  const userAvatarLabel = firstName?.trim() || "User";
   const isHomePageSurface =
     pathname === "/" && (surface === "auto" || surface === "page");
   const isResponseLocked = isTyping || pending;
@@ -336,27 +393,6 @@ const ChatWindow: React.FC<{
     []
   );
 
-  const handleCopyMessage = async (index: number, text?: string, includeRenderedContent = true) => {
-    const renderedText = includeRenderedContent
-      ? messageContentRefs.current[index]?.innerText?.trim()
-      : "";
-    const readableText = renderedText || getReadableMessageText(text);
-
-    if (!readableText) {
-      toast.warning("No message text to copy.");
-      return;
-    }
-
-    await copyTextToClipboard(readableText, "Message copied.");
-  };
-  const handleEditMessage = (text?: string) => {
-    const readableText = getReadableMessageText(text);
-
-    if (!readableText || isResponseLocked) return;
-
-    dispatch(setMessage(readableText));
-    window.dispatchEvent(new Event(FOCUS_CHAT_INPUT_EVENT));
-  };
   useEffect(() => {
     const defaultTabs: { [key: number]: "chart" | "table" } = {};
     messages.forEach((_, i) => {
@@ -446,12 +482,10 @@ const ChatWindow: React.FC<{
         >
         {messages.map((msg, index) => {
           const isUserMessage = msg.sender === "user";
-          const messageText = getReadableMessageText(msg.text);
           const responseKeys =
             msg.response && !Array.isArray(msg.response) && typeof msg.response === "object"
               ? Object.keys(msg.response)
               : [];
-          const showMessageActions = !msg.sdata && !msg.crosstab;
 
           return (
           <React.Fragment key={index}>
@@ -471,22 +505,13 @@ const ChatWindow: React.FC<{
                 isUserMessage && "flex-row-reverse"
               )}
             >
-              <AvatarInitials
-                label={isUserMessage ? fullName : CHAT_AGENT_NAME}
+              <ChatAvatar
+                type={isUserMessage ? "user" : "ai"}
+                label={isUserMessage ? userAvatarLabel : CHAT_AGENT_AVATAR_LABEL}
                 title={isUserMessage ? fullName : CHAT_AGENT_NAME}
-                initials={isUserMessage ? userInitials : CHAT_AGENT_INITIALS}
-                className={cn(
-                  "mt-0.5 h-9 w-9 text-[12px] shadow-sm",
-                  isUserMessage
-                    ? "bg-[#4f56e6] text-white"
-                    : "home-avatar-ai"
-                )}
               />
               <div className={cn("flex min-w-0 max-w-full flex-col", isUserMessage && "items-end")}>
                 <div
-                ref={(element) => {
-                  messageContentRefs.current[index] = element;
-                }}
                 className={
                   msg.sdata || msg.crosstab
                     ? "max-w-[min(100%,860px)]"
@@ -816,39 +841,6 @@ const ChatWindow: React.FC<{
                 )}
               </>
                 </div>
-                {showMessageActions && (
-                  <div
-                    className={cn(
-                      "mt-1.5 flex items-center gap-1.5",
-                      isUserMessage ? "justify-end" : "justify-start"
-                    )}
-                  >
-                    <IconActionButton
-                      tooltip="Copy message"
-                      onClick={() => handleCopyMessage(index, msg.text)}
-                      tone="neutral"
-                      className="home-muted h-7 w-7 p-1.5"
-                      disabled={!messageText}
-                    >
-                      <LuCopy className="h-3.5 w-3.5" />
-                    </IconActionButton>
-                    {isUserMessage && (
-                      <IconActionButton
-                        tooltip={
-                          isResponseLocked
-                            ? `Wait for ${CHAT_AGENT_NAME} to finish responding`
-                            : "Edit message"
-                        }
-                        onClick={() => handleEditMessage(msg.text)}
-                        tone="neutral"
-                        className="home-muted h-7 w-7 p-1.5"
-                        disabled={isResponseLocked || !messageText}
-                      >
-                        <LuPencilLine className="h-3.5 w-3.5" />
-                      </IconActionButton>
-                    )}
-                  </div>
-                )}
               </div>
             </div>
           </div>
