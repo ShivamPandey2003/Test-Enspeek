@@ -126,10 +126,21 @@ const TruncatedSuggestionButton = ({
       return () => window.removeEventListener("resize", updateTruncation);
     }
 
-    const observer = new ResizeObserver(updateTruncation);
+    let animationFrameId: number | undefined;
+    const observer = new ResizeObserver(() => {
+      if (animationFrameId) {
+        window.cancelAnimationFrame(animationFrameId);
+      }
+      animationFrameId = window.requestAnimationFrame(updateTruncation);
+    });
     observer.observe(textElement);
 
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      if (animationFrameId) {
+        window.cancelAnimationFrame(animationFrameId);
+      }
+    };
   }, [item]);
 
   return (
