@@ -19,10 +19,23 @@ const RESEND_COOLDOWN_SECONDS = 60;
 const isValidEmail = (value: string) =>
   /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
 
-const showToastWhenNeeded = (error: any, fallback: string) => {
-  if (error?.hasToast) return;
+const getErrorValue = (error: unknown, key: "hasToast" | "message") => {
+  if (!error || typeof error !== "object" || !(key in error)) {
+    return undefined;
+  }
 
-  toast.error(error?.message || fallback);
+  return (error as Record<string, unknown>)[key];
+};
+
+const getErrorMessage = (error: unknown, fallback: string) => {
+  const message = getErrorValue(error, "message");
+  return typeof message === "string" && message.trim() ? message : fallback;
+};
+
+const showToastWhenNeeded = (error: unknown, fallback: string) => {
+  if (getErrorValue(error, "hasToast")) return;
+
+  toast.error(getErrorMessage(error, fallback));
 };
 
 const isApprovalPendingResponse = (response: unknown) =>
@@ -161,7 +174,7 @@ const OtpLoginPage = () => {
     try {
       // await runCaptchaCheck(captchaToken);
       await sendOtpMutation.mutateAsync({ email });
-    } catch (error: any) {
+    } catch (error: unknown) {
       showToastWhenNeeded(error, "Unable to send OTP");
     }
   };
@@ -201,7 +214,7 @@ const OtpLoginPage = () => {
       setSignupPendingApproval(true);
       setStep("form");
       setSignUpErrors({});
-    } catch (error: any) {
+    } catch (error: unknown) {
       showToastWhenNeeded(error, "Unable to create account");
     }
   };
@@ -220,8 +233,8 @@ const OtpLoginPage = () => {
         email: pendingEmail || signInState.email.trim(),
         otp: value,
       });
-    } catch (error: any) {
-      setOtpError(error?.message || "Invalid OTP");
+    } catch (error: unknown) {
+      setOtpError(getErrorMessage(error, "Invalid OTP"));
       showToastWhenNeeded(error, "Unable to verify OTP");
     }
   };
@@ -256,7 +269,7 @@ const OtpLoginPage = () => {
       await resendOtpMutation.mutateAsync({
         email: pendingEmail || signInState.email.trim(),
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       showToastWhenNeeded(error, "Unable to resend OTP");
     }
   };
@@ -264,29 +277,10 @@ const OtpLoginPage = () => {
   return (
     <AuthCard
       compact={step === "form" && mode === "signup"}
-      topSlot={
-        step === "form" && !signupPendingApproval ? (
-          <div className="mb-4 inline-flex rounded-full bg-[var(--color-login-input)] p-1">
-            <Button
-              type="button"
-              variant={mode === "signin" ? "theme" : "ghost"}
-              size="default"
-              className="rounded-full px-5"
-              onClick={() => setMode("signin")}
-            >
-              Sign in
-            </Button>
-            <Button
-              type="button"
-              variant={mode === "signup" ? "theme" : "ghost"}
-              size="default"
-              className="rounded-full px-5"
-              onClick={() => setMode("signup")}
-            >
-              Sign up
-            </Button>
-          </div>
-        ) : undefined
+      titleClassName={
+        step === "form" && !signupPendingApproval
+          ? "text-[1.125rem] font-medium sm:text-[1.25rem]"
+          : undefined
       }
       title={
         signupPendingApproval
@@ -296,7 +290,7 @@ const OtpLoginPage = () => {
           : step === "otp"
             ? "Verify your email"
             : mode === "signin"
-              ? "OTP Login"
+              ? "Sign in to continue"
               : "Create your account"
       }
       subtitle={
@@ -304,9 +298,7 @@ const OtpLoginPage = () => {
           ? "Your account is awaiting approval."
           : step === "otp"
           ? "Finish login with the one-time password"
-          : mode === "signin"
-            ? "Use email to receive a one-time password"
-            : "Register first, then sign in with OTP"
+          : undefined
       }
       footer={
         signupPendingApproval ? (
