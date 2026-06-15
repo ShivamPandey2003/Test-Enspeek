@@ -24,7 +24,7 @@ const getErrorValue = (error: unknown, key: "hasToast" | "message") => {
     return undefined;
   }
 
-  return (error as Record<typeof key, unknown>)[key];
+  return (error as Record<string, unknown>)[key];
 };
 
 const getErrorMessage = (error: unknown, fallback: string) => {

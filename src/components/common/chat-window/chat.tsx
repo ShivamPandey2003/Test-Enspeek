@@ -78,8 +78,8 @@ const ChatAvatar = ({
       className={cn(
         "inline-flex h-9 w-9 select-none items-center justify-center rounded-full text-center shadow-sm",
         type === "user"
-          ? "bg-[#4f56e6] text-white"
-          : "border border-[var(--color-border-default)] bg-white"
+          ? "bg-brand-primary text-white"
+          : "border border-border-default bg-white"
       )}
     >
       {type === "user" ? (
@@ -93,7 +93,7 @@ const ChatAvatar = ({
         />
       )}
     </div>
-    <span className="max-w-12 truncate pb-0.5 text-center text-[10px] font-semibold leading-4 text-[var(--color-text-supporting)]">
+    <span className="max-w-12 truncate pb-0.5 text-center text-[10px] font-semibold leading-4 text-text-supporting">
       {label}
     </span>
   </div>
@@ -139,7 +139,7 @@ const TruncatedSuggestionButton = ({
       size="default"
       disabled={disabled}
       title={isTruncated ? item : undefined}
-      className="h-auto min-h-8 min-w-0 max-w-full rounded-full border home-border bg-white px-2.5 py-1.5 text-left text-[13px] font-semibold leading-snug shadow-sm hover:bg-[var(--color-brand-primary-softest)]"
+      className="h-auto min-h-8 min-w-0 max-w-full rounded-full border home-border bg-white px-2.5 py-1.5 text-left text-[13px] font-semibold leading-snug shadow-sm hover:bg-brand-primary-softest"
       onClick={onClick}
     >
       <span ref={textRef} className="block min-w-0 max-w-full truncate">
