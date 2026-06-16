@@ -14,13 +14,13 @@ const AuthCard: React.FC<AuthCardProps> = ({ title, subtitle, topSlot, children,
     >
       <div className={cn("flex flex-col items-center text-center", compact ? "mb-4 sm:mb-5" : "mb-6 sm:mb-7")}>
         <div className={cn("inline-flex w-fit items-center justify-center gap-2", compact ? "mb-3" : "mb-5")}>
-          <img src={ColoredLogo} alt="Enspeek" className={cn("w-auto", compact ? "h-9 sm:h-10" : "h-10 sm:h-11")} />
-          <span className="text-[2rem] font-bold leading-none text-login-primary">
+          <img src={ColoredLogo} alt="Enspeek" data-test-id="auth-brand-logo" className={cn("w-auto", compact ? "h-9 sm:h-10" : "h-10 sm:h-11")} />
+          <span data-test-id="auth-brand-name" className="text-[2rem] font-bold leading-none text-login-primary">
             Enspeek
           </span>
         </div>
         {topSlot}
-        <h2 className={cn("font-semibold leading-tight theme-text-strong", compact ? "text-[1.75rem]" : "text-[2rem]", titleClassName)}>
+        <h2 data-test-id="auth-card-title" className={cn("font-semibold leading-tight theme-text-strong", compact ? "text-[1.75rem]" : "text-[2rem]", titleClassName)}>
           {title}
         </h2>
         {subtitle ? (

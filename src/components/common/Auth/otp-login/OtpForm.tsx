@@ -64,6 +64,7 @@ const OtpForm: React.FC<OtpFormProps> = ({
         {otp.map((digit, index) => (
           <Input
             key={index}
+            data-test-id={`otp-digit-${index}`}
             ref={(node) => {
               inputRefs.current[index] = node;
             }}
@@ -94,11 +95,12 @@ const OtpForm: React.FC<OtpFormProps> = ({
       </div>
 
       {error ? (
-        <p className="text-center text-sm text-[var(--color-core-danger)]">{error}</p>
+        <p data-test-id="otp-error" className="text-center text-sm text-[var(--color-core-danger)]">{error}</p>
       ) : null}
 
       <Button
         type="submit"
+        data-test-id="otp-submit-button"
         className="h-12 w-full rounded-xl bg-gradient-to-r from-login-primary to-login-bg-end text-base font-semibold text-white transition-all duration-300 hover:from-login-primary-hover hover:to-login-primary"
         disabled={isVerifying || otp.join("").length !== 6}
       >
@@ -109,6 +111,7 @@ const OtpForm: React.FC<OtpFormProps> = ({
         <Button
           type="button"
           variant="link"
+          data-test-id="otp-resend-button"
           disabled={isResending || resendSecondsLeft > 0}
           onClick={onResend}
           className="text-sm"
