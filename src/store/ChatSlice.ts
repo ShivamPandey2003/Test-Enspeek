@@ -6,6 +6,7 @@ interface initialStateT {
   followUp: string;
   isTyping: boolean;
   pending: boolean;
+  pendingSuggestionCount: number;
   isChatOpen: boolean
 }
 
@@ -18,6 +19,7 @@ const initialState: initialStateT = localData
       followUp: "",
       isTyping: false,
       pending: false,
+      pendingSuggestionCount: 0,
       isChatOpen: true
     }
   : {
@@ -26,6 +28,7 @@ const initialState: initialStateT = localData
       followUp: "",
       isTyping: false,
       pending: false,
+      pendingSuggestionCount: 0,
       isChatOpen: true
     };
 
@@ -53,6 +56,18 @@ const ChatSlice = createSlice({
       state.pending = payload.payload;
       return state;
     },
+    incrementPendingSuggestion: (state) => {
+      state.pendingSuggestionCount += 1;
+      return state;
+    },
+    decrementPendingSuggestion: (state) => {
+      state.pendingSuggestionCount = Math.max(0, state.pendingSuggestionCount - 1);
+      return state;
+    },
+    clearPendingSuggestions: (state) => {
+      state.pendingSuggestionCount = 0;
+      return state;
+    },
     setChatOpen:(state, payload: PayloadAction<boolean>)=>{
       state.isChatOpen = payload.payload;
       return state;
@@ -60,7 +75,7 @@ const ChatSlice = createSlice({
   },
 });
 
-export const { setFollowUp, setIsTyping, setMessages, setMessage, setPending, setChatOpen } =
+export const { clearPendingSuggestions, decrementPendingSuggestion, incrementPendingSuggestion, setFollowUp, setIsTyping, setMessages, setMessage, setPending, setChatOpen } =
   ChatSlice.actions;
 
 export default ChatSlice.reducer;

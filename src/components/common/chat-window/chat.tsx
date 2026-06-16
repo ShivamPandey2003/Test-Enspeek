@@ -3,7 +3,6 @@ import TypingIndicator from "./typing-indicator";
 import Question_Format from "./Question-format";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../../../store/store";
-import { setMessages } from "../../../store/ChatSlice";
 import { useLocation } from "react-router";
 import { cn, formatRichText } from "../../../utils";
 import { FaChartBar, FaCopy, FaExpandArrowsAlt, FaTable } from "react-icons/fa";
@@ -20,7 +19,9 @@ import Button from "../../ui/Button";
 import IconActionButton from "../../ui/IconActionButton";
 import { CHAT_AGENT_AVATAR_LABEL, CHAT_AGENT_LABEL, CHAT_AGENT_NAME } from "../../../config/chatAgent";
 import { ChatAgentIcon } from "../../../assets/icons";
+import { decrementPendingSuggestion, setMessages } from "../../../store/ChatSlice";
 import useAiChat from "../../../api-network/global/ai-chat";
+import { getValidSuggestion, hasCompleteSuggestionContent } from "../../../utils/chatSuggestion";
 
 const RESPONSE_SCROLL_GAP = 12;
 const CHAT_SUGGESTION_DELAY_MS = 3000;
@@ -48,18 +49,6 @@ const toChartNumber = (value: unknown) => {
 
   const parsedValue = Number(value);
   return Number.isFinite(parsedValue) ? parsedValue : 0;
-};
-
-const getValidSuggestion = (suggestion: unknown) => {
-  const suggestionValue = toRecord(suggestion);
-  const message = toDisplayText(suggestionValue.message).trim();
-  const list = toArray<unknown>(suggestionValue.list)
-    .map((item) => toDisplayText(item).trim())
-    .filter(Boolean);
-
-  if (!message && list.length === 0) return null;
-
-  return { message, list };
 };
 
 const ChatAvatar = ({
@@ -163,17 +152,23 @@ const TruncatedSuggestionButton = ({
 const ChatSuggestionBlock = ({
   suggestion,
   disabled,
+  hasInputLock,
   onSend,
   onVisible,
+  onSuggestionsVisible,
 }: {
   suggestion: unknown;
   disabled: boolean;
+  hasInputLock: boolean;
   onSend: (value: string) => boolean;
   onVisible: () => void;
+  onSuggestionsVisible: () => void;
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const onVisibleRef = React.useRef(onVisible);
+  const onSuggestionsVisibleRef = React.useRef(onSuggestionsVisible);
+  const hasReleasedInputLockRef = React.useRef(false);
   const validSuggestion = React.useMemo(
     () => getValidSuggestion(suggestion),
     [suggestion]
@@ -184,10 +179,22 @@ const ChatSuggestionBlock = ({
   }, [onVisible]);
 
   useEffect(() => {
+    onSuggestionsVisibleRef.current = onSuggestionsVisible;
+  }, [onSuggestionsVisible]);
+
+  useEffect(() => {
     setIsVisible(false);
     setHasSubmitted(false);
+    hasReleasedInputLockRef.current = false;
 
     if (!validSuggestion) return;
+
+    const releaseInputLock = () => {
+      if (!hasInputLock || hasReleasedInputLockRef.current) return;
+
+      hasReleasedInputLockRef.current = true;
+      onSuggestionsVisibleRef.current();
+    };
 
     window.requestAnimationFrame(() => {
       onVisibleRef.current();
@@ -195,11 +202,14 @@ const ChatSuggestionBlock = ({
 
     const timer = window.setTimeout(() => {
       setIsVisible(true);
+      releaseInputLock();
       onVisibleRef.current();
     }, CHAT_SUGGESTION_DELAY_MS);
 
-    return () => window.clearTimeout(timer);
-  }, [validSuggestion]);
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [hasInputLock, validSuggestion]);
 
   if (!validSuggestion) return null;
 
@@ -859,8 +869,10 @@ const ChatWindow: React.FC<{
             <ChatSuggestionBlock
               suggestion={msg.suggestion}
               disabled={isResponseLocked}
+              hasInputLock={hasCompleteSuggestionContent(msg.suggestion)}
               onSend={(value) => sendMessage(value)}
               onVisible={scheduleBottomScroll}
+              onSuggestionsVisible={() => dispatch(decrementPendingSuggestion())}
             />
           ) : null}
           </React.Fragment>

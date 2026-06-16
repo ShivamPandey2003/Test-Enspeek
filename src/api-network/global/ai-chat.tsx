@@ -6,8 +6,9 @@ import mutationStructure from "../mutation-template";
 import url from "../url";
 import { apiRequest } from "../../services/apiService";
 import { store, type AppDispatch, type RootState } from "../../store/store";
-import { setChatOpen, setFollowUp, setIsTyping, setMessage, setMessages, setPending } from "../../store/ChatSlice";
+import { clearPendingSuggestions, incrementPendingSuggestion, setChatOpen, setFollowUp, setIsTyping, setMessage, setMessages, setPending } from "../../store/ChatSlice";
 import { getPageName } from "../../utils/getPageName";
+import { hasCompleteSuggestionContent } from "../../utils/chatSuggestion";
 import { useReportProcessDownload } from "../report/mutation";
 import homepageKeys from "../homepage/keys";
 import questionnaireKeys from "../questionnaire/keys";
@@ -130,6 +131,10 @@ export const useChat = () => {
     if (!data) return;
 
     if (data.showGraph) {
+      if (hasCompleteSuggestionContent(data.suggestion)) {
+        dispatch(incrementPendingSuggestion());
+      }
+
       appendChatMessage({
         type: "surveydata",
         sdata: data.sdata,
@@ -138,6 +143,10 @@ export const useChat = () => {
         suggestion: data.suggestion,
       });
       return;
+    }
+
+    if (hasCompleteSuggestionContent(data.suggestion)) {
+      dispatch(incrementPendingSuggestion());
     }
 
     appendChatMessage({
@@ -232,6 +241,7 @@ export const useChat = () => {
       dispatch(setIsTyping(false));
     },
     onError: () => {
+      dispatch(clearPendingSuggestions());
       appendChatMessage({
         text: "❌ Failed to get response from AI. Please try again.",
         sender: "ai",
@@ -242,11 +252,13 @@ export const useChat = () => {
 
   const sendMessage = (rawPrompt?: string) => {
     const prompt = (rawPrompt ?? message).trim();
+    const pendingSuggestionCount = store.getState().chat.pendingSuggestionCount;
 
-    if (!prompt || isTyping || pending) {
+    if (!prompt || isTyping || pending || pendingSuggestionCount > 0) {
       return false;
     }
 
+    dispatch(clearPendingSuggestions());
     appendChatMessage({
       text: prompt,
       sender: "user",
