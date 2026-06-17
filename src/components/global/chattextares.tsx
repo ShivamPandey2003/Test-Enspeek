@@ -13,6 +13,7 @@ import {
   FOCUS_CHAT_INPUT_EVENT,
   MODAL_CLOSE_FOCUS_CHAT_EVENT,
 } from "../../utils/modalFocus";
+import { useChatHistoryContextStatus } from "../../utils/useChatHistoryContextStatus";
 
 interface ChatTextAreaProps {
   placement?: "floating" | "panel";
@@ -23,14 +24,21 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
 }) => {
   const internalTextareaRef = React.useRef<HTMLTextAreaElement>(null);
   const selectionRef = React.useRef<{ start: number; end: number } | null>(null);
-  const { isTyping, isChatOpen, pending, pendingSuggestionCount } = useSelector(
+  const { hasLoadedHistory, isHistoryLoading, isTyping, isChatOpen, pending, pendingSuggestionCount } = useSelector(
     (state: RootState) => state.chat
   );
   const { pathname } = useLocation();
   const isHome = pathname === "/";
   const isPanelPlacement = placement === "panel";
   const { message, openChat, sendMessage, setDraftMessage } = useAiChat();
-  const isChatInputDisabled = isTyping || pending || pendingSuggestionCount > 0;
+  const { isCurrentHistoryContext } = useChatHistoryContextStatus();
+  const isChatInputDisabled =
+    !isCurrentHistoryContext ||
+    !hasLoadedHistory ||
+    isHistoryLoading ||
+    isTyping ||
+    pending ||
+    pendingSuggestionCount > 0;
 
   const focusChatInput = React.useCallback((moveCaretToEnd = false) => {
     const textarea = internalTextareaRef.current;

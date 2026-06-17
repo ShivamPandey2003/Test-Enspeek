@@ -7,9 +7,12 @@ import TabButtons from "../components/common/design-banner/tabButtons";
 import PointDetails from "../components/common/design-banner/pointerDetails";
 import PageContentShell from "../components/ui/PageContentShell";
 import { useBannerPointerList } from "../api-network/crosstab/designbanner/query";
+import { useCrosstabStudyInfo } from "../api-network/crosstab/query";
+import ChatHistoryLoader from "../components/global/ChatHistoryLoader";
 
 const BannerDesign_page = () => {
   const { state } = useLocation();
+  useCrosstabStudyInfo(state?.studyID);
 
   const { BannerPointer } = useSelector(
     (state: RootState) => state.crossTabData
@@ -22,6 +25,7 @@ const BannerDesign_page = () => {
 
   return (
     <div className="crosstab-page-bg flex h-full min-h-0 flex-col overflow-hidden">
+      <ChatHistoryLoader enabled={!!state?.studyID} />
       <DesignBanner_Header />
       <PageContentShell>
         <div className="w-full">

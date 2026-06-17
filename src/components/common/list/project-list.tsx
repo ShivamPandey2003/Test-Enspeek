@@ -12,6 +12,8 @@ import { useHomepageUserInfo } from "../../../api-network/homepage/query";
 import useAiChat from "../../../api-network/global/ai-chat";
 import { focusChatInput } from "../../../utils/modalFocus";
 import PlatformHero from "../../ui/PlatformHero";
+import ChatHistoryLoader from "../../global/ChatHistoryLoader";
+import { useChatHistoryContextStatus } from "../../../utils/useChatHistoryContextStatus";
 
 export default function ProjectListing() {
   const dispatch = useDispatch<AppDispatch>();
@@ -21,10 +23,12 @@ export default function ProjectListing() {
   }, [dispatch]);
 
   const user = useSelector((state: RootState) => state.user);
-  const { userInfoError } = useHomepageUserInfo();
+  const { isUserInfoLoading, userInfoError } = useHomepageUserInfo();
   const { openChatWithMessage } = useAiChat();
 
-  const { messages } = useSelector((state: RootState) => state.chat);
+  const { hasLoadedHistory, isHistoryLoading, messages } = useSelector((state: RootState) => state.chat);
+  const { isCurrentHistoryContext } = useChatHistoryContextStatus();
+  const visibleMessageCount = isCurrentHistoryContext ? messages.length : 0;
   const firstName = user.firstName || "there";
   const normalizedFirstName = normalizeDisplayName(firstName);
   const greeting = getTimeGreeting();
@@ -39,7 +43,8 @@ export default function ProjectListing() {
 
   return (
     <div className="relative flex h-full min-h-0 w-full justify-center overflow-hidden">
-      {messages.length > 0 ? (
+      <ChatHistoryLoader enabled={!isUserInfoLoading && !userInfoError} />
+      {!isCurrentHistoryContext || !hasLoadedHistory || isHistoryLoading || visibleMessageCount > 0 ? (
         <div className="h-full min-h-0 w-full">
           <ChatWindow surface="page" />
           <div className="platform-page-fade pointer-events-none absolute inset-x-0 bottom-0 z-40 h-[164px]" />

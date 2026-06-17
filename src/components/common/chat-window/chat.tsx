@@ -19,9 +19,11 @@ import Button from "../../ui/Button";
 import IconActionButton from "../../ui/IconActionButton";
 import { CHAT_AGENT_AVATAR_LABEL, CHAT_AGENT_LABEL, CHAT_AGENT_NAME } from "../../../config/chatAgent";
 import { ChatAgentIcon } from "../../../assets/icons";
-import { decrementPendingSuggestion, setMessages } from "../../../store/ChatSlice";
+import { decrementPendingSuggestion } from "../../../store/ChatSlice";
 import useAiChat from "../../../api-network/global/ai-chat";
 import { getValidSuggestion, hasCompleteSuggestionContent } from "../../../utils/chatSuggestion";
+import { useLoadOlderChatHistory } from "../../../api-network/global/chat-history";
+import { useChatHistoryContextStatus } from "../../../utils/useChatHistoryContextStatus";
 
 const RESPONSE_SCROLL_GAP = 12;
 const CHAT_SUGGESTION_DELAY_MS = 3000;
@@ -150,6 +152,7 @@ const TruncatedSuggestionButton = ({
 };
 
 const ChatSuggestionBlock = ({
+  delayMs = CHAT_SUGGESTION_DELAY_MS,
   suggestion,
   disabled,
   hasInputLock,
@@ -157,6 +160,7 @@ const ChatSuggestionBlock = ({
   onVisible,
   onSuggestionsVisible,
 }: {
+  delayMs?: number;
   suggestion: unknown;
   disabled: boolean;
   hasInputLock: boolean;
@@ -164,7 +168,7 @@ const ChatSuggestionBlock = ({
   onVisible: () => void;
   onSuggestionsVisible: () => void;
 }) => {
-  const [isVisible, setIsVisible] = useState(false);
+  const [isVisible, setIsVisible] = useState(delayMs === 0);
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const onVisibleRef = React.useRef(onVisible);
   const onSuggestionsVisibleRef = React.useRef(onSuggestionsVisible);
@@ -183,7 +187,7 @@ const ChatSuggestionBlock = ({
   }, [onSuggestionsVisible]);
 
   useEffect(() => {
-    setIsVisible(false);
+    setIsVisible(delayMs === 0);
     setHasSubmitted(false);
     hasReleasedInputLockRef.current = false;
 
@@ -196,6 +200,13 @@ const ChatSuggestionBlock = ({
       onSuggestionsVisibleRef.current();
     };
 
+    if (delayMs === 0) {
+      setIsVisible(true);
+      releaseInputLock();
+      onVisibleRef.current();
+      return;
+    }
+
     window.requestAnimationFrame(() => {
       onVisibleRef.current();
     });
@@ -204,12 +215,12 @@ const ChatSuggestionBlock = ({
       setIsVisible(true);
       releaseInputLock();
       onVisibleRef.current();
-    }, CHAT_SUGGESTION_DELAY_MS);
+    }, delayMs);
 
     return () => {
       window.clearTimeout(timer);
     };
-  }, [hasInputLock, validSuggestion]);
+  }, [delayMs, hasInputLock, validSuggestion]);
 
   if (!validSuggestion) return null;
 
@@ -234,7 +245,7 @@ const ChatSuggestionBlock = ({
           title={CHAT_AGENT_NAME}
         />
         <div className="min-w-0 max-w-[min(100%,820px)]">
-          {!isVisible ? (
+          {!isVisible && delayMs > 0 ? (
             <TypingIndicator className="mb-0" />
           ) : null}
           {isVisible && validSuggestion.message ? (
@@ -265,6 +276,22 @@ const ChatSuggestionBlock = ({
   );
 };
 
+const LoadingConversation = ({ compact = false }: { compact?: boolean }) => (
+  <div
+    className={cn(
+      "flex flex-col items-center justify-center px-6 text-center",
+      compact ? "py-2" : "h-full min-h-[320px]"
+    )}
+  >
+    <p className={cn("home-highlight font-semibold", compact ? "text-sm" : "text-base")}>
+      Loading
+      <span className="inline-flex w-5 justify-start text-left">
+        <span className="animate-pulse">...</span>
+      </span>
+    </p>
+  </div>
+);
+
 const ChatWindow: React.FC<{
   surface?: "auto" | "page" | "card";
   scrollMode?: "internal" | "external";
@@ -272,10 +299,20 @@ const ChatWindow: React.FC<{
   surface = "auto",
   scrollMode = "internal",
 }) => {
-  const { messages, isTyping, pending } = useSelector(
+  const {
+    hasLoadedHistory,
+    hasMoreHistory,
+    isHistoryLoading,
+    isOlderHistoryLoading,
+    messages,
+    isTyping,
+    pending,
+  } = useSelector(
     (state: RootState) => state.chat
   );
+  const { isCurrentHistoryContext } = useChatHistoryContextStatus();
   const { sendMessage } = useAiChat();
+  const { loadOlderHistory } = useLoadOlderChatHistory();
   const { firstName, lastName } = useSelector((state: RootState) => state.user);
   const { pathname } = useLocation();
   const dispatch = useDispatch<AppDispatch>();
@@ -285,12 +322,18 @@ const ChatWindow: React.FC<{
   const messageRowRefs = React.useRef<Array<HTMLDivElement | null>>([]);
   const scrollTimersRef = React.useRef<number[]>([]);
   const latestRowObserverRef = React.useRef<ResizeObserver | null>(null);
+  const olderHistoryScrollSnapshotRef = React.useRef<{
+    element: HTMLElement;
+    scrollHeight: number;
+  } | null>(null);
   const previousChatStateRef = React.useRef({
+    hasLoadedHistory,
+    isHistoryLoading,
     messageCount: messages.length,
     isTyping,
+    latestMessage: messages[messages.length - 1],
     pending,
   });
-  const CHAT_HISTORY_KEY = "chat_history";
   const findScrollableAncestor = (element: HTMLElement | null) => {
     let current = element?.parentElement ?? null;
 
@@ -315,13 +358,13 @@ const ChatWindow: React.FC<{
 
     return findScrollableAncestor(rootRef.current);
   };
-  const scrollToBottom = () => {
+  const scrollToBottom = (behavior: ScrollBehavior = "smooth") => {
     const scrollElement = getScrollElement();
 
     if (!scrollElement) return;
     scrollElement.scrollTo({
       top: scrollElement.scrollHeight,
-      behavior: "smooth",
+      behavior,
     });
   };
   const clearScheduledScrolls = () => {
@@ -363,11 +406,11 @@ const ChatWindow: React.FC<{
       disconnectLatestRowObserver();
     }, 900);
   };
-  const scheduleBottomScroll = () => {
+  const scheduleBottomScroll = (behavior: ScrollBehavior = "smooth") => {
     clearScheduledScrolls();
     disconnectLatestRowObserver();
-    window.requestAnimationFrame(() => {
-      window.requestAnimationFrame(scrollToBottom);
+    [0, 80, 180, 360, 700].forEach((delay) => {
+      scheduleScroll(() => scrollToBottom(behavior), delay);
     });
   };
   const scrollMessageRowIntoView = (index: number) => {
@@ -382,7 +425,6 @@ const ChatWindow: React.FC<{
 
     container.scrollTop = Math.max(nextScrollTop, 0);
   };
-  const hasLoadedFromStorage = React.useRef(false);
   const [selectedChart, setSelectedChart] = React.useState<number | null>(null);
   const [isChartModalOpen, setIsChartModalOpen] = React.useState(false);
   const [activeTab, setActiveTab] = React.useState<{
@@ -397,6 +439,12 @@ const ChatWindow: React.FC<{
   const isHomePageSurface =
     pathname === "/" && (surface === "auto" || surface === "page");
   const isResponseLocked = isTyping || pending;
+  const visibleMessages = React.useMemo(
+    () => (isCurrentHistoryContext ? messages : []),
+    [isCurrentHistoryContext, messages]
+  );
+  const isInitialHistoryLoading =
+    !isCurrentHistoryContext || !hasLoadedHistory || isHistoryLoading;
   const copyTextToClipboard = React.useCallback(
     async (text: string, successMessage: string) => {
       if (!navigator.clipboard?.writeText) {
@@ -416,30 +464,11 @@ const ChatWindow: React.FC<{
 
   useEffect(() => {
     const defaultTabs: { [key: number]: "chart" | "table" } = {};
-    messages.forEach((_, i) => {
+    visibleMessages.forEach((_, i) => {
       defaultTabs[i] = "chart";
     });
     setActiveTab(defaultTabs);
-  }, [messages]);
-
-  React.useEffect(() => {
-    if (hasLoadedFromStorage.current || messages.length > 0) {
-      hasLoadedFromStorage.current = true;
-      return;
-    }
-
-    const chat = localStorage.getItem(CHAT_HISTORY_KEY);
-    if (chat) {
-      dispatch(setMessages(JSON.parse(chat)));
-    }
-    hasLoadedFromStorage.current = true;
-  }, []);
-
-  React.useEffect(() => {
-    if (hasLoadedFromStorage.current) {
-      localStorage.setItem(CHAT_HISTORY_KEY, JSON.stringify(messages));
-    }
-  }, [messages]);
+  }, [visibleMessages]);
 
   React.useEffect(() => {
     return () => {
@@ -448,31 +477,86 @@ const ChatWindow: React.FC<{
     };
   }, []);
 
+  React.useEffect(() => {
+    const scrollElement = getScrollElement();
+    if (!scrollElement) return;
+
+    const handleScroll = () => {
+      if (
+        scrollElement.scrollTop > 4 ||
+        !hasMoreHistory ||
+        isOlderHistoryLoading
+      ) {
+        return;
+      }
+
+      olderHistoryScrollSnapshotRef.current = {
+        element: scrollElement,
+        scrollHeight: scrollElement.scrollHeight,
+      };
+      clearScheduledScrolls();
+      disconnectLatestRowObserver();
+
+      void loadOlderHistory().then((didLoad) => {
+        if (!didLoad) {
+          olderHistoryScrollSnapshotRef.current = null;
+        }
+      });
+    };
+
+    scrollElement.addEventListener("scroll", handleScroll, { passive: true });
+    return () => {
+      scrollElement.removeEventListener("scroll", handleScroll);
+    };
+  }, [hasMoreHistory, isOlderHistoryLoading, loadOlderHistory, messages.length]);
+
   useLayoutEffect(() => {
     scheduleBottomScroll();
   }, [pathname]);
 
   useLayoutEffect(() => {
+    if (isOlderHistoryLoading) return;
+
+    const snapshot = olderHistoryScrollSnapshotRef.current;
+    if (!snapshot) return;
+
+    snapshot.element.scrollTop =
+      snapshot.element.scrollHeight - snapshot.scrollHeight;
+    olderHistoryScrollSnapshotRef.current = null;
+  }, [isOlderHistoryLoading, messages.length]);
+
+  useLayoutEffect(() => {
     const previousState = previousChatStateRef.current;
-    const latestMessage = messages[messages.length - 1];
-    const messageAdded = messages.length > previousState.messageCount;
+    const latestMessage = visibleMessages[visibleMessages.length - 1];
+    const messageAdded = visibleMessages.length > previousState.messageCount;
+    const initialHistoryLoaded =
+      previousState.isHistoryLoading && !isHistoryLoading && visibleMessages.length > 0;
+    const olderHistoryPrepended =
+      messageAdded && previousState.latestMessage === latestMessage;
     const thinkingStarted =
       (isTyping || pending) && !(previousState.isTyping || previousState.pending);
 
-    if (messageAdded && latestMessage?.sender === "user") {
+    if (initialHistoryLoaded) {
+      scheduleBottomScroll("auto");
+    } else if (olderHistoryPrepended) {
+      // Keep the user's scroll position stable when older history is prepended.
+    } else if (messageAdded && latestMessage?.sender === "user") {
       scheduleBottomScroll();
     } else if (thinkingStarted) {
       scheduleBottomScroll();
     } else if (messageAdded && latestMessage) {
-      scheduleRowAlignment(messages.length - 1);
+      scheduleRowAlignment(visibleMessages.length - 1);
     }
 
     previousChatStateRef.current = {
-      messageCount: messages.length,
+      hasLoadedHistory,
+      isHistoryLoading,
+      messageCount: visibleMessages.length,
       isTyping,
+      latestMessage,
       pending,
     };
-  }, [isHomePageSurface, isTyping, messages, pending]);
+  }, [hasLoadedHistory, isHistoryLoading, isHomePageSurface, isTyping, pending, visibleMessages]);
 
   return (
     <div
@@ -501,7 +585,19 @@ const ChatWindow: React.FC<{
               : "px-4 pb-3 pt-4 md:px-6 md:pt-6"
           )}
         >
-        {messages.map((msg, index) => {
+        {isInitialHistoryLoading && visibleMessages.length === 0 ? (
+          <LoadingConversation />
+        ) : isOlderHistoryLoading ? (
+          <div className="mb-3 flex justify-center">
+            <LoadingConversation compact />
+          </div>
+        ) : hasLoadedHistory && !hasMoreHistory && visibleMessages.length > 0 ? (
+          <div className="mb-3 text-center text-xs font-semibold text-text-supporting">
+            Conversation started here.
+          </div>
+        ) : null}
+
+        {!isInitialHistoryLoading && visibleMessages.map((msg, index) => {
           const isUserMessage = msg.sender === "user";
           const responseKeys =
             msg.response && !Array.isArray(msg.response) && typeof msg.response === "object"
@@ -868,10 +964,15 @@ const ChatWindow: React.FC<{
           {!isUserMessage && msg.suggestion ? (
             <ChatSuggestionBlock
               suggestion={msg.suggestion}
+              delayMs={msg.source === "history" ? 0 : CHAT_SUGGESTION_DELAY_MS}
               disabled={isResponseLocked}
               hasInputLock={hasCompleteSuggestionContent(msg.suggestion)}
               onSend={(value) => sendMessage(value)}
-              onVisible={scheduleBottomScroll}
+              onVisible={() => {
+                if (msg.source !== "history") {
+                  scheduleBottomScroll("smooth");
+                }
+              }}
               onSuggestionsVisible={() => dispatch(decrementPendingSuggestion())}
             />
           ) : null}
@@ -882,7 +983,7 @@ const ChatWindow: React.FC<{
         {(isTyping || pending) && (
           <TypingIndicator />
         )}
-        {messages.length === 0 && !isTyping && (
+        {visibleMessages.length === 0 && !isTyping && !isInitialHistoryLoading && (
           <div className="flex h-full min-h-[320px] flex-col items-center justify-center px-6 text-center">
             <div className="relative flex h-18 w-18 items-center justify-center rounded-[20px] bg-gradient-to-br from-login-primary to-action shadow-lg">
               <LuBotMessageSquare className="h-8 w-8 text-white" />
@@ -911,7 +1012,7 @@ const ChatWindow: React.FC<{
             setIsChartModalOpen(false);
             setSelectedChart(null);
           }}
-          message={messages[selectedChart]}
+          message={visibleMessages[selectedChart]}
           type="chart"
         />
       )}
@@ -923,7 +1024,7 @@ const ChatWindow: React.FC<{
             setIsTableModalOpen(false);
             setSelectedTable(null);
           }}
-          message={messages[selectedTable]}
+          message={visibleMessages[selectedTable]}
           type="table"
         />
       )}
@@ -935,7 +1036,7 @@ const ChatWindow: React.FC<{
             setIsCrosstabModalOpen(false);
             setSelectedCrosstab(null);
           }}
-          message={messages[selectedCrosstab]}
+          message={visibleMessages[selectedCrosstab]}
         />
       )}
     </div>

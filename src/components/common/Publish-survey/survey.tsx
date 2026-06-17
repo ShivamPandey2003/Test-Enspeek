@@ -12,6 +12,7 @@ import IconActionButton from "../../ui/IconActionButton";
 import {usePublishSurveyQuotaReport, usePublishSurveyStudyInfo, usePublishSurveySubgroup } from "../../../api-network/publish-survey/query";
 // usePublishSurveyQuota
 import { useGenerateGlobalLinkMutation } from "../../../api-network/publish-survey/mutation";
+import ChatHistoryLoader from "../../global/ChatHistoryLoader";
 
 export default function PublishSurvey() {
   const [isOpen, setIsOpen] = useState(false);
@@ -52,6 +53,7 @@ export default function PublishSurvey() {
 
   return (
     <div className="home-surface flex h-full min-h-0 flex-col overflow-hidden">
+      <ChatHistoryLoader enabled={!!studyID && !isStudyInfoLoading} />
       <div className="flex h-full min-h-0 flex-col overflow-hidden">
         <div className="flex h-full min-h-0 flex-col overflow-hidden">
           <div className="flex h-full min-h-0 w-full flex-col overflow-hidden">

@@ -43,6 +43,42 @@ Send `studyID` only for these areas:
 
 Do not send `studyID` for general platform pages where the user is not inside a study.
 
+## API Call Sequence
+
+Chat history should not be the first context API on a page.
+
+- Home page: call `/uam/info` first, then chat history.
+- Questionnaire page: call `/study/info` first, then chat history.
+- Publish survey page: call `/study/info` first, then chat history.
+- Report page: call `/study/info` first, then chat history.
+- Crosstab page: call `/study/info` first, then chat history.
+- Table list page: call `/study/info` first, then chat history.
+- Edit banner page: call `/study/info` first, then chat history.
+
+If chat history returns empty `data`, the existing UI should remain as-is. For example, home should continue showing the hero/empty state, and side chat pages should not show an unnecessary history message.
+
+When the user changes page or refreshes the page:
+
+- Clear the currently visible chat history for the old page context before showing the new page history.
+- Show `Loading...` while the first chat history request is pending.
+- Do not show old page chat messages, even for a short blink.
+- Keep chat input and send button disabled until the current page history request is completed.
+- If first-page history has no displayable messages, return to the existing empty/hero UI.
+
+## Page Name Mapping
+
+The frontend should send these `pageName` values:
+
+- Home page: `db`
+- Questionnaire page: `qnr`
+- Publish survey page: `svry`
+- Report page: `rpt`
+- Crosstab page: `xtab`
+- Table list page: `xtab`
+- Edit banner page: `xtab`
+
+Table list and edit banner are crosstab sub-pages, so they use the same crosstab page context.
+
 ## Expected API Response
 
 The history API should return conversation rows in `response.data`.
@@ -133,7 +169,17 @@ The frontend will convert each row into the same chat message objects used by th
 }
 ```
 
-If a row has `response: null`, frontend should show only the user message for that row.
+If a row has `response: null`, frontend should show the user message and an AI-side fallback message:
+
+```txt
+Unable to load the AI response for this message.
+```
+
+If a row does not have a valid `user` value, frontend should show a user-side fallback message:
+
+```txt
+Unable to load the user message for this response.
+```
 
 ## Supported ChatStudy Response Cases
 
@@ -269,13 +315,24 @@ Used when AI returns chart/table report data.
 
 ## Pagination Behavior
 
-- On page load or refresh, call chat history API with `page: 1`.
+- On home page load or refresh, call `/uam/info` first. After user info is synced, call chat history API with `page: 1`.
+- On study-specific page load or refresh, call `/study/info` first. After study info is stored in local storage, call chat history API with `page: 1`.
 - If `has_more` is `true`, older history exists.
 - When the user scrolls to the top of the chat area, call the same API with `page + 1`.
-- Show a loader at the top while older history is loading.
+- Show a compact `Loading...` loader at the top while older history is loading.
 - When older history API response arrives, convert `response.data` and prepend the converted messages to the existing chat messages.
+- After older messages are prepended, keep the user's scroll position stable. The chat should not jump to the bottom.
 - When `has_more` becomes `false`, stop calling older history pages.
 - When all history is loaded and the user reaches the oldest message, show: `Conversation started here.`
+
+## Loading And Suggestion Behavior
+
+- On first page history load, show `Loading...` in the chat area.
+- Do not show `Thinking...` while loading history messages.
+- History suggestions should appear immediately when they exist in the history response.
+- Delay suggestion display only for live AI chat API responses.
+- History suggestion display should not force the chat to scroll to the bottom.
+- Live AI chat suggestions can continue to scroll normally after they appear.
 
 ## Ordering
 
@@ -314,6 +371,9 @@ The existing empty or hero screen should remain visible.
 - Keep history normalization in one reusable helper.
 - Reset loaded history when `pageName` or `studyID` changes.
 - Do not repeatedly call history API while one history request is already pending.
+- Keep the current page context in state so old-page history cannot render on a new page.
+- Keep chat input and send button disabled while current page history is loading.
+- Do not run live chat send logic until current page history is loaded.
 
 ## Implementation Approach To Avoid Repetition
 
@@ -365,15 +425,23 @@ messages = [...messages, newLiveMessage];
 
 ## Acceptance Criteria
 
-- [ ] Chat history API is called on page land and refresh.
-- [ ] Request includes current `pageName` and `page`.
-- [ ] Request includes `studyID` only for study-specific pages.
-- [ ] User and AI history messages both show in chat.
-- [ ] History messages look the same as live chat messages.
-- [ ] Page-specific history is shown only for the current page.
-- [ ] Older history loads when user scrolls to top and `has_more` is `true`.
-- [ ] Older history is prepended above current messages.
-- [ ] Loader appears at the top while older history is loading.
-- [ ] `Conversation started here.` appears when all history pages are loaded.
-- [ ] Empty first-page history keeps the existing empty/hero state.
-- [ ] Local storage is not used to restore chat history.
+- [x] Chat history API is called on page land and refresh.
+- [x] Request includes current `pageName` and `page`.
+- [x] Request includes `studyID` only for study-specific pages.
+- [x] Home page calls `/uam/info` before chat history.
+- [x] Study-specific pages call `/study/info` before chat history.
+- [x] User and AI history messages both show in chat.
+- [x] History messages look the same as live chat messages.
+- [x] Page-specific history is shown only for the current page.
+- [x] Old page chat is cleared before current page history is shown.
+- [x] `Loading...` appears during first-page history loading.
+- [x] Chat input and send button stay disabled while current page history is loading.
+- [x] Older history loads when user scrolls to top and `has_more` is `true`.
+- [x] Older history is prepended above current messages.
+- [x] Compact loader appears at the top while older history is loading.
+- [x] Scroll position stays stable after older history is prepended.
+- [x] History suggestions appear immediately without live-response delay.
+- [x] History suggestions do not force scroll to bottom during older-history prepend.
+- [x] `Conversation started here.` appears when all history pages are loaded.
+- [x] Empty first-page history keeps the existing empty/hero state.
+- [x] Local storage is not used to restore chat history.
