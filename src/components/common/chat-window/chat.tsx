@@ -508,7 +508,7 @@ const ChatWindow: React.FC<{
     return () => {
       scrollElement.removeEventListener("scroll", handleScroll);
     };
-  }, [hasMoreHistory, isOlderHistoryLoading, loadOlderHistory, messages.length]);
+  }, [hasMoreHistory, isOlderHistoryLoading, loadOlderHistory]);
 
   useLayoutEffect(() => {
     scheduleBottomScroll();

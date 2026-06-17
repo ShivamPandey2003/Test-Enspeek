@@ -63,8 +63,10 @@ export const createAiChatMessageFromResponse = (
   };
 };
 
-export const normalizeChatHistoryRows = (rows: unknown[]) =>
-  rows.flatMap((row) => {
+export const normalizeChatHistoryRows = (rows: unknown) => {
+  if (!Array.isArray(rows)) return [];
+
+  return rows.flatMap((row) => {
     const historyRow = toRecord(row);
     if (!historyRow) return [];
 
@@ -89,3 +91,4 @@ export const normalizeChatHistoryRows = (rows: unknown[]) =>
 
     return messages;
   });
+};
