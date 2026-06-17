@@ -335,6 +335,7 @@ const OtpLoginPage = () => {
             Need an account?{" "}
             <button
               type="button"
+              data-test-id="auth-switch-to-signup"
               className="cursor-pointer font-semibold text-login-primary underline-offset-4 hover:underline"
               onClick={() => setMode("signup")}
             >
@@ -346,6 +347,7 @@ const OtpLoginPage = () => {
             Already registered?{" "}
             <button
               type="button"
+              data-test-id="auth-switch-to-signin"
               className="cursor-pointer font-semibold text-login-primary underline-offset-4 hover:underline"
               onClick={() => setMode("signin")}
             >
@@ -409,7 +411,10 @@ const SignupApprovalPendingMessage = ({
   email: string;
   source: "signin" | "signup";
 }) => (
-  <div className="rounded-2xl border border-[var(--color-brand-primary)]/20 bg-[var(--color-login-input)] px-5 py-5 text-center">
+  <div
+    data-test-id="signup-approval-pending"
+    className="rounded-2xl border border-[var(--color-brand-primary)]/20 bg-[var(--color-login-input)] px-5 py-5 text-center"
+  >
     <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-login-primary/10 text-login-primary">
       <LuClock3 className="h-6 w-6" />
     </div>

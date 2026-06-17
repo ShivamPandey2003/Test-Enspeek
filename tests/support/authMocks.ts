@@ -18,6 +18,7 @@ type RecaptchaMockWindow = Window &
 const authApiRoutes = {
   chatHistory: '**/studychatbot/chatStudy/history',
   login: '**/uam/login',
+  signup: '**/uam/signup',
   userInfo: '**/uam/info',
   verifyOtp: '**/uam/verify-otp',
 };
@@ -99,6 +100,18 @@ export const mockSuccessfulSignInApis = async (page: Page) => {
           enabled: 1,
           is_approved: 1,
         },
+      })
+    );
+  });
+};
+
+export const mockSuccessfulSignUpApis = async (page: Page) => {
+  await page.route(authApiRoutes.signup, async (route) => {
+    await route.fulfill(
+      jsonResponse({
+        code: 200,
+        header: { code: 200, message: 'User registered successfully' },
+        response: {},
       })
     );
   });

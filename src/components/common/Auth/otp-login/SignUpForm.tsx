@@ -39,6 +39,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ firstname, lastname, email, err
       <div>
         <Input
           id="otp-signup-firstname"
+          data-test-id="signup-firstname-input"
           variant="login"
           type="text"
           value={firstname}
@@ -55,6 +56,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ firstname, lastname, email, err
       <div>
         <Input
           id="otp-signup-lastname"
+          data-test-id="signup-lastname-input"
           variant="login"
           type="text"
           value={lastname}
@@ -71,6 +73,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ firstname, lastname, email, err
       <div>
         <Input
           id="otp-signup-email"
+          data-test-id="signup-email-input"
           variant="login"
           type="email"
           value={email}
@@ -91,6 +94,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ firstname, lastname, email, err
 
       <Button
         type="submit"
+        data-test-id="signup-submit-button"
         className="h-12 w-full rounded-xl bg-gradient-to-r from-login-primary to-login-bg-end text-base font-semibold text-white transition-all duration-300 hover:from-login-primary-hover hover:to-login-primary"
         disabled={isPending || !captchaToken}
       >
