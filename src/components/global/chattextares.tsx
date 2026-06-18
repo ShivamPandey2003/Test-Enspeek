@@ -16,7 +16,7 @@ import {
 import { useChatHistoryContextStatus } from "../../utils/useChatHistoryContextStatus";
 
 interface ChatTextAreaProps {
-  placement?: "floating" | "panel";
+  placement?: "floating" | "panel" | "mobileSheet";
 }
 
 const ChatTextArea: React.FC<ChatTextAreaProps> = ({
@@ -30,7 +30,9 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
   const { pathname } = useLocation();
   const isHome = pathname === "/";
   const isPanelPlacement = placement === "panel";
+  const isMobileSheetPlacement = placement === "mobileSheet";
   const { message, openChat, sendMessage, setDraftMessage } = useAiChat();
+  const isMobileSheetEmpty = isMobileSheetPlacement && message.length === 0;
   const { isCurrentHistoryContext } = useChatHistoryContextStatus();
   const isChatInputDisabled =
     !isCurrentHistoryContext ||
@@ -76,7 +78,12 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
     const textarea = internalTextareaRef.current;
     if (textarea) {
       textarea.style.height = "auto";
-      const newHeight = Math.min(textarea.scrollHeight, 200);
+      const maxTextareaHeight = isMobileSheetPlacement ? 80 : 200;
+      const minTextareaHeight = isMobileSheetPlacement ? 40 : 32;
+      const newHeight = Math.max(
+        minTextareaHeight,
+        Math.min(textarea.scrollHeight, maxTextareaHeight)
+      );
       textarea.style.height = `${newHeight}px`;
 
       if (selectionRef.current && document.activeElement === textarea) {
@@ -87,7 +94,7 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
         selectionRef.current = null;
       }
     }
-  }, [message]);
+  }, [isMobileSheetPlacement, message]);
 
   React.useEffect(() => {
     if (isChatOpen && internalTextareaRef.current) {
@@ -159,8 +166,8 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
 
   return (
     <>
-      {!isChatOpen && !isPanelPlacement && (
-        <div className="fixed bottom-8 right-8 z-50">
+      {!isChatOpen && !isPanelPlacement && !isMobileSheetPlacement && (
+        <div className="fixed bottom-8 right-8 z-50 hidden md:block">
           <Button
             onClick={handleOpen}
             variant="theme"
@@ -181,16 +188,18 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
             : "opacity-0 translate-y-8 scale-95 pointer-events-none",
           isPanelPlacement
             ? "questionnaire-chatbar-panel relative m-4 mt-3 w-auto overflow-hidden rounded-[24px] bg-white"
-            : "platform-chat-shell absolute bottom-4 left-1/2 w-[min(94%,1120px)] -translate-x-1/2 rounded-[26px] md:bottom-6",
+            : isMobileSheetPlacement
+              ? "relative m-3 mt-2 w-auto overflow-hidden rounded-[20px] bg-white shadow-[0_10px_24px_rgba(15,23,42,0.08)]"
+            : "platform-chat-shell absolute bottom-4 left-1/2 hidden w-[min(94%,1120px)] -translate-x-1/2 rounded-[26px] md:bottom-6 md:flex",
           !isHome && !isPanelPlacement && "w-[min(92%,820px)]"
         )}
       >
         <div
           className={cn(
             "flex items-center gap-3 overflow-visible p-2",
-            isPanelPlacement && ""
+            isMobileSheetPlacement && "gap-2"
           )}
-          style={{ maxHeight: "400px" }}
+          style={{ maxHeight: isMobileSheetPlacement ? "92px" : "400px" }}
         >
           <NewDropdown
             position="top-left"
@@ -223,7 +232,9 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
             className={cn(
               "home-chat-placeholder home-text min-h-8 w-full resize-none border-0 bg-transparent py-2 pr-2 text-[16px] focus:ring-0 focus-visible:outline-none",
               "min-h-8",
-              isPanelPlacement && "text-[15px] md:text-[16px]"
+              isPanelPlacement && "text-[15px] md:text-[16px]",
+              isMobileSheetPlacement && "max-h-20 overflow-y-hidden py-2.5 leading-5",
+              isMobileSheetEmpty && "h-10 whitespace-nowrap overflow-x-hidden text-ellipsis"
             )}
           />
           <div className="ml-auto flex items-center gap-2">

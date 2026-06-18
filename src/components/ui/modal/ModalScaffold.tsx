@@ -57,7 +57,14 @@ export default function ModalScaffold({
   }, []);
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} className={cn("w-full", className)}>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      className={cn(
+        "w-[min(calc(100vw-1.5rem),36rem)] md:w-full md:max-w-xl",
+        className
+      )}
+    >
       <div className="w-full">
         <ModalHeader
           title={title}

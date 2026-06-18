@@ -31,9 +31,11 @@ Make the authenticated home experience fully responsive below `768px` while keep
 - Dragged button must stay inside viewport bounds.
 - Remember dragged position during the current session.
 - When chat is closed, button shows chat icon.
-- When chat is open, same button changes to close icon.
-- Clicking the button opens/closes the chat window.
-- Do not show a separate close button inside the chat window.
+- When chat is open, hide the floating chat button.
+- Show an X close button outside the floating chat window.
+- Clicking the floating chat button opens the chat window.
+- Clicking the outside X button closes the chat window.
+- Do not show a close button inside the chat window.
 - Add smooth open/close animation.
 
 ## Mobile Chat Window Requirements
@@ -42,21 +44,27 @@ Make the authenticated home experience fully responsive below `768px` while keep
 - Chat window should reuse the existing chat UI and behavior as much as possible.
 - Chat content should be vertically scrollable.
 - Chat input should remain accessible.
+- Chat input placeholder should stay vertically aligned.
+- Chat input placeholder should not wrap; it should truncate with ellipsis when space is limited.
 - Chat window should respect screen width and height.
 - Chat window should not cause horizontal scrolling.
-- Floating button should remain usable when chat is open.
+- Add a backdrop behind the floating chat window, similar to modal overlay behavior.
 
 ## Shared Modal Requirements
 
 - Improve shared modal components instead of one-off fixes.
 - Modals should have proper spacing from device screen edges.
 - Modal panels should be horizontally centered.
+- Modal header icon, title, and close button must always stay on one line.
+- Modal header title should truncate with ellipsis when horizontal space is limited.
 - Modal content should remain vertically usable on short-height screens.
 - Modal body should scroll when content is taller than the viewport.
 - Footer buttons should stack or wrap cleanly on small screens.
+- When footer buttons stack, submit/action button should appear above cancel/reset buttons.
 - Inputs, labels, descriptions, and action buttons should not overlap.
 - Long text should wrap safely.
 - No modal should create horizontal page overflow.
+- Plan Usage Limits modal metrics should fit at very narrow widths without text spilling outside the boxes.
 
 ## Home Page Areas To Check
 
@@ -93,17 +101,25 @@ Make the authenticated home experience fully responsive below `768px` while keep
 - [ ] Floating chat button can be dragged and remains inside the viewport.
 - [ ] Floating chat button remembers position during the current session.
 - [ ] Floating chat button shows chat icon when closed.
-- [ ] Floating chat button shows close icon when chat is open.
+- [ ] Floating chat button is hidden when chat is open.
+- [ ] Floating chat uses themed blue background and white chat icon.
 - [ ] Floating chat opens as a bottom-sheet style window on mobile.
-- [ ] Floating chat closes from the same floating button.
+- [ ] Floating chat shows backdrop behind the chat window.
+- [ ] Floating chat closes from the outside X button.
 - [ ] Floating chat window opens/closes with smooth animation.
-- [ ] No separate close button appears inside the chat window.
+- [ ] No close button appears inside the chat window.
 - [ ] Chat content and chat input remain usable on mobile.
+- [ ] Mobile chat input placeholder is vertically aligned.
+- [ ] Mobile chat input placeholder truncates with ellipsis instead of wrapping.
 - [ ] Shared modals have proper spacing from screen edges.
 - [ ] Shared modals remain centered and aligned on mobile.
+- [ ] Modal header icon, title, and X close button always stay on one line.
+- [ ] Modal title truncates with ellipsis when space is limited.
 - [ ] Modal body scrolls when content is taller than the viewport.
 - [ ] Modal footer buttons do not overlap or overflow.
+- [ ] On stacked modal footers, submit/action button appears above cancel/reset.
 - [ ] Long modal text and input values wrap safely.
+- [ ] Plan Usage Limits metric boxes do not overflow at very narrow widths.
 - [ ] Study list, tabs, search, pagination, and study cards remain aligned below `768px`.
 - [ ] Study action dropdowns stay inside the visible screen.
 - [ ] Behavior above or equal to `768px` remains unchanged.

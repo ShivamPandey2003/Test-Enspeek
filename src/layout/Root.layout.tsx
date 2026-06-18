@@ -8,6 +8,7 @@ import { cn } from "../utils";
 import { useSelector } from "react-redux";
 import type { RootState } from "../store/store";
 import ChatHistoryContextResetter from "../components/global/ChatHistoryContextResetter";
+import MobileFloatingChat from "../components/global/MobileFloatingChat";
 
 const Root_layout = () => {
   const location = useLocation();
@@ -44,7 +45,7 @@ const Root_layout = () => {
           {(!isHome && !isFullWidthPage && (submitItems.length > 0 || isForceShowChat) && !usePanelChatLayout) && <ChatTextArea />}
         </div>
         {showRightChat && (
-          <div className={cn("home-surface w-full border-t home-border xl:border-t-0", usePanelChatLayout ? "h-[44vh] xl:h-full xl:w-[32%] xl:border-l" : "h-[46vh] xl:h-full xl:w-[30%] xl:border-l")} id="otherChat">
+          <div className={cn("home-surface hidden w-full border-t home-border md:block xl:border-t-0", usePanelChatLayout ? "h-[44vh] xl:h-full xl:w-[32%] xl:border-l" : "h-[46vh] xl:h-full xl:w-[30%] xl:border-l")} id="otherChat">
             {usePanelChatLayout ? (
               <div className="flex h-full min-h-0 flex-col overflow-hidden">
                 <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden">
@@ -58,6 +59,7 @@ const Root_layout = () => {
           </div>
         )}
       </div>
+      <MobileFloatingChat />
     </div>
   );
 };

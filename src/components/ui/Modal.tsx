@@ -18,7 +18,7 @@ const Modal: React.FC<{
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[500] flex items-center justify-center"
+      className="fixed inset-0 z-[500] flex items-center justify-center overflow-y-auto overflow-x-hidden p-3 sm:p-4"
       aria-modal="true"
       role="dialog"
     >
@@ -27,7 +27,7 @@ const Modal: React.FC<{
       )}
       <div
         className={cn(
-          "modal-panel relative z-50 w-full overflow-hidden transition-all",
+          "modal-panel relative z-50 my-auto w-full max-w-[calc(100vw-1.5rem)] overflow-hidden transition-all sm:max-w-[calc(100vw-2rem)]",
           className
         )}
       >
