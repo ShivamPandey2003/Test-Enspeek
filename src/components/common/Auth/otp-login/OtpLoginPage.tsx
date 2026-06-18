@@ -413,7 +413,7 @@ const SignupApprovalPendingMessage = ({
 }) => (
   <div
     data-test-id="signup-approval-pending"
-    className="rounded-2xl border border-[var(--color-brand-primary)]/20 bg-[var(--color-login-input)] px-5 py-5 text-center"
+    className="rounded-2xl border border-[var(--color-brand-primary)]/20 bg-[var(--color-login-input)] px-4 py-5 text-center min-[380px]:px-5"
   >
     <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-login-primary/10 text-login-primary">
       <LuClock3 className="h-6 w-6" />
@@ -421,13 +421,13 @@ const SignupApprovalPendingMessage = ({
     <p className="theme-text-strong mt-4 text-[16px] font-semibold">
       Your account request is under review.
     </p>
-    <p className="mt-2 text-sm leading-6 text-login-muted">
+    <p className="mt-2 text-wrap break-words text-sm leading-6 text-login-muted">
       {source === "signin"
         ? "Your account request is currently under review. You will be able to sign in once your account has been approved by the admin."
         : "Thank you for registering with Enspeek. Your request has been received and is currently awaiting approval. Once approved, you will receive an email confirmation and can sign in successfully."}
     </p>
     {email ? (
-      <p className="mt-3 truncate text-sm font-semibold text-login-primary">
+      <p className="mt-3 break-all text-sm font-semibold text-login-primary">
         {email}
       </p>
     ) : null}

@@ -66,15 +66,15 @@ Verify:
 
 ## Acceptance Criteria
 
-- [ ] No horizontal scrollbar appears on `/login` at any tested viewport width.
-- [ ] Captcha stays fully visible inside the auth card on small mobile screens.
-- [ ] Signin form, signup form, OTP form, and approval pending state fit within the viewport.
-- [ ] OTP input boxes remain aligned and usable on narrow screens.
-- [ ] Buttons, inputs, labels, and error messages do not overlap.
-- [ ] Long email addresses do not push content outside the card.
-- [ ] Page remains vertically scrollable when screen height is limited.
-- [ ] Desktop/tablet layout remains visually consistent with the current design.
-- [ ] Responsive behavior is verified at `320px`, `360px`, `390px`, `430px`, `768px`, `1024px`, and desktop width.
+- [x] No horizontal scrollbar appears on `/login` at any tested viewport width.
+- [x] Captcha stays fully visible inside the auth card on small mobile screens.
+- [x] Signin form, signup form, OTP form, and approval pending state fit within the viewport.
+- [x] OTP input boxes remain aligned and usable on narrow screens.
+- [x] Buttons, inputs, labels, and error messages do not overlap.
+- [x] Long email addresses do not push content outside the card.
+- [x] Page remains vertically scrollable when screen height is limited.
+- [x] Desktop/tablet layout remains visually consistent with the current design.
+- [x] Responsive behavior is verified at `320px`, `360px`, `390px`, `430px`, `768px`, `1024px`, and desktop width.
 
 ## Implementation Order
 
