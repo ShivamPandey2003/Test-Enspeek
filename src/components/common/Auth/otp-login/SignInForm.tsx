@@ -33,6 +33,7 @@ const SignInForm: React.FC<SignInFormProps> = ({ email, emailError, isPending, o
       <div>
         <Input
           id="otp-login-email"
+          data-test-id="signin-email-input"
           variant="login"
           type="email"
           value={email}
@@ -42,7 +43,7 @@ const SignInForm: React.FC<SignInFormProps> = ({ email, emailError, isPending, o
           className="border border-[var(--color-brand-primary)]/50"
         />
         {emailError ? (
-          <p className="mt-1 text-sm text-[var(--color-core-danger)]">{emailError}</p>
+          <p data-test-id="signin-email-error" className="mt-1 text-sm text-[var(--color-core-danger)]">{emailError}</p>
         ) : null}
       </div>
 
@@ -53,6 +54,7 @@ const SignInForm: React.FC<SignInFormProps> = ({ email, emailError, isPending, o
 
       <Button
         type="submit"
+        data-test-id="signin-submit-button"
         className="h-12 w-full rounded-xl bg-gradient-to-r from-login-primary to-login-bg-end text-base font-semibold text-white transition-all duration-300 hover:from-login-primary-hover hover:to-login-primary"
         disabled={isPending || !captchaToken}
       >

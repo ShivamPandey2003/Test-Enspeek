@@ -9,11 +9,14 @@ import CrossTabTable from "../components/common/table-List/CrossTabTable";
 import PageContentShell from "../components/ui/PageContentShell";
 import { useReportProcessDownload } from "../api-network/report/mutation";
 import { useDownloadtable } from "../api-network/crosstab/tablelist/mutation";
+import { useCrosstabStudyInfo } from "../api-network/crosstab/query";
+import ChatHistoryLoader from "../components/global/ChatHistoryLoader";
 
 const TableList_page = () => {
   const dispatch = useDispatch();
   const dropdownRef = React.useRef<HTMLDivElement>(null);
   const { state } = useLocation();
+  useCrosstabStudyInfo(state?.studyID);
 
    const { tableData } = useSelector(
     (state: RootState) => state.crossTabData
@@ -56,6 +59,7 @@ const TableList_page = () => {
 
   return (
     <div className="crosstab-page-bg flex h-full min-h-0 flex-col overflow-hidden">
+      <ChatHistoryLoader enabled={!!state?.studyID} />
       <Header dropdownRef={dropdownRef} dropDownData={dropDownData} />
       <PageContentShell>
         <div className="w-full">

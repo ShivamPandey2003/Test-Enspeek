@@ -10,6 +10,7 @@ import {
   useReportStudyInfo,
   useReportViewList,
 } from "../../../api-network/report/query";
+import ChatHistoryLoader from "../../global/ChatHistoryLoader";
 
 export default function Report() {
   const [showTableView, setShowTableView] = useState(false);
@@ -30,6 +31,7 @@ export default function Report() {
 
   return (
     <div className="report-page-bg flex h-full min-h-0 flex-col overflow-hidden">
+      <ChatHistoryLoader enabled={!!state.studyID && !isReportStudyInfoLoading} />
       <ReportHeader
         Title=""
         showTableView={showTableView}

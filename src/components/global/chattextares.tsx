@@ -13,6 +13,7 @@ import {
   FOCUS_CHAT_INPUT_EVENT,
   MODAL_CLOSE_FOCUS_CHAT_EVENT,
 } from "../../utils/modalFocus";
+import { useChatHistoryContextStatus } from "../../utils/useChatHistoryContextStatus";
 
 interface ChatTextAreaProps {
   placement?: "floating" | "panel";
@@ -23,13 +24,21 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
 }) => {
   const internalTextareaRef = React.useRef<HTMLTextAreaElement>(null);
   const selectionRef = React.useRef<{ start: number; end: number } | null>(null);
-  const { isTyping, isChatOpen, pending } = useSelector(
+  const { hasLoadedHistory, isHistoryLoading, isTyping, isChatOpen, pending, pendingSuggestionCount } = useSelector(
     (state: RootState) => state.chat
   );
   const { pathname } = useLocation();
   const isHome = pathname === "/";
   const isPanelPlacement = placement === "panel";
   const { message, openChat, sendMessage, setDraftMessage } = useAiChat();
+  const { isCurrentHistoryContext } = useChatHistoryContextStatus();
+  const isChatInputDisabled =
+    !isCurrentHistoryContext ||
+    !hasLoadedHistory ||
+    isHistoryLoading ||
+    isTyping ||
+    pending ||
+    pendingSuggestionCount > 0;
 
   const focusChatInput = React.useCallback((moveCaretToEnd = false) => {
     const textarea = internalTextareaRef.current;
@@ -87,10 +96,10 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
   }, [focusChatInput, isChatOpen]);
 
   React.useEffect(() => {
-    if (!isTyping && !pending && internalTextareaRef.current) {
+    if (!isChatInputDisabled && internalTextareaRef.current) {
       focusChatInput();
     }
-  }, [focusChatInput, isTyping, pending]);
+  }, [focusChatInput, isChatInputDisabled]);
 
   React.useEffect(() => {
     const handleShortcutFocus = (event: KeyboardEvent) => {
@@ -204,7 +213,7 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
           <textarea
             ref={internalTextareaRef}
             data-test-id="CONVER"
-            disabled={isTyping}
+            disabled={isChatInputDisabled}
             // autoFocus={false}
             rows={1}
             value={message}
@@ -223,7 +232,7 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
               variant="theme"
               size="icon"
               tooltip="Send"
-              disabled={isTyping}
+              disabled={isChatInputDisabled}
               data-test-id="SEND"
               onClick={handleSubmit}
               className={cn(
@@ -231,7 +240,7 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
                 isPanelPlacement && "platform-chat-send-panel h-12 w-12"
               )}
             >
-              {isTyping || pending ? (
+              {isChatInputDisabled ? (
                 <span className="h-4 w-4 rounded-full border-2 border-white/35 border-t-white animate-spin" />
               ) : (
                 <LuSendHorizontal className="h-5 w-5 text-white" />

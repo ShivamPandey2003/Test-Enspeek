@@ -6,8 +6,9 @@ import mutationStructure from "../mutation-template";
 import url from "../url";
 import { apiRequest } from "../../services/apiService";
 import { store, type AppDispatch, type RootState } from "../../store/store";
-import { setChatOpen, setFollowUp, setIsTyping, setMessage, setMessages, setPending } from "../../store/ChatSlice";
+import { clearPendingSuggestions, incrementPendingSuggestion, setChatOpen, setFollowUp, setIsTyping, setMessage, setMessages, setPending } from "../../store/ChatSlice";
 import { getPageName } from "../../utils/getPageName";
+import { hasCompleteSuggestionContent } from "../../utils/chatSuggestion";
 import { useReportProcessDownload } from "../report/mutation";
 import homepageKeys from "../homepage/keys";
 import questionnaireKeys from "../questionnaire/keys";
@@ -15,6 +16,8 @@ import publishSurveyKeys from "../publish-survey/keys";
 import { setSubmitItems } from "../../store/QuestionSlice";
 import { setStudyInfo } from "../../store/CrosstabStudySlice";
 import { REFRESH_STUDY_LIST_EVENT } from "../../utils/studyListRefresh";
+import { createAiChatMessageFromResponse, createUserChatMessage } from "../../utils/chatMessageMapper";
+import { useChatHistoryContextStatus } from "../../utils/useChatHistoryContextStatus";
 
 const MAX_RECALL_CHAIN_CALLS = 10;
 
@@ -25,8 +28,9 @@ export const useChat = () => {
   const { processDownload } = useReportProcessDownload();
   const pageName = getPageName(pathname);
   const studyID = state?.studyID;
+  const { isCurrentHistoryContext } = useChatHistoryContextStatus();
 
-  const { followUp, isChatOpen, isTyping, message, messages, pending } = useSelector((storeState: RootState) => storeState.chat);
+  const { followUp, hasLoadedHistory, isChatOpen, isHistoryLoading, isTyping, message, messages, pending } = useSelector((storeState: RootState) => storeState.chat);
 
   const getLatestMessages = () => store.getState().chat.messages;
 
@@ -130,25 +134,27 @@ export const useChat = () => {
     if (!data) return;
 
     if (data.showGraph) {
-      appendChatMessage({
-        type: "surveydata",
-        sdata: data.sdata,
-        text: data.message,
-        studyID: data.studyID,
-        suggestion: data.suggestion,
-      });
+      if (hasCompleteSuggestionContent(data.suggestion)) {
+        dispatch(incrementPendingSuggestion());
+      }
+
+      const aiMessage = createAiChatMessageFromResponse(data);
+      if (aiMessage) {
+        appendChatMessage(aiMessage);
+      }
       return;
     }
 
-    appendChatMessage({
-      text: data.message || "AI responded with no message.",
-      sender: "ai",
-      questions: data.questions,
-      instruction: data.instruction,
-      response: data.response || {},
-      liveLink: data.liveLink,
-      suggestion: data.suggestion,
+    if (hasCompleteSuggestionContent(data.suggestion)) {
+      dispatch(incrementPendingSuggestion());
+    }
+
+    const aiMessage = createAiChatMessageFromResponse(data, {
+      fallbackText: "AI responded with no message.",
     });
+    if (aiMessage) {
+      appendChatMessage(aiMessage);
+    }
 
     if (data.opt === true && data.qid) {
       submitQuestionById(data.qid);
@@ -232,6 +238,7 @@ export const useChat = () => {
       dispatch(setIsTyping(false));
     },
     onError: () => {
+      dispatch(clearPendingSuggestions());
       appendChatMessage({
         text: "❌ Failed to get response from AI. Please try again.",
         sender: "ai",
@@ -242,15 +249,17 @@ export const useChat = () => {
 
   const sendMessage = (rawPrompt?: string) => {
     const prompt = (rawPrompt ?? message).trim();
+    const pendingSuggestionCount = store.getState().chat.pendingSuggestionCount;
 
-    if (!prompt || isTyping || pending) {
+    if (!prompt || isTyping || pending || !isCurrentHistoryContext || !hasLoadedHistory || isHistoryLoading || pendingSuggestionCount > 0) {
       return false;
     }
 
-    appendChatMessage({
-      text: prompt,
-      sender: "user",
-    });
+    dispatch(clearPendingSuggestions());
+    const userMessage = createUserChatMessage(prompt);
+    if (userMessage) {
+      appendChatMessage(userMessage);
+    }
     dispatch(setIsTyping(true));
     requestChatResponse({ prompt });
 

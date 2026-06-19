@@ -7,7 +7,15 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:e2e": "playwright test",
+    "test:e2e:all-browsers": "cross-env PLAYWRIGHT_ALL_BROWSERS=true playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:local": "cross-env TEST_ENV=local playwright test",
+    "test:e2e:dev": "cross-env TEST_ENV=dev playwright test",
+    "test:e2e:staging": "cross-env TEST_ENV=staging playwright test",
+    "test:e2e:prod": "cross-env TEST_ENV=prod playwright test"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.8.2",
@@ -33,10 +41,12 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",
+    "@playwright/test": "^1.61.0",
     "@types/node": "^24.7.0",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
     "@vitejs/plugin-react": "^4.4.1",
+    "cross-env": "^10.1.0",
     "eslint": "^9.25.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.19",

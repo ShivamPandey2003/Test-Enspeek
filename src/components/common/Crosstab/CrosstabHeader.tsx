@@ -1,10 +1,8 @@
 import { LuDownload, LuPlus, LuSearch } from "react-icons/lu";
-import { useLocation } from "react-router";
 import Button from "../../ui/Button";
 import { useDispatch } from "react-redux";
 import { setIsAddBannerModalOpen } from "../../../store/CrosstabSlice";
 import { useState } from "react";
-import { useCrosstabStudyInfo } from "../../../api-network/crosstab/query";
 import Input from "../../ui/Input";
 import HistoryModal from "../Report/HistoryModal";
 import PageSubheader from "../../ui/PageSubheader";
@@ -18,12 +16,8 @@ export default function CrosstabHeader({
   searchTerm,
   setSearchTerm,
 }: CrosstabHeaderProps) {
-  const location = useLocation();
   const dispatch = useDispatch();
   const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
-  const studyID = location.state?.studyID;
-
-  useCrosstabStudyInfo(studyID);
 
   return (
     <PageSubheader

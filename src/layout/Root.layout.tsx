@@ -7,6 +7,7 @@ import HomeSidebar from "../components/global/HomeSidebar";
 import { cn } from "../utils";
 import { useSelector } from "react-redux";
 import type { RootState } from "../store/store";
+import ChatHistoryContextResetter from "../components/global/ChatHistoryContextResetter";
 
 const Root_layout = () => {
   const location = useLocation();
@@ -34,6 +35,7 @@ const Root_layout = () => {
   const usePanelChatLayout = isQuestionnaire || isPublishSurvey || isReport || isCrosstab;
   return (
     <div className="h-screen flex flex-col">
+      <ChatHistoryContextResetter />
       <Header />
       <div className={cn("relative flex flex-1 overflow-hidden", isHome ? "flex-col items-stretch md:flex-row" : "flex-col items-stretch xl:flex-row")}>
         {!isHome && !isFullWidthPage ? <Sidebar /> : isHome ? <HomeSidebar /> : null}

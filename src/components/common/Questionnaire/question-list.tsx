@@ -18,6 +18,7 @@ import { useHydrateQuestionnaireSubmitItems } from "../../../api-network/questio
 import { useQuestionnaireList, useQuestionnaireQuestionTypes, useQuestionnaireStudyInfo } from "../../../api-network/questionnaire/query";
 import { focusChatInput } from "../../../utils/modalFocus";
 import PlatformHero from "../../ui/PlatformHero";
+import ChatHistoryLoader from "../../global/ChatHistoryLoader";
 
 export default function QuestionList() {
   const navigate = useNavigate();
@@ -89,6 +90,7 @@ export default function QuestionList() {
 
   return (
     <div className="relative flex h-full min-h-0 flex-col overflow-hidden">
+      <ChatHistoryLoader enabled={!!studyID && !isStudyInfoLoading} />
       <PageSubheader
         left={
           <div className="flex flex-wrap items-center gap-2.5">
