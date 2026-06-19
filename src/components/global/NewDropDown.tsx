@@ -70,12 +70,6 @@ const NewDropdown: React.FC<DropdownProps> = ({
   }, [isOpen]);
 
   useEffect(() => {
-    if (!isOpen) {
-      setSearchTerm("");
-    }
-  }, [isOpen]);
-
-  useEffect(() => {
     if (isOpen && searchable) {
       requestAnimationFrame(() => {
         searchInputRef.current?.focus();
@@ -171,12 +165,13 @@ const NewDropdown: React.FC<DropdownProps> = ({
       window.removeEventListener("resize", updatePosition);
       window.removeEventListener("scroll", updatePosition, true);
     };
-  }, [isOpen, position, items.length, searchTerm]);
+  }, [isOpen, position]);
 
   const handleItemClick = (item: DropdownItem) => {
     if (!item.disabled && item.onClick) {
       item.onClick();
     }
+    setSearchTerm("");
     setIsOpen(false);
   };
   const filteredItems = items.filter((item) =>

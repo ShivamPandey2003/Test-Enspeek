@@ -1,220 +1,226 @@
-import { useEffect, useRef, useState, type FC } from "react";
+import { useState, type FC } from "react";
 import { FaFacebookF, FaUsers, FaWhatsapp } from "react-icons/fa";
-import SampleCollectionModel from "./SampleCollectionModel";
-import { setIsHistoryModalOpen } from "../../../store/CrosstabSlice";
-import { useDispatch, useSelector } from "react-redux";
-import DropDown from "../../global/DropDown";
-import type { RootState } from "../../../store/store";
-import { useLocation, useNavigate } from "react-router";
-import {
-  setIsWhatsappModalOpen,
-  setIsFbModalOpen,
-} from "../../../store/CrosstabSlice";
-import FacebookModal from "./FacebookModal";
-import WhatsaapModal from "./WhatsaapModal";
 import {
   LuArrowRight,
-  LuClock3,
   LuDownload,
-  LuFileSpreadsheet,
-  LuFiles,
+  LuEllipsisVertical,
 } from "react-icons/lu";
-import PageSubheader from "../../ui/PageSubheader";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router";
+import type { AppDispatch, RootState } from "../../../store/store";
+import {
+  setIsFbModalOpen,
+  setIsWhatsappModalOpen,
+} from "../../../store/CrosstabSlice";
+import NewDropdown, {
+  type DropdownItem,
+} from "../../global/NewDropDown";
 import Button from "../../ui/Button";
+import PageSubheader from "../../ui/PageSubheader";
+import FacebookModal from "./FacebookModal";
+import SampleCollectionModel from "./SampleCollectionModel";
+import WhatsaapModal from "./WhatsaapModal";
 
 interface PublishSurveyHeaderProps {
+  studyID?: string;
   studyName?: string;
   launch?: number;
   isSurveyActive: boolean;
   onHoverDisabledInitiate?: (isHovered: boolean) => void;
 }
+
+type PublishAction = DropdownItem & {
+  testId?: string;
+  desktopClassName?: string;
+  desktopVariant?: "theme" | "success" | "secondary";
+  showOnDesktop?: boolean;
+};
+
 const PublishSurveyHeader: FC<PublishSurveyHeaderProps> = ({
+  studyID,
   studyName,
   launch,
   isSurveyActive,
   onHoverDisabledInitiate,
 }) => {
-  const [isOpenInitiate, setIsOpenInitiate] = useState<boolean>(false);
-  const [open, setOpen] = useState(false);
-  const dispatch = useDispatch();
+  const [isOpenInitiate, setIsOpenInitiate] = useState(false);
+  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const { state } = useLocation();
-  const studyInfo = useSelector((state: RootState) => state.study);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const { closed } = useSelector((state: RootState) => state.study);
   const { isWhatsappModalOpen, isFbModalOpen } = useSelector(
     (state: RootState) => state.crosstab
   );
-  const handleClickOutside = (event: MouseEvent) => {
-    if (
-      dropdownRef.current &&
-      !dropdownRef.current.contains(event.target as Node)
-    ) {
-      setOpen(false);
-    }
-  };
-  const rawDataDropdown = [
+
+  const canInitiate = launch !== 1 || closed === 1;
+  const initiateLabel =
+    launch === 1 && closed === 1
+      ? "Relaunch Research"
+      : "Initiate Sample Collection";
+
+  const publishActions: PublishAction[] = [
     {
-      Title: "Download Excel Raw Data",
-      Icon: LuFileSpreadsheet,
-      onClick: () => {},
+      id: "initiate",
+      label: initiateLabel,
+      icon: <FaUsers />,
+      onClick: () => setIsOpenInitiate(true),
+      disabled: !canInitiate,
+      testId: "INITIATE",
+      desktopVariant: "theme",
+      showOnDesktop: canInitiate,
     },
     {
-      Title: "Download SPSS Raw Data",
-      Icon: LuFiles,
-      onClick: () => {},
+      id: "facebook",
+      label: "Facebook",
+      icon: <FaFacebookF />,
+      onClick: () => dispatch(setIsFbModalOpen(true)),
+      testId: "FACEBOOK_SURVEY",
+      desktopClassName:
+        "bg-[var(--color-brand-info)] text-white hover:brightness-95",
     },
     {
-      Title: "Download History",
-      Icon: LuClock3,
-      onClick: () => {
-        dispatch(setIsHistoryModalOpen(true));
-      },
+      id: "whatsapp",
+      label: "WhatsApp",
+      icon: <FaWhatsapp />,
+      onClick: () => dispatch(setIsWhatsappModalOpen(true)),
+      testId: "WHATSAPP_SURVEY",
+      desktopVariant: "success",
+      desktopClassName: "hover:brightness-95",
+    },
+    {
+      id: "download",
+      label: "Download",
+      icon: <LuDownload />,
+      disabled: true,
+      testId: "PUBLISH_SURVEY_DOWNLOADS",
+      desktopVariant: "secondary",
+      desktopClassName:
+        "home-border-soft text-[var(--color-brand-info)] opacity-50 grayscale-[0.2]",
+      showOnDesktop: launch === 1,
     },
   ];
 
-  useEffect(() => {
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  const goToReport = () => {
+    if (!studyID) return;
+    navigate("/report", { state: { studyID } });
+  };
+
+  const title = (
+    <h1
+      className="questionnaire-heading truncate text-[16px] font-semibold leading-none"
+      title="Publish Research"
+    >
+      Publish Research
+    </h1>
+  );
 
   return (
     <>
-        <PageSubheader
-          left={
-            <div className="flex flex-wrap items-center gap-2">
-              <h1 className="questionnaire-heading text-[16px] font-semibold leading-none">
-                Publish Research
-              </h1>
-            </div>
-        }
+      <PageSubheader
+        left={title}
         right={
-          <>
-            {isSurveyActive && (
-              <>
-                <Button
-                  data-test-id="FACEBOOK_SURVEY"
-                  className="bg-[var(--color-brand-info)] text-white hover:brightness-95"
-                  onClick={() => {
-                    dispatch(setIsFbModalOpen(true));
-                  }}
-                >
-                  <FaFacebookF className="text-sm" />
-                  <span>Share on Facebook</span>
-                </Button>
-                <Button
-                  variant="success"
-                  className="hover:brightness-95"
-                  data-test-id="WHATSAPP_SURVEY"
-                  onClick={() => {
-                    dispatch(setIsWhatsappModalOpen(true));
-                  }}
-                >
-                  <FaWhatsapp className="text-sm" />
-                  <span>Share on WhatsApp</span>
-                </Button>
-              </>
-            )}
-            {!isSurveyActive && (
-              <span
-                title="Activate the study first."
-                className="inline-flex cursor-not-allowed"
-                onMouseEnter={() => onHoverDisabledInitiate?.(true)}
-                onMouseLeave={() => onHoverDisabledInitiate?.(false)}
-                onFocus={() => onHoverDisabledInitiate?.(true)}
-                onBlur={() => onHoverDisabledInitiate?.(false)}
-              >
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="default"
-                  disabled
-                  data-test-id="INITIATE_DISABLED"
-                  aria-disabled="true"
-                  className="pointer-events-none border-[var(--color-border-soft)] bg-[var(--color-surface-soft)] text-[var(--color-text-muted)] shadow-none opacity-55 grayscale-[0.2] saturate-[0.75]"
-                >
-                  <FaUsers /> Initiate Sample Collection
-                </Button>
-              </span>
-            )}
-            {isSurveyActive && launch !== 1 && (
+          isSurveyActive ? (
+            <>
+              <div className="min-[1280px]:hidden">
+                <NewDropdown
+                  position="bottom-right"
+                  items={publishActions}
+                  trigger={
+                    <button
+                      type="button"
+                      aria-label="Publish research actions"
+                      title="Publish research actions"
+                      className="questionnaire-muted inline-flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-[var(--color-brand-primary-softest)] hover:text-login-primary"
+                    >
+                      <LuEllipsisVertical className="h-5 w-5" />
+                    </button>
+                  }
+                />
+              </div>
+
+              <div className="hidden items-center gap-2 min-[1280px]:flex">
+                {publishActions
+                  .filter((action) => action.showOnDesktop !== false)
+                  .map((action) => (
+                    <Button
+                      key={action.id}
+                      type="button"
+                      data-test-id={action.testId}
+                      variant={action.desktopVariant}
+                      className={action.desktopClassName}
+                      onClick={action.onClick}
+                      disabled={action.disabled}
+                    >
+                      {action.icon}
+                      <span>
+                        {action.id === "facebook"
+                          ? "Share on Facebook"
+                          : action.id === "whatsapp"
+                            ? "Share on WhatsApp"
+                            : action.label}
+                      </span>
+                    </Button>
+                  ))}
+              </div>
+
               <Button
-                data-test-id="INITIATE"
+                data-test-id="NEXT_TO_REPORT"
                 variant="theme"
-                onClick={() => {
-                  setIsOpenInitiate(true);
-                }}
+                onClick={goToReport}
+                disabled={!studyID}
+                className="shrink-0"
+              >
+                Next <LuArrowRight className="h-4 w-4" />
+              </Button>
+            </>
+          ) : (
+            <span
+              title="Activate the study first."
+              className="hidden cursor-not-allowed md:inline-flex"
+              onMouseEnter={() => onHoverDisabledInitiate?.(true)}
+              onMouseLeave={() => onHoverDisabledInitiate?.(false)}
+              onFocus={() => onHoverDisabledInitiate?.(true)}
+              onBlur={() => onHoverDisabledInitiate?.(false)}
+            >
+              <Button
+                type="button"
+                variant="secondary"
+                size="default"
+                disabled
+                data-test-id="INITIATE_DISABLED"
+                aria-disabled="true"
+                className="pointer-events-none border-[var(--color-border-soft)] bg-[var(--color-surface-soft)] text-[var(--color-text-muted)] shadow-none opacity-55 grayscale-[0.2] saturate-[0.75]"
               >
                 <FaUsers /> Initiate Sample Collection
               </Button>
-            )}
-            {isSurveyActive && launch === 1 && studyInfo.closed === 1 && (
-              <Button
-                variant="theme"
-                onClick={() => {
-                  setIsOpenInitiate(true);
-                }}
-              >
-                Relaunch Research
-              </Button>
-            )}
-            {launch === 1 && (
-              <>
-                <div className="relative cursor-not-allowed" ref={dropdownRef}>
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    size="icon"
-                    data-test-id="PUBLISH_SURVEY_DOWNLOADS"
-                    aria-label="Open download history"
-                  disabled
-                  className="pointer-events-none home-border-soft text-[var(--color-brand-info)] opacity-50 grayscale-[0.2]"
-                  >
-                    <LuDownload className="h-4 w-4" />
-                  </Button>
-                  {open && (
-                    <div className="absolute right-0 z-10 rounded-lg shadow-2xl">
-                      <DropDown Data={rawDataDropdown} />
-                    </div>
-                  )}
-                </div>
-                <Button
-                  data-test-id="NEXT_TO_REPORT"
-                  variant="theme"
-                  onClick={() => {
-                    navigate("/report", { state: { studyID: state.studyID } });
-                  }}
-                >
-                  Next <LuArrowRight className="h-4 w-4" />
-                </Button>
-              </>
-            )}
-          </>
+            </span>
+          )
         }
-        leftClassName="flex min-h-8 flex-wrap items-center gap-2"
-        rightClassName="gap-2"
+        contentClassName="flex-row items-center justify-between gap-2"
+        leftClassName="min-w-0 flex-1 overflow-hidden"
+        rightClassName="min-w-0 shrink-0 flex-nowrap gap-2"
       />
+
       <SampleCollectionModel
         isOpen={isOpenInitiate}
         onClose={() => setIsOpenInitiate(false)}
         studyName={studyName}
       />
-      {isWhatsappModalOpen && (
+
+      {isWhatsappModalOpen ? (
         <WhatsaapModal
           onClose={() => dispatch(setIsWhatsappModalOpen(false))}
-          onSave={() => {
-            dispatch(setIsWhatsappModalOpen(false));
-          }}
+          onSave={() => dispatch(setIsWhatsappModalOpen(false))}
         />
-      )}
-      {isFbModalOpen && (
+      ) : null}
+
+      {isFbModalOpen ? (
         <FacebookModal
           onClose={() => dispatch(setIsFbModalOpen(false))}
-          onSave={() => {
-            dispatch(setIsFbModalOpen(false));
-          }}
+          onSave={() => dispatch(setIsFbModalOpen(false))}
         />
-      )}
+      ) : null}
     </>
   );
 };
+
 export default PublishSurveyHeader;

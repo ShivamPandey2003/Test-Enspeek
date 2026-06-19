@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { toast } from "sonner";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
@@ -17,18 +17,20 @@ import ChatHistoryLoader from "../../global/ChatHistoryLoader";
 export default function PublishSurvey() {
   const [isOpen, setIsOpen] = useState(false);
   const [highlightActivate, setHighlightActivate] = useState(false);
+  const hasRedirected = useRef(false);
   const { state } = useLocation();
   const navigate = useNavigate();
   const studyID = state?.studyID;
 
   useEffect(() => {
-    if (!state || !studyID) {
+    if (!hasRedirected.current && (!state || !studyID)) {
+      hasRedirected.current = true;
       navigate("/");
       toast.warning(
         "Invalid access route detected. Redirecting you to the homepage for a better experience."
       );
     }
-  }, [navigate, state, studyID]);
+  }, [state, studyID, navigate]);
 
   const {
     studyInfo,
@@ -52,12 +54,10 @@ export default function PublishSurvey() {
   }
 
   return (
-    <div className="home-surface flex h-full min-h-0 flex-col overflow-hidden">
+    <div className="home-surface flex h-full min-h-0 w-full flex-col overflow-hidden">
       <ChatHistoryLoader enabled={!!studyID && !isStudyInfoLoading} />
-      <div className="flex h-full min-h-0 flex-col overflow-hidden">
-        <div className="flex h-full min-h-0 flex-col overflow-hidden">
-          <div className="flex h-full min-h-0 w-full flex-col overflow-hidden">
             <PublishSurveyHeader
+              studyID={studyID}
               studyName={studyInfo.studyname}
               launch={studyInfo.launch}
               isSurveyActive={!!studyInfo.livelink}
@@ -164,9 +164,6 @@ export default function PublishSurvey() {
                 />
               </div>
             </div>
-          </div>
-        </div>
-      </div>
       <ActivateSurvey
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
