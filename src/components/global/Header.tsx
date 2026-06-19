@@ -87,7 +87,7 @@ const Header = () => {
     window.location.href = "/login";
   };
 
-  const DropdownData = [
+  const desktopDropdownData = [
     ...(userAccess.canAccessAdminPanel && !isUserManagementPage
       ? [
         {
@@ -101,6 +101,53 @@ const Header = () => {
       ]
       : []),
     ...(userAccess.canAccessProfile && !isProfilePage
+      ? [
+        {
+          Title: "Profile",
+          Icon: LuUserRound,
+          onClick: () => {
+            setDropdownOpen(false);
+            navigate("/profile");
+          },
+        },
+      ]
+      : []),
+    {
+      Title: "Logout",
+      Icon: FaSignOutAlt,
+      onClick: () => {
+        setDropdownOpen(false);
+        setLogoutModalOpen(true);
+      },
+    },
+  ];
+
+  const mobileDropdownData = [
+    ...(userAccess.canRequestSupport
+      ? [
+        {
+          Title: "Request for Assistance",
+          Icon: LuMessageCircle,
+          onClick: () => {
+            setDropdownOpen(false);
+            setSupportModalOpen(true);
+          },
+        },
+      ]
+      : []),
+    ...(isPlanInfoVisible && (isFreeUser || isPaidUser)
+      ? [
+        {
+          Title: isPaidUser ? "Premium plan usage" : "Free plan usage",
+          Icon: PlanIcon,
+          onClick: () => {
+            setDropdownOpen(false);
+            void openPlanLimitModal();
+          },
+        },
+      ]
+      : []),
+    ...(userAccess.canAccessProfile
       ? [
         {
           Title: "Profile",
@@ -224,7 +271,7 @@ const Header = () => {
           {userAccess.canRequestSupport ? (
             <button
               type="button"
-              className={circleIconButtonClass}
+              className={cn(circleIconButtonClass, "hidden md:inline-flex")}
               aria-label="Support"
               title="Request for Assistance"
               onClick={(event) => {
@@ -245,7 +292,7 @@ const Header = () => {
                 openPlanLimitModal();
               }}
               disabled={isPlanInfoRefreshing}
-              className={cn(circleIconButtonClass, "disabled:cursor-wait disabled:opacity-70")}
+              className={cn(circleIconButtonClass, "hidden disabled:cursor-wait disabled:opacity-70 md:inline-flex")}
               aria-label={isPaidUser ? "View premium plan usage" : "View free plan usage"}
               title={isPaidUser ? "Premium plan usage" : "Free plan usage"}
             >
@@ -269,7 +316,12 @@ const Header = () => {
         </div>
         {dropdownOpen && (
           <div className="absolute right-0 top-full mt-2">
-            <DropDown Data={DropdownData} />
+            <div className="md:hidden">
+              <DropDown Data={mobileDropdownData} />
+            </div>
+            <div className="hidden md:block">
+              <DropDown Data={desktopDropdownData} />
+            </div>
           </div>
         )}
       </div>

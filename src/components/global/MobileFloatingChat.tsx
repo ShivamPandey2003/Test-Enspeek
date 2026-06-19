@@ -8,7 +8,7 @@ import { FOCUS_CHAT_INPUT_EVENT } from "../../utils/modalFocus";
 
 const MOBILE_CHAT_POSITION_KEY = "enspeek-mobile-chat-button-position";
 const MOBILE_CHAT_QUERY = "(max-width: 767px)";
-const BUTTON_SIZE = 48;
+const BUTTON_SIZE = 58;
 const EDGE_GAP = 16;
 const DRAG_THRESHOLD = 6;
 
@@ -83,7 +83,10 @@ export default function MobileFloatingChat() {
   const [isMobileViewport, setIsMobileViewport] = React.useState(getIsMobileViewport);
   const [shouldRenderSheet, setShouldRenderSheet] = React.useState(false);
   const [position, setPosition] = React.useState<ButtonPosition | null>(null);
+  const [isDragging, setIsDragging] = React.useState(false);
   const suppressNextClickRef = React.useRef(false);
+  const dragAnimationFrameRef = React.useRef<number | null>(null);
+  const pendingDragPositionRef = React.useRef<ButtonPosition | null>(null);
   const dragStateRef = React.useRef<{
     pointerId: number;
     startX: number;
@@ -92,6 +95,22 @@ export default function MobileFloatingChat() {
     pointerStartY: number;
     didDrag: boolean;
   } | null>(null);
+
+  const setPositionOnFrame = React.useCallback((nextPosition: ButtonPosition) => {
+    pendingDragPositionRef.current = nextPosition;
+
+    if (dragAnimationFrameRef.current !== null) {
+      return;
+    }
+
+    dragAnimationFrameRef.current = window.requestAnimationFrame(() => {
+      dragAnimationFrameRef.current = null;
+
+      if (pendingDragPositionRef.current) {
+        setPosition(pendingDragPositionRef.current);
+      }
+    });
+  }, []);
 
   React.useEffect(() => {
     if (!isOpen) return;
@@ -102,6 +121,14 @@ export default function MobileFloatingChat() {
 
     return () => window.clearTimeout(timeout);
   }, [isOpen]);
+
+  React.useEffect(() => {
+    return () => {
+      if (dragAnimationFrameRef.current !== null) {
+        window.cancelAnimationFrame(dragAnimationFrameRef.current);
+      }
+    };
+  }, []);
 
   React.useEffect(() => {
     if (isOpen) {
@@ -180,6 +207,7 @@ export default function MobileFloatingChat() {
     if (!position) return;
 
     event.currentTarget.setPointerCapture(event.pointerId);
+    setIsDragging(true);
     dragStateRef.current = {
       pointerId: event.pointerId,
       startX: position.x,
@@ -209,7 +237,7 @@ export default function MobileFloatingChat() {
       y: dragState.startY + deltaY,
     });
 
-    setPosition(nextPosition);
+    setPositionOnFrame(nextPosition);
   };
 
   const handlePointerUp = (event: React.PointerEvent<HTMLButtonElement>) => {
@@ -220,9 +248,13 @@ export default function MobileFloatingChat() {
       event.currentTarget.releasePointerCapture(event.pointerId);
     }
     dragStateRef.current = null;
+    setIsDragging(false);
 
     setPosition((currentPosition) => {
-      const nextPosition = clampPosition(currentPosition ?? getDefaultPosition());
+      const nextPosition = clampPosition(
+        pendingDragPositionRef.current ?? currentPosition ?? getDefaultPosition()
+      );
+      pendingDragPositionRef.current = null;
       storePosition(nextPosition);
       return nextPosition;
     });
@@ -268,7 +300,7 @@ export default function MobileFloatingChat() {
             <LuX />
           </Button>
           <div className="relative mx-3 mb-3 overflow-hidden rounded-t-[24px] rounded-b-[18px] border home-border bg-white shadow-[0_22px_70px_rgba(29,36,86,0.24)]">
-            <div className="flex h-[min(76dvh,680px)] max-h-[calc(100dvh-5.5rem)] min-h-[min(360px,calc(100dvh-5.5rem))] flex-col overflow-hidden">
+            <div className="flex h-[calc(100dvh-4.5rem)] max-h-[760px] min-h-[min(360px,calc(100dvh-4.5rem))] flex-col overflow-hidden">
               <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden">
                 <ChatWindow surface="card" scrollMode="external" />
               </div>
@@ -298,11 +330,15 @@ export default function MobileFloatingChat() {
           onPointerUp={handlePointerUp}
           onPointerCancel={() => {
             dragStateRef.current = null;
+            pendingDragPositionRef.current = null;
+            setIsDragging(false);
           }}
-          className="fixed z-[110] h-12 w-12 touch-none border-0 bg-login-primary text-white shadow-[0_12px_26px_rgba(79,86,230,0.32)] transition-transform duration-200 hover:bg-login-primary-hover active:scale-95 [&_svg]:!h-6 [&_svg]:!w-6"
+          className={cn(
+            "fixed left-0 top-0 z-[110] h-[58px] w-[58px] touch-none border-0 bg-login-primary text-white shadow-[0_8px_18px_rgba(79,86,230,0.28)] will-change-transform hover:bg-login-primary-hover active:scale-95 [&_svg]:!h-[30px] [&_svg]:!w-[30px]",
+            isDragging ? "transition-none" : "transition-transform duration-150 ease-out"
+          )}
           style={{
-            left: position.x,
-            top: position.y,
+            transform: `translate3d(${position.x}px, ${position.y}px, 0)`,
           }}
         >
           <LuMessageCircle />
