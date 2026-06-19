@@ -10,11 +10,13 @@ export interface DropdownItem {
   description?: string;
   onClick?: () => void;
   disabled?: boolean;
+  tone?: "default" | "danger";
 }
 
 interface DropdownProps {
   trigger: React.ReactNode;
-  items: DropdownItem[];
+  items?: DropdownItem[];
+  renderContent?: (controls: { close: () => void }) => React.ReactNode;
   position?: "top-left" | "top-right" | "bottom-left" | "bottom-right" | "left" | "right" | "top" | "bottom";
   className?: string;
   searchable?: boolean;
@@ -23,7 +25,8 @@ interface DropdownProps {
 
 const NewDropdown: React.FC<DropdownProps> = ({
   trigger,
-  items,
+  items = [],
+  renderContent,
   position = "bottom-left",
   className = "",
   searchable = false,
@@ -208,8 +211,14 @@ const NewDropdown: React.FC<DropdownProps> = ({
             </div>
           </div>
         )}
-        <div className="p-1.5" role="menu" aria-orientation="vertical">
-          {filteredItems.length > 0 ? (
+        <div
+          className="p-1.5"
+          role={renderContent ? undefined : "menu"}
+          aria-orientation={renderContent ? undefined : "vertical"}
+        >
+          {renderContent ? (
+            renderContent({ close: () => setIsOpen(false) })
+          ) : filteredItems.length > 0 ? (
             filteredItems.map((item) => (
               <button
                 key={item.id}
@@ -219,7 +228,9 @@ const NewDropdown: React.FC<DropdownProps> = ({
                 className={`home-dropdown-item flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-left text-sm transition-colors duration-150 ${
                   item.disabled
                     ? "cursor-not-allowed text-gray-400"
-                    : "cursor-pointer"
+                    : item.tone === "danger"
+                      ? "cursor-pointer text-rose-600 hover:bg-rose-50"
+                      : "cursor-pointer"
                 }`}
                 role="menuitem"
               >

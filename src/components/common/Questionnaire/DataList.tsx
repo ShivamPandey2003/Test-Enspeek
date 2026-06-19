@@ -8,10 +8,13 @@ import CopyModel from "../../global/CopyModel";
 import { cn } from "../../../utils";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import QuesLogicModal from "./QuestionLogicModal";
-import { useCopyQuestionMutation, useDeleteQuestionMutation, useRearrangeQuestionMutation } from "../../../api-network/questionnaire/mutation";
+import { useCopyQuestionMutation, useDeleteQuestionMutation, useEditQuestionMutation, useRearrangeQuestionMutation } from "../../../api-network/questionnaire/mutation";
 import { setAllSubmitItems, setEditingQuestion } from "../../../store/QuestionSlice";
 import { setIsAddingQuestion } from "../../../store/TriggerSlice";
 import { useLocation } from "react-router";
+import ModalScaffold from "../../ui/modal/ModalScaffold";
+import Button from "../../ui/Button";
+import { LuTrash2 } from "react-icons/lu";
 
 const DataList = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -29,11 +32,18 @@ const DataList = () => {
   const [oldLabel, setOldLabel] = useState("");
   const [isLogicOpen, setIsLogicOpen] = useState(false);
   const [selectedLogicQID, setSelectedLogicQID] = useState<string | null>(null);
+  const [pendingOptionDeletion, setPendingOptionDeletion] = useState<{
+    question: Question;
+    optionID: string;
+    optionText: string;
+  } | null>(null);
   const MainDiv = useRef<HTMLDivElement | null>(null);
 
   const { mutate: deleteQuestion, isPending: isDeletePending } = useDeleteQuestionMutation(studyID);
   const { mutate: copyQuestion, isPending: isCopyPending } = useCopyQuestionMutation(studyID);
   const { mutate: rearrangeQuestions, isPending: isRearrangePending } = useRearrangeQuestionMutation(studyID);
+  const { mutate: editQuestion, isPending: isOptionDeletePending } =
+    useEditQuestionMutation(studyID);
 
   const onDragStart = (e: DragEvent<HTMLDivElement>, index: number) => {
     setDraggedIndex(index);
@@ -97,6 +107,17 @@ const DataList = () => {
                 setIsLogicOpen(true);
                 setSelectedLogicQID(data.qID);
               }}
+              deleteOption={(optionID) => {
+                const option = data.rowOptionList.find(
+                  (item) => item.optionID === optionID
+                );
+                setPendingOptionDeletion({
+                  question: data,
+                  optionID,
+                  optionText: option?.optionText || optionID,
+                });
+              }}
+              isDeletingOption={isOptionDeletePending}
             />
           </div>
         ))}
@@ -139,6 +160,64 @@ const DataList = () => {
           onClose={() => setIsLogicOpen(false)}
           qID={selectedLogicQID}
         />
+
+        <ModalScaffold
+          isOpen={pendingOptionDeletion !== null}
+          onClose={() => setPendingOptionDeletion(null)}
+          className="max-w-md"
+          title="Delete Answer Option"
+          icon={<LuTrash2 className="h-5 w-5" />}
+          closeDisabled={isOptionDeletePending}
+          footerLeft={
+            <Button
+              type="button"
+              variant="cancel"
+              onClick={() => setPendingOptionDeletion(null)}
+              disabled={isOptionDeletePending}
+            >
+              Cancel
+            </Button>
+          }
+          footerRight={
+            <Button
+              type="button"
+              variant="danger"
+              disabled={isOptionDeletePending}
+              onClick={() => {
+                if (!pendingOptionDeletion) return;
+
+                editQuestion(
+                  {
+                    ...pendingOptionDeletion.question,
+                    rowOptionList:
+                      pendingOptionDeletion.question.rowOptionList.filter(
+                        (option) =>
+                          option.optionID !== pendingOptionDeletion.optionID
+                      ),
+                  },
+                  {
+                    onSuccess: () => setPendingOptionDeletion(null),
+                  }
+                );
+              }}
+            >
+              {isOptionDeletePending ? (
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/35 border-t-white" />
+              ) : (
+                <LuTrash2 className="h-4 w-4" />
+              )}
+              Delete Option
+            </Button>
+          }
+        >
+          <p className="home-text text-[15px] leading-6">
+            Are you sure you want to delete the answer option{" "}
+            <span className="font-semibold text-[var(--color-questionnaire-stop)]">
+              {pendingOptionDeletion?.optionText}
+            </span>
+            ? This action cannot be undone.
+          </p>
+        </ModalScaffold>
       </Accordion>
     </div>
   );

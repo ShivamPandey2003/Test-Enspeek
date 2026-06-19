@@ -215,7 +215,7 @@ const Header = () => {
     <div
       className={cn(
         "home-surface sticky top-0 flex h-[62px] items-center justify-between gap-3 border-b home-border px-3 sm:gap-6 sm:px-6",
-        logoutModalOpen ? "z-[130]" : "z-40"
+        logoutModalOpen ? "z-[130]" : "z-[75]"
       )}
     >
       <div className="flex min-w-0 flex-1 items-center gap-3">

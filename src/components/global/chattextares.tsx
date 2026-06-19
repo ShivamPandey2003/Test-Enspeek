@@ -80,11 +80,14 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
       textarea.style.height = "auto";
       const maxTextareaHeight = isMobileSheetPlacement ? 80 : 200;
       const minTextareaHeight = isMobileSheetPlacement ? 40 : 32;
+      const contentHeight = textarea.scrollHeight;
       const newHeight = Math.max(
         minTextareaHeight,
-        Math.min(textarea.scrollHeight, maxTextareaHeight)
+        Math.min(contentHeight, maxTextareaHeight)
       );
       textarea.style.height = `${newHeight}px`;
+      textarea.style.overflowY =
+        contentHeight > maxTextareaHeight ? "auto" : "hidden";
 
       if (selectionRef.current && document.activeElement === textarea) {
         textarea.setSelectionRange(

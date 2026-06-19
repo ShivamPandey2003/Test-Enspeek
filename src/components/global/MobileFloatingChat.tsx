@@ -5,11 +5,13 @@ import Button from "../ui/Button";
 import ChatWindow from "../common/chat-window/chat";
 import ChatTextArea from "./chattextares";
 import { FOCUS_CHAT_INPUT_EVENT } from "../../utils/modalFocus";
+import { useLocation } from "react-router";
 
 const MOBILE_CHAT_POSITION_KEY = "enspeek-mobile-chat-button-position";
 const MOBILE_CHAT_QUERY = "(max-width: 767px)";
 const BUTTON_SIZE = 58;
 const EDGE_GAP = 16;
+const MOBILE_NAV_CLEARANCE = 64;
 const DRAG_THRESHOLD = 6;
 
 type ButtonPosition = {
@@ -17,53 +19,65 @@ type ButtonPosition = {
   y: number;
 };
 
-const getDefaultPosition = (): ButtonPosition => ({
+const getDefaultPosition = (bottomClearance: number): ButtonPosition => ({
   x: Math.max(EDGE_GAP, window.innerWidth - BUTTON_SIZE - EDGE_GAP),
-  y: Math.max(EDGE_GAP, window.innerHeight - BUTTON_SIZE - EDGE_GAP),
+  y: Math.max(
+    EDGE_GAP,
+    window.innerHeight - BUTTON_SIZE - EDGE_GAP - bottomClearance
+  ),
 });
 
-const clampPosition = (position: ButtonPosition): ButtonPosition => ({
+const clampPosition = (
+  position: ButtonPosition,
+  bottomClearance: number
+): ButtonPosition => ({
   x: Math.min(
     Math.max(position.x, EDGE_GAP),
     Math.max(EDGE_GAP, window.innerWidth - BUTTON_SIZE - EDGE_GAP)
   ),
   y: Math.min(
     Math.max(position.y, EDGE_GAP),
-    Math.max(EDGE_GAP, window.innerHeight - BUTTON_SIZE - EDGE_GAP)
+    Math.max(
+      EDGE_GAP,
+      window.innerHeight - BUTTON_SIZE - EDGE_GAP - bottomClearance
+    )
   ),
 });
 
-const readStoredPosition = (): ButtonPosition => {
+const readStoredPosition = (bottomClearance: number): ButtonPosition => {
   try {
     if (typeof window === "undefined") return { x: EDGE_GAP, y: EDGE_GAP };
 
     const storedValue = sessionStorage.getItem(MOBILE_CHAT_POSITION_KEY);
-    if (!storedValue) return getDefaultPosition();
+    if (!storedValue) return getDefaultPosition(bottomClearance);
 
     const parsedValue = JSON.parse(storedValue) as Partial<ButtonPosition>;
     if (
       typeof parsedValue.x !== "number" ||
       typeof parsedValue.y !== "number"
     ) {
-      return getDefaultPosition();
+      return getDefaultPosition(bottomClearance);
     }
 
-    return clampPosition({
-      x: parsedValue.x,
-      y: parsedValue.y,
-    });
+    return clampPosition(
+      {
+        x: parsedValue.x,
+        y: parsedValue.y,
+      },
+      bottomClearance
+    );
   } catch {
-    return getDefaultPosition();
+    return getDefaultPosition(bottomClearance);
   }
 };
 
-const storePosition = (position: ButtonPosition) => {
+const storePosition = (position: ButtonPosition, bottomClearance: number) => {
   try {
     if (typeof window === "undefined") return;
 
     sessionStorage.setItem(
       MOBILE_CHAT_POSITION_KEY,
-      JSON.stringify(clampPosition(position))
+      JSON.stringify(clampPosition(position, bottomClearance))
     );
   } catch {
     // Position memory is a convenience; dragging should still work without storage.
@@ -79,6 +93,8 @@ const getIsMobileViewport = () => {
 };
 
 export default function MobileFloatingChat() {
+  const { pathname } = useLocation();
+  const bottomClearance = pathname === "/" ? 0 : MOBILE_NAV_CLEARANCE;
   const [isOpen, setIsOpen] = React.useState(false);
   const [isMobileViewport, setIsMobileViewport] = React.useState(getIsMobileViewport);
   const [shouldRenderSheet, setShouldRenderSheet] = React.useState(false);
@@ -184,12 +200,15 @@ export default function MobileFloatingChat() {
       return;
     }
 
-    setPosition(readStoredPosition());
+    setPosition(readStoredPosition(bottomClearance));
 
     const handleResize = () => {
       setPosition((currentPosition) => {
-        const nextPosition = clampPosition(currentPosition ?? getDefaultPosition());
-        storePosition(nextPosition);
+        const nextPosition = clampPosition(
+          currentPosition ?? getDefaultPosition(bottomClearance),
+          bottomClearance
+        );
+        storePosition(nextPosition, bottomClearance);
         return nextPosition;
       });
     };
@@ -201,7 +220,7 @@ export default function MobileFloatingChat() {
       window.removeEventListener("resize", handleResize);
       window.removeEventListener("orientationchange", handleResize);
     };
-  }, [isMobileViewport]);
+  }, [bottomClearance, isMobileViewport]);
 
   const handlePointerDown = (event: React.PointerEvent<HTMLButtonElement>) => {
     if (!position) return;
@@ -232,10 +251,13 @@ export default function MobileFloatingChat() {
       dragState.didDrag = true;
     }
 
-    const nextPosition = clampPosition({
-      x: dragState.startX + deltaX,
-      y: dragState.startY + deltaY,
-    });
+    const nextPosition = clampPosition(
+      {
+        x: dragState.startX + deltaX,
+        y: dragState.startY + deltaY,
+      },
+      bottomClearance
+    );
 
     setPositionOnFrame(nextPosition);
   };
@@ -252,10 +274,13 @@ export default function MobileFloatingChat() {
 
     setPosition((currentPosition) => {
       const nextPosition = clampPosition(
-        pendingDragPositionRef.current ?? currentPosition ?? getDefaultPosition()
+        pendingDragPositionRef.current ??
+          currentPosition ??
+          getDefaultPosition(bottomClearance),
+        bottomClearance
       );
       pendingDragPositionRef.current = null;
-      storePosition(nextPosition);
+      storePosition(nextPosition, bottomClearance);
       return nextPosition;
     });
 

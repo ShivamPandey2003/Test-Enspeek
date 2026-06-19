@@ -39,6 +39,7 @@ Make the questionnaire page fully responsive below and above `768px` while prese
 - Show it only below `768px`.
 - Fix it to the bottom of the viewport.
 - Display icons only; do not show text labels.
+- Match the desktop sidebar unlock rules; do not render navigation items that are not yet available for the current study.
 - Keep the items in this left-to-right order:
   1. Home
   2. Questionnaire
@@ -94,6 +95,29 @@ Make the questionnaire page fully responsive below and above `768px` while prese
 - Close the menu after an action is selected or after clicking outside it.
 - Preserve the existing permissions, disabled states, and action behavior.
 
+## Question Edit Header
+
+- In edit mode, keep the question ID, question label, confirm action, and cancel action on one line.
+- Truncate the question ID/label area with CSS ellipsis when horizontal space is limited.
+- Replace the Save and Close text buttons with a green circular check button and a gray circular X button.
+- Do not show the collapse chevron while a question is being edited.
+- Preserve the existing create-question controls when the form is not editing an existing question.
+
+## Answer Option Actions
+
+- In both edit and non-edit modes, place Termination, Skip To, and Delete Option inside a three-dot dropdown.
+- Delete Option must remove the answer option itself, not only reset its logic.
+- In edit mode, remove the option from the pending form state.
+- In non-edit mode, save the question with the selected option removed through the existing question edit behavior.
+- When termination or skip logic is applied, show a logic-applied icon immediately to the left of the three-dot button.
+- Keep the Skip To selector usable inside the dropdown.
+- Keep termination and skip logic mutually exclusive, matching the existing behavior.
+
+## Logic Modal Actions
+
+- Keep Reset Logic and Save Logic on one row when space allows.
+- When the buttons stack, show Save Logic above Reset Logic.
+
 ## Desktop Requirements
 
 - At and above `768px`, retain the desktop question action presentation.
@@ -143,6 +167,7 @@ Make the questionnaire page fully responsive below and above `768px` while prese
 - [ ] No horizontal scrollbar appears at supported viewport widths.
 - [ ] Below `768px`, the desktop left sidebar is replaced by the fixed bottom navigation.
 - [ ] Bottom navigation shows icon-only Home, Questionnaire, Publish Survey, Report, and Crosstab items in the confirmed order.
+- [ ] Locked sidebar destinations are not rendered in the mobile bottom navigation.
 - [ ] The active bottom-navigation item is visually highlighted.
 - [ ] Every bottom-navigation icon has an accessible label.
 - [ ] Page content is not covered by the fixed bottom navigation.
@@ -161,6 +186,13 @@ Make the questionnaire page fully responsive below and above `768px` while prese
 - [ ] The action menu order is Add/Edit Logic, Edit Question, Copy Question, and Delete Question.
 - [ ] The question action dropdown stays inside the visible viewport.
 - [ ] Existing action permissions, disabled states, and behaviors are preserved.
+- [ ] In question edit mode, the ID/label and circular confirm/cancel actions remain on one line.
+- [ ] The edited question ID/label truncates safely when space is limited.
+- [ ] The edit-mode collapse chevron is hidden.
+- [ ] Termination, Skip To, and Delete Option appear in a row-level three-dot dropdown in edit and non-edit modes.
+- [ ] Delete Option removes the answer option in both edit and non-edit modes.
+- [ ] A logic-applied icon appears immediately left of the row menu when termination or skip logic exists.
+- [ ] When logic modal actions stack, Save Logic appears above Reset Logic.
 - [ ] At `768px` and above, the mobile bottom navigation is hidden.
 - [ ] At `768px` and above, desktop question actions and the expand/collapse icon remain visible.
 - [ ] At every width from `768px` upward, the left sidebar, questionnaire content, and right chat panel remain visible and usable.

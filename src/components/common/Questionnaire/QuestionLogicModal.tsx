@@ -72,11 +72,12 @@ export default function QuesLogicModal({
       closeDisabled={isPending}
       className="max-w-[90vw]"
       footerContent={
-        <div className="flex flex-wrap items-center justify-end gap-3">
+        <div className="flex w-full flex-col-reverse items-stretch justify-end gap-3 min-[380px]:flex-row min-[380px]:items-center">
           <Button
             variant="cancel"
             onClick={handleReset}
             disabled={isPending}
+            className="w-full min-[380px]:w-auto"
           >
             {isPending && isResetting ? (
               <>
@@ -101,6 +102,7 @@ export default function QuesLogicModal({
             variant="success"
             onClick={handleSave}
             disabled={isPending}
+            className="w-full min-[380px]:w-auto"
           >
             {isPending ? (
               <>
