@@ -16,19 +16,28 @@ Make the authenticated home experience fully responsive below `768px` while keep
 ## Header Requirements
 
 - Header must remain aligned and usable below `768px`.
+- Show a mobile back chevron to the left of the Enspeek logo on non-home routes below `768px`.
+- The mobile back control should use the same muted chevron styling as the questionnaire expand control, reversed to point left, at `22px`.
+- Mobile back navigation should use browser history when available and fall back to the home page.
 - Header action icons must not overlap the `Enspeek` brand text.
 - Show the written `Enspeek` text only when there is enough space.
 - If space becomes tight, hide the written `Enspeek` text before it overlaps support, plan usage, profile, or dropdown controls.
 - Keep the logo icon visible where possible.
-- Support, plan usage, profile/avatar, and dropdown controls must remain accessible.
+- Below `768px`, hide the standalone Request for Assistance and plan usage header icons.
+- Below `768px`, show Request for Assistance, Premium/Free plan usage, Profile, and Logout inside the avatar dropdown, subject to the user's access and plan visibility.
+- Keep the mobile dropdown items ordered as Request for Assistance, plan usage, Profile, and Logout for client users.
+- At and above `768px`, keep Request for Assistance and plan usage as standalone header icons and retain the existing desktop dropdown behavior.
+- Support, plan usage, profile/avatar, and dropdown controls must remain accessible at every supported width.
 
 ## Floating Mobile Chat Requirements
 
 - Show floating chat button on all authenticated pages below `768px`.
 - Default position should be lower-right of the screen.
+- Button should be `58px` square and use a `30px` chat icon.
 - Button should use themed blue background, white icon, circular shape, and subtle shadow.
 - User can drag the floating chat button.
 - Dragged button must stay inside viewport bounds.
+- Drag boundary calculations must use the same `58px` button size so the button cannot be clipped at viewport edges.
 - Remember dragged position during the current session.
 - When chat is closed, button shows chat icon.
 - When chat is open, hide the floating chat button.
@@ -47,6 +56,8 @@ Make the authenticated home experience fully responsive below `768px` while keep
 - Chat input placeholder should stay vertically aligned.
 - Chat input placeholder should not wrap; it should truncate with ellipsis when space is limited.
 - Chat window should respect screen width and height.
+- Mobile chat should use the available vertical space with a height of `calc(100dvh - 4.5rem)` and a maximum height of `760px`.
+- Preserve enough space above the sheet for the external close button to remain visible and reachable.
 - Chat window should not cause horizontal scrolling.
 - Add a backdrop behind the floating chat window, similar to modal overlay behavior.
 
@@ -93,36 +104,43 @@ Make the authenticated home experience fully responsive below `768px` while keep
 
 ## Acceptance Criteria
 
-- [ ] No horizontal scrollbar appears below `768px`.
-- [ ] Header controls never overlap the `Enspeek` brand text.
-- [ ] `Enspeek` text hides when mobile header space is not enough.
-- [ ] Header action icons remain accessible on mobile.
-- [ ] Floating chat button appears on all authenticated pages below `768px`.
-- [ ] Floating chat button can be dragged and remains inside the viewport.
-- [ ] Floating chat button remembers position during the current session.
-- [ ] Floating chat button shows chat icon when closed.
-- [ ] Floating chat button is hidden when chat is open.
-- [ ] Floating chat uses themed blue background and white chat icon.
-- [ ] Floating chat opens as a bottom-sheet style window on mobile.
-- [ ] Floating chat shows backdrop behind the chat window.
-- [ ] Floating chat closes from the outside X button.
-- [ ] Floating chat window opens/closes with smooth animation.
-- [ ] No close button appears inside the chat window.
-- [ ] Chat content and chat input remain usable on mobile.
-- [ ] Mobile chat input placeholder is vertically aligned.
-- [ ] Mobile chat input placeholder truncates with ellipsis instead of wrapping.
-- [ ] Shared modals have proper spacing from screen edges.
-- [ ] Shared modals remain centered and aligned on mobile.
-- [ ] Modal header icon, title, and X close button always stay on one line.
-- [ ] Modal title truncates with ellipsis when space is limited.
-- [ ] Modal body scrolls when content is taller than the viewport.
-- [ ] Modal footer buttons do not overlap or overflow.
-- [ ] On stacked modal footers, submit/action button appears above cancel/reset.
-- [ ] Long modal text and input values wrap safely.
-- [ ] Plan Usage Limits metric boxes do not overflow at very narrow widths.
-- [ ] Study list, tabs, search, pagination, and study cards remain aligned below `768px`.
-- [ ] Study action dropdowns stay inside the visible screen.
-- [ ] Behavior above or equal to `768px` remains unchanged.
+- [x] No horizontal scrollbar appears below `768px`.
+- [x] Header controls never overlap the `Enspeek` brand text.
+- [x] `Enspeek` text hides when mobile header space is not enough.
+- [x] Header action icons remain accessible on mobile.
+- [x] A `22px` muted left chevron appears before the logo on non-home routes below `768px`.
+- [x] The mobile back chevron navigates backward and falls back to home when needed.
+- [x] Standalone Request for Assistance and plan usage icons are hidden below `768px`.
+- [x] The mobile avatar dropdown contains Request for Assistance, plan usage, Profile, and Logout in that order when all options are available.
+- [x] Standalone Request for Assistance and plan usage icons remain available at and above `768px`.
+- [x] Floating chat button appears on all authenticated pages below `768px`.
+- [x] Floating chat button is `58px` square with a `30px` icon.
+- [x] Floating chat button can be dragged and remains inside the viewport.
+- [x] Floating chat button remembers position during the current session.
+- [x] Floating chat button shows chat icon when closed.
+- [x] Floating chat button is hidden when chat is open.
+- [x] Floating chat uses themed blue background and white chat icon.
+- [x] Floating chat opens as a bottom-sheet style window on mobile.
+- [x] Floating chat sheet uses the available height up to `760px` while preserving external close-button clearance.
+- [x] Floating chat shows backdrop behind the chat window.
+- [x] Floating chat closes from the outside X button.
+- [x] Floating chat window opens/closes with smooth animation.
+- [x] No close button appears inside the chat window.
+- [x] Chat content and chat input remain usable on mobile.
+- [x] Mobile chat input placeholder is vertically aligned.
+- [x] Mobile chat input placeholder truncates with ellipsis instead of wrapping.
+- [x] Shared modals have proper spacing from screen edges.
+- [x] Shared modals remain centered and aligned on mobile.
+- [x] Modal header icon, title, and X close button always stay on one line.
+- [x] Modal title truncates with ellipsis when space is limited.
+- [x] Modal body scrolls when content is taller than the viewport.
+- [x] Modal footer buttons do not overlap or overflow.
+- [x] On stacked modal footers, submit/action button appears above cancel/reset.
+- [x] Long modal text and input values wrap safely.
+- [x] Plan Usage Limits metric boxes do not overflow at very narrow widths.
+- [x] Study list, tabs, search, pagination, and study cards remain aligned below `768px`.
+- [x] Study action dropdowns stay inside the visible screen.
+- [x] Behavior above or equal to `768px` remains unchanged.
 
 ## Suggested Viewports For Verification
 
