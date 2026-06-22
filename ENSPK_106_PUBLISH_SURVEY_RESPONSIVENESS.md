@@ -1,191 +1,119 @@
-# ENSPK-106 Publish Survey Responsiveness Plan
+# ENSPK-106 Publish Survey Responsiveness
 
-## Aim
+## Goal
 
-Make the Publish Survey page and its subheader responsive while preserving clear action availability for inactive and activated studies.
+Keep the Publish Survey subheader responsive at every available content width without overlapping, wrapping, clipping, or hiding activated-study actions.
 
-## Scope
+## Confirmed Layout
 
-- Publish Research subheader behavior
-- Inactive study action visibility
-- Activated study action dropdown
-- Persistent Next action for activated studies
-- CSS title truncation
-- Mobile bottom navigation compatibility
-- Desktop action presentation at and above `1280px`
-- No horizontal overflow, clipped controls, or overlapping actions
+- Always show `Publish Research` as the page title.
+- Show available actions inline while they fit.
+- Base action placement on actual subheader space, not viewport or device breakpoints.
+- Keep Next outside the dropdown whenever Next is available.
+- Show the green three-dot button only when at least one action is inside its dropdown.
 
-## Responsive States
+## Activated Study
 
-The subheader behavior depends on both viewport width and study activation state.
+- Keep actions inline while enough space is available.
+- When the row no longer fits, move actions into the green dropdown one by one.
+- Move the lowest-priority action first.
+- Continue until the title, remaining inline actions, optional three dots, and Next fit on one row.
+- When space returns, restore actions inline in reverse order.
+- Never show the same action inline and in the dropdown simultaneously.
+- Never move Next into the dropdown.
 
-### Inactive Study
+## Action Priority
 
-This is the state where Initiate Sample Collection is disabled and no other publish actions are available.
+Move actions into the dropdown in this order:
 
-#### Below 768px
+1. Download
+2. WhatsApp
+3. Facebook
+4. Initiate Sample Collection
 
-- Show only the `Publish Research` title.
-- Do not show the disabled Initiate Sample Collection action.
-- Do not show the three-dot action menu.
-- Do not show the Next button.
+Restore them inline in reverse order when space becomes available.
 
-#### At 768px and Above
+## Inactive Study
 
-- Show the `Publish Research` title.
-- Show the disabled Initiate Sample Collection button directly in the subheader.
-- Do not place the disabled action inside a three-dot menu.
-- Do not show the three-dot action menu.
-- Do not show the Next button.
+An inactive study has only the disabled Initiate Sample Collection action.
 
-### Activated Study
+- Show the disabled action inline while it fits safely.
+- Hide the disabled action when there is not enough space.
+- Do not place the disabled action inside the green dropdown.
+- Do not show an empty green three-dot button.
+- Preserve the existing inactive-state Next visibility rule.
 
-This is the state where publish and sharing actions are available.
+## Dropdown Behavior
 
-#### Below 1280px
+- Use the same green three-dot visual treatment as the Report page.
+- Place the three-dot button immediately to the left of Next.
+- Show an icon on the left and text on the right for each overflowed action.
+- Preserve each action's current label, permission, disabled, and loading state.
+- Keep the dropdown within the visible viewport.
+- Reposition above or below the trigger based on available space.
+- Allow internal scrolling when the dropdown is taller than the available space.
+- Close after an action, outside click, or Escape.
+- Return focus to the trigger when appropriate.
 
-- Show `Publish Research` on the left.
-- Show a three-dot action menu on the right.
-- Place the three-dot action immediately to the left of Next.
-- Keep Next outside the dropdown and always visible.
-- Use CSS ellipsis for `Publish Research` if horizontal space becomes limited.
-- Allow the title to shrink before the three-dot action or Next button.
-- Do not allow the three-dot action or Next button to wrap onto another row.
+## Layout Safety
 
-#### At 1280px and Above
+- Measure the actual subheader container and rendered action widths.
+- Reserve space for the title, Next, gaps, padding, and the three-dot trigger when required.
+- Recalculate when actions, labels, side panels, zoom, or container size change.
+- Let the title truncate before protected controls overlap it.
+- Do not create a second subheader row.
+- Avoid action flicker while recalculating.
+- Do not use hard-coded widths to control action placement.
 
-- Preserve the existing desktop inline action presentation.
-- Keep the available publish, sharing, download, and navigation actions visible and aligned.
-- Keep Next directly accessible.
-- Do not show the compact three-dot action menu when all desktop actions fit inline.
+## Behavior To Preserve
 
-## Compact Action Dropdown
+- Study activation rules
+- Initiate Sample Collection behavior
+- Facebook sharing
+- WhatsApp sharing
+- Download behavior
+- Existing loading and disabled states
+- Next navigation and study context
+- Shared navigation and floating chat behavior
 
-- Use the compact action dropdown only for activated studies below `1280px`.
-- Show an icon on the left and text on the right for every item.
-- Keep the options in this order:
-  1. Initiate Sample Collection
-  2. Facebook
-  3. WhatsApp
-  4. Download
-- Preserve the existing click behavior for every action.
-- Preserve existing permissions, loading states, and disabled states.
-- Keep the dropdown inside the visible viewport with appropriate edge spacing.
-- Allow the dropdown to reposition vertically or horizontally when space is limited.
-- Close the dropdown after an action is selected or after clicking outside it.
-- Keep the dropdown keyboard accessible and close it with Escape.
+## Accessibility
 
-## Subheader Layout
-
-- Keep the title area flexible with `min-width: 0` behavior.
-- Keep the action area shrink-safe and on one line.
-- Use CSS overflow, `white-space: nowrap`, and `text-overflow: ellipsis` for title truncation.
-- Do not use JavaScript viewport measurements for title truncation.
-- Keep the three-dot button and Next as fixed-size, non-shrinking controls.
-- Maintain clear spacing between the title, three-dot action, and Next.
-- Prevent the subheader from creating horizontal page overflow.
-
-## Next Button Rules
-
-- Show Next only when the study is activated and the publish actions are available.
-- Keep Next outside the three-dot dropdown.
-- Keep Next visible at every activated-study viewport width.
-- Preserve the existing Next navigation behavior.
-- Do not show Next in the inactive study state.
-
-## Initiate Sample Collection Rules
-
-- Below `768px`, do not render the disabled Initiate Sample Collection action.
-- At `768px` and above, show the disabled Initiate Sample Collection button directly when it is the only available action.
-- For activated studies below `1280px`, place Initiate Sample Collection as the first dropdown option.
-- At `1280px` and above, retain the existing inline desktop placement for the available action.
-
-## Shared Mobile Navigation
-
-- Continue using the shared icon-only bottom navigation below `768px` on study workflow pages.
-- Apply the same unlock rules used by the desktop sidebar.
-- Do not render navigation destinations that are not yet unlocked.
-- Highlight Publish Survey when the current route is the publish page.
-- Ensure page content is not covered by the fixed bottom navigation.
-- Keep the floating chat control above the bottom navigation.
-
-## Accessibility Requirements
-
-- Give the three-dot action button an accessible name and tooltip.
-- Give every icon-only control an accessible name.
-- Keep dropdown items operable by keyboard.
+- Give the three-dot trigger an accessible name and tooltip.
+- Use semantic buttons and disabled states.
+- Keep all actions keyboard and touch accessible.
 - Maintain visible focus indicators.
-- Keep disabled controls semantically disabled.
-- Preserve readable labels for screen readers when the visual title is truncated.
-- Ensure touch targets remain usable below `768px`.
-
-## Areas To Verify
-
-- Inactive subheader below `768px`
-- Inactive subheader at `768px` and above
-- Activated subheader below `768px`
-- Activated subheader from `768px` through `1279px`
-- Activated desktop subheader at `1280px` and above
-- Publish Research title truncation
-- Three-dot action positioning
-- Next button visibility and navigation
-- Initiate Sample Collection visibility and behavior
-- Facebook action
-- WhatsApp action
-- Download action
-- Dropdown viewport positioning
-- Shared bottom navigation active state
-- Floating chat clearance
-- Keyboard and touch interaction
+- Support Escape and outside-click dismissal.
+- Prevent duplicate focus targets when actions move.
 
 ## Acceptance Criteria
 
-- [ ] No horizontal scrollbar appears at supported viewport widths.
-- [ ] For an inactive study below `768px`, only Publish Research is shown in the subheader.
-- [ ] For an inactive study below `768px`, Initiate Sample Collection, the three-dot menu, and Next are hidden.
-- [ ] For an inactive study at `768px` and above, the disabled Initiate Sample Collection button is shown directly.
-- [ ] For an inactive study at `768px` and above, the three-dot menu and Next are hidden.
-- [ ] For an activated study below `1280px`, the three-dot menu appears immediately left of Next.
-- [ ] For an activated study below `1280px`, Next remains outside the dropdown and visible.
-- [ ] Publish Research truncates with CSS ellipsis before the action controls shrink or wrap.
-- [ ] The compact dropdown order is Initiate Sample Collection, Facebook, WhatsApp, and Download.
-- [ ] Every compact dropdown item shows an icon on the left and text on the right.
-- [ ] The compact dropdown stays inside the visible viewport.
-- [ ] At `1280px` and above, activated-study actions use the existing inline desktop presentation.
-- [ ] At `1280px` and above, the compact three-dot menu is hidden when actions are inline.
-- [ ] Existing action behavior, permissions, loading states, and disabled states are preserved.
-- [ ] The shared mobile bottom navigation follows desktop unlock rules.
-- [ ] Publish Survey is highlighted in the mobile bottom navigation on the publish route.
-- [ ] Fixed navigation and floating chat controls do not cover page content or subheader actions.
-- [ ] All subheader and dropdown controls remain keyboard and touch accessible.
+- [ ] Action placement responds to available subheader space without a viewport breakpoint.
+- [ ] Activated-study actions move into the dropdown one by one in the confirmed order.
+- [ ] Actions restore inline in reverse order when space returns.
+- [ ] The green three-dot button appears only when it contains an action.
+- [ ] Next remains outside the dropdown and does not overlap the title.
+- [ ] The title and actions remain on one row without horizontal overflow.
+- [ ] No action exists inline and in the dropdown at the same time.
+- [ ] The inactive disabled action hides when it cannot fit.
+- [ ] The inactive disabled action never appears in the dropdown.
+- [ ] An empty green dropdown trigger is never shown.
+- [ ] Existing action behavior and state remain unchanged.
+- [ ] The dropdown remains inside the viewport and scrolls internally when required.
+- [ ] Keyboard, focus, outside-click, Escape, and touch behavior work correctly.
+- [ ] Shared navigation and chat do not cover the subheader or page content.
 
-## Suggested Viewports For Verification
+## Verification
 
-- `320px`
-- `360px`
-- `390px`
-- `430px`
-- `540px`
-- `767px`
-- `768px`
-- `820px`
-- `1024px`
-- `1180px`
-- `1279px`
-- `1280px`
-- `1440px`
-
-Test both inactive and activated study states at each relevant viewport.
+Resize the available Publish Survey content area continuously and verify every point where an action enters or leaves the dropdown. Repeat for inactive and activated studies, side panels open and closed, browser zoom, loading states, keyboard navigation, touch interaction, and short-height viewports.
 
 ## Implementation Order
 
-1. Audit the current Publish Research subheader and action availability rules.
-2. Separate inactive and activated subheader states explicitly.
-3. Implement inactive mobile visibility below `768px`.
-4. Preserve the direct disabled Initiate Sample Collection action at `768px` and above.
-5. Add the activated-study compact dropdown below `1280px`.
-6. Keep Next outside the dropdown and non-shrinking.
-7. Add CSS-only Publish Research title truncation.
-8. Preserve the inline activated desktop actions at `1280px` and above.
-9. Verify shared bottom navigation and floating chat clearance.
-10. Test all acceptance criteria across the suggested viewport widths and both study states.
+1. Audit the current Publish Survey actions and state rules.
+2. Define one shared action model for inline and dropdown rendering.
+3. Add measured, one-by-one overflow using the confirmed priority.
+4. Implement the inactive disabled-action hide rule.
+5. Add the viewport-aware green dropdown only when overflow exists.
+6. Reserve title and Next space to prevent overlap.
+7. Preserve existing action, loading, disabled, and navigation behavior.
+8. Add focused overflow and interaction tests.
+9. Run lint, type checking, production build, and responsive browser verification.
