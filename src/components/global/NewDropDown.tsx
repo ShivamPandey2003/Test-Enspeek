@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useCallback, useState, useRef, useEffect } from "react";
 import { HiOutlineSearch } from "react-icons/hi";
 import { createPortal } from "react-dom";
 import Input from "../ui/Input";
@@ -14,23 +14,30 @@ export interface DropdownItem {
 }
 
 interface DropdownProps {
-  trigger: React.ReactNode;
+  trigger?: React.ReactNode;
+  renderTrigger?: (controls: {
+    isOpen: boolean;
+    toggle: () => void;
+  }) => React.ReactNode;
   items?: DropdownItem[];
   renderContent?: (controls: { close: () => void }) => React.ReactNode;
   position?: "top-left" | "top-right" | "bottom-left" | "bottom-right" | "left" | "right" | "top" | "bottom";
   className?: string;
   searchable?: boolean;
   searchPlaceholder?: string;
+  contentAriaLabel?: string;
 }
 
 const NewDropdown: React.FC<DropdownProps> = ({
   trigger,
+  renderTrigger,
   items = [],
   renderContent,
   position = "bottom-left",
   className = "",
   searchable = false,
   searchPlaceholder = "Search...",
+  contentAriaLabel,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -40,6 +47,18 @@ const NewDropdown: React.FC<DropdownProps> = ({
   const [resolvedPosition, setResolvedPosition] = useState(position);
   const [menuStyle, setMenuStyle] = useState<React.CSSProperties>({});
 
+  const closeDropdown = useCallback((restoreFocus = false) => {
+    setSearchTerm("");
+    setIsOpen(false);
+    if (restoreFocus) {
+      requestAnimationFrame(() => {
+        dropdownRef.current
+          ?.querySelector<HTMLElement>("button, [href], input, select")
+          ?.focus();
+      });
+    }
+  }, []);
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
@@ -48,13 +67,13 @@ const NewDropdown: React.FC<DropdownProps> = ({
         !dropdownRef.current.contains(target) &&
         (!menuRef.current || !menuRef.current.contains(target))
       ) {
-        setIsOpen(false);
+        closeDropdown(false);
       }
     };
 
     const handleEscapeKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        setIsOpen(false);
+        closeDropdown(true);
       }
     };
 
@@ -67,7 +86,7 @@ const NewDropdown: React.FC<DropdownProps> = ({
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("keydown", handleEscapeKey);
     };
-  }, [isOpen]);
+  }, [closeDropdown, isOpen]);
 
   useEffect(() => {
     if (isOpen && searchable) {
@@ -89,39 +108,44 @@ const NewDropdown: React.FC<DropdownProps> = ({
 
       const triggerRect = dropdownRef.current.getBoundingClientRect();
       const menuRect = menuRef.current.getBoundingClientRect();
+      const viewportMargin = 12;
+      const availableWidth = Math.max(0, window.innerWidth - viewportMargin * 2);
+      const availableHeight = Math.max(0, window.innerHeight - viewportMargin * 2);
+      const menuWidth = Math.min(menuRect.width, availableWidth);
+      const menuHeight = Math.min(menuRect.height, availableHeight);
       let nextPosition = position;
       let top = 0;
       let left = 0;
 
       if (
         position.startsWith("bottom") &&
-        window.innerHeight - triggerRect.bottom < menuRect.height + 16 &&
-        triggerRect.top > menuRect.height + 16
+        window.innerHeight - triggerRect.bottom < menuHeight + 16 &&
+        triggerRect.top > menuHeight + 16
       ) {
         nextPosition = position.replace("bottom", "top") as typeof position;
       }
 
       if (
         position.startsWith("top") &&
-        triggerRect.top < menuRect.height + 16 &&
-        window.innerHeight - triggerRect.bottom > menuRect.height + 16
+        triggerRect.top < menuHeight + 16 &&
+        window.innerHeight - triggerRect.bottom > menuHeight + 16
       ) {
         nextPosition = position.replace("top", "bottom") as typeof position;
       }
 
       switch (nextPosition) {
         case "top-left":
-          top = triggerRect.top - menuRect.height - 8;
+          top = triggerRect.top - menuHeight - 8;
           left = triggerRect.left;
           break;
         case "top-right":
-          top = triggerRect.top - menuRect.height - 8;
-          left = triggerRect.right - menuRect.width;
+          top = triggerRect.top - menuHeight - 8;
+          left = triggerRect.right - menuWidth;
           break;
         case "bottom-right":
         case "right":
           top = triggerRect.bottom + 8;
-          left = triggerRect.right - menuRect.width;
+          left = triggerRect.right - menuWidth;
           break;
         case "left":
         case "bottom-left":
@@ -130,22 +154,25 @@ const NewDropdown: React.FC<DropdownProps> = ({
           break;
         case "top":
           top = triggerRect.top - menuRect.height - 8;
-          left = triggerRect.left + (triggerRect.width - menuRect.width) / 2;
+          left = triggerRect.left + (triggerRect.width - menuWidth) / 2;
           break;
         case "bottom":
         default:
           top = triggerRect.bottom + 8;
-          left = triggerRect.left + (triggerRect.width - menuRect.width) / 2;
+          left = triggerRect.left + (triggerRect.width - menuWidth) / 2;
           break;
       }
 
-      if (left < 12) left = 12;
-      if (left + menuRect.width > window.innerWidth - 12) {
-        left = window.innerWidth - menuRect.width - 12;
+      if (left < viewportMargin) left = viewportMargin;
+      if (left + menuWidth > window.innerWidth - viewportMargin) {
+        left = window.innerWidth - menuWidth - viewportMargin;
       }
-      if (top < 12) top = 12;
-      if (top + menuRect.height > window.innerHeight - 12) {
-        top = Math.max(12, window.innerHeight - menuRect.height - 12);
+      if (top < viewportMargin) top = viewportMargin;
+      if (top + menuHeight > window.innerHeight - viewportMargin) {
+        top = Math.max(
+          viewportMargin,
+          window.innerHeight - menuHeight - viewportMargin
+        );
       }
 
       setResolvedPosition(nextPosition);
@@ -153,6 +180,8 @@ const NewDropdown: React.FC<DropdownProps> = ({
         position: "fixed",
         top: `${top}px`,
         left: `${left}px`,
+        maxWidth: `${availableWidth}px`,
+        maxHeight: `${availableHeight}px`,
         zIndex: 80,
       });
     };
@@ -171,8 +200,7 @@ const NewDropdown: React.FC<DropdownProps> = ({
     if (!item.disabled && item.onClick) {
       item.onClick();
     }
-    setSearchTerm("");
-    setIsOpen(false);
+    closeDropdown(true);
   };
   const filteredItems = items.filter((item) =>
     item.label.toLowerCase().includes(searchTerm.toLowerCase())
@@ -208,11 +236,12 @@ const NewDropdown: React.FC<DropdownProps> = ({
         )}
         <div
           className="p-1.5"
-          role={renderContent ? undefined : "menu"}
+          role={renderContent && contentAriaLabel ? "dialog" : renderContent ? undefined : "menu"}
+          aria-label={renderContent ? contentAriaLabel : undefined}
           aria-orientation={renderContent ? undefined : "vertical"}
         >
           {renderContent ? (
-            renderContent({ close: () => setIsOpen(false) })
+            renderContent({ close: () => closeDropdown(true) })
           ) : filteredItems.length > 0 ? (
             filteredItems.map((item) => (
               <button
@@ -252,9 +281,19 @@ const NewDropdown: React.FC<DropdownProps> = ({
 
   return (
     <div className={`relative inline-block ${className}`} ref={dropdownRef}>
-      <div onClick={() => setIsOpen(!isOpen)} className="cursor-pointer">
-        {trigger}
-      </div>
+      {renderTrigger ? (
+        renderTrigger({
+          isOpen,
+          toggle: () => setIsOpen((current) => !current),
+        })
+      ) : (
+        <div
+          onClick={() => setIsOpen((current) => !current)}
+          className="cursor-pointer"
+        >
+          {trigger}
+        </div>
+      )}
 
       {isOpen && createPortal(menu, document.body)}
     </div>

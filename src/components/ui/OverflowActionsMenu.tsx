@@ -18,6 +18,7 @@ export type OverflowActionMenuItem = {
   onSelect: () => void;
   disabled?: boolean;
   checked?: boolean;
+  tone?: "danger";
 };
 
 type OverflowActionsMenuProps = {
@@ -128,7 +129,7 @@ export default function OverflowActionsMenu({
       }}
     >
       <ul className="space-y-1 text-sm text-gray-700">
-        {items.map(({ id, label, Icon, onSelect, disabled, checked }) => (
+        {items.map(({ id, label, Icon, onSelect, disabled, checked, tone }) => (
           <li key={id}>
             <button
               type="button"
@@ -138,7 +139,8 @@ export default function OverflowActionsMenu({
               data-test-id={label}
               className={cn(
                 "home-dropdown-item flex w-full items-center gap-3 rounded-xl p-1 pr-3 text-left font-medium whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--color-brand-primary)]/30",
-                "disabled:cursor-not-allowed disabled:opacity-40"
+                "disabled:cursor-not-allowed disabled:opacity-40",
+                tone === "danger" && "text-rose-600 hover:bg-rose-50"
               )}
               onClick={() => {
                 onSelect();

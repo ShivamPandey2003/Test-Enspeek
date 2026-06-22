@@ -3,6 +3,13 @@ import {
   getProgressiveVisibleItemCount,
   getVisibleItemCount,
 } from "../src/utils/useProgressiveOverflow";
+import {
+  BANNER_CARD_ACTION_PRIORITY,
+  CROSSTAB_HEADER_ACTION_PRIORITY,
+  getOverflowOrder,
+  shouldUseCompactBreadcrumbs,
+  TABLE_HEADER_ACTION_PRIORITY,
+} from "../src/utils/crosstabResponsive";
 
 test.describe("progressive action overflow", () => {
   const fixedWidth = 100;
@@ -39,5 +46,31 @@ test.describe("progressive action overflow", () => {
   test("hides an inactive action without reserving dropdown space", () => {
     expect(getVisibleItemCount(200, 0, gap, [200])).toBe(1);
     expect(getVisibleItemCount(199, 0, gap, [200])).toBe(0);
+  });
+
+  test("keeps confirmed Crosstab overflow priorities", () => {
+    expect(getOverflowOrder(CROSSTAB_HEADER_ACTION_PRIORITY)).toEqual([
+      "history",
+      "search",
+      "create",
+    ]);
+    expect(getOverflowOrder(BANNER_CARD_ACTION_PRIORITY)).toEqual([
+      "delete",
+      "download",
+      "settings",
+      "copy",
+      "edit",
+      "view",
+    ]);
+    expect(getOverflowOrder(TABLE_HEADER_ACTION_PRIORITY)).toEqual([
+      "settings",
+      "download",
+      "banner-selector",
+    ]);
+  });
+
+  test("compacts breadcrumbs only when their content no longer fits", () => {
+    expect(shouldUseCompactBreadcrumbs(300, 300)).toBe(false);
+    expect(shouldUseCompactBreadcrumbs(301, 300)).toBe(true);
   });
 });

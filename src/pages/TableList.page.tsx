@@ -1,4 +1,3 @@
-import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "../store/store";
 import { useLocation } from "react-router";
@@ -14,7 +13,6 @@ import ChatHistoryLoader from "../components/global/ChatHistoryLoader";
 
 const TableList_page = () => {
   const dispatch = useDispatch();
-  const dropdownRef = React.useRef<HTMLDivElement>(null);
   const { state } = useLocation();
   useCrosstabStudyInfo(state?.studyID);
 
@@ -60,7 +58,7 @@ const TableList_page = () => {
   return (
     <div className="crosstab-page-bg flex h-full min-h-0 flex-col overflow-hidden">
       <ChatHistoryLoader enabled={!!state?.studyID} />
-      <Header dropdownRef={dropdownRef} dropDownData={dropDownData} />
+      <Header dropDownData={dropDownData} />
       <PageContentShell>
         <div className="w-full">
           <CrossTabTable />

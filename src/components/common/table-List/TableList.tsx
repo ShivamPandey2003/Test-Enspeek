@@ -1,4 +1,5 @@
-import { LuDownload, LuLoaderCircle, LuPencilLine, LuRefreshCw } from "react-icons/lu";
+import { useMemo, useRef } from "react";
+import { LuDownload, LuEllipsisVertical, LuLoaderCircle, LuPencilLine, LuRefreshCw } from "react-icons/lu";
 import { useDispatch } from "react-redux";
 import {
   setIsEditModal,
@@ -13,6 +14,10 @@ import {
   useBannerPointerList,
 } from "../../../api-network/crosstab/query";
 import { useTableOutput } from "../../../api-network/crosstab/tablelist/query";
+import { TABLE_CARD_ACTION_PRIORITY } from "../../../utils/crosstabResponsive";
+import { useOverflowMenu } from "../../../utils/useOverflowMenu";
+import { useProgressiveOverflow } from "../../../utils/useProgressiveOverflow";
+import OverflowActionsMenu, { type OverflowActionMenuItem } from "../../ui/OverflowActionsMenu";
 
 interface TableListProp {
   Id: string;
@@ -21,8 +26,17 @@ interface TableListProp {
   Description: string;
   tableIDList: string[];
   tableID: string;
-  sdata?: any;
+  sdata?: StaticTableData;
 }
+
+type TableActionId = (typeof TABLE_CARD_ACTION_PRIORITY)[number];
+
+type StaticTableData = {
+  base?: Record<string, number>;
+  _row_order?: string[];
+  _rows?: Record<string, string>;
+  data?: Record<string, Record<string, string | number>>;
+};
 
 export default function TableList({
   Id,
@@ -81,45 +95,71 @@ const isTableReady =
     dispatch(setIsEditModal(true));
   };
 
+  const actionIds = useMemo<readonly TableActionId[]>(
+    () => (isStatic ? (["download"] as const) : TABLE_CARD_ACTION_PRIORITY),
+    [isStatic]
+  );
+  const allVisibleFixedControlsRef = useRef<HTMLDivElement>(null);
+  const { containerRef, fixedControlsRef, getItemRef, visibleIds } =
+    useProgressiveOverflow(actionIds, { allVisibleFixedControlsRef });
+  const tableActions = [
+    ...(!isStatic
+      ? [{ id: "refresh" as const, label: "Refresh table", Icon: LuRefreshCw, tone: "neutral" as const, onSelect: () => TableOutputData() }]
+      : []),
+    {
+      id: "download" as const,
+      label: "Download table",
+      Icon: LuDownload,
+      tone: "warning" as const,
+      onSelect: () => downloadTableMutate({ bannerID: state.bannerID, tableID: [tableID] }),
+    },
+    ...(!isStatic
+      ? [{ id: "edit" as const, label: "Edit table", Icon: LuPencilLine, tone: "primary" as const, onSelect: onEditHandle }]
+      : []),
+  ];
+  const overflowItems: readonly OverflowActionMenuItem[] = tableActions
+    .filter((action) => !visibleIds.has(action.id))
+    .map(({ id, label, Icon, onSelect }) => ({ id, label, Icon, onSelect }));
+  const actionMenu = useOverflowMenu(overflowItems.length > 0);
+
   return (
     <div className="mt-4" data-test-id={`TABLE_${qID}`}>
       <div className="report-card p-3">
-        <div className="flex flex-col justify-between gap-3 bg-white px-3 py-1 md:flex-row md:items-center">
-          <div>
-            <h2 className="crosstab-title font-semibold">{Title}</h2>
-            <p className="crosstab-muted text-sm">{Description}</p>
+        <div className="bg-white px-3 py-1">
+          <div className="flex min-w-0 items-center justify-between gap-2">
+            <h2 className="crosstab-title min-w-0 flex-1 truncate font-semibold" title={Title}>{Title}</h2>
+            <div ref={actionMenu.boundaryRef} className="relative min-w-0 flex-1">
+              <div ref={containerRef} className="flex min-h-8 min-w-0 items-center justify-end gap-2">
+                {tableActions.map((action) => visibleIds.has(action.id) ? (
+                  <div key={action.id} ref={getItemRef(action.id)} className="shrink-0">
+                    <IconActionButton tone={action.tone} tooltip={action.label} aria-label={action.label} onClick={action.onSelect}>
+                      <action.Icon size={18} />
+                    </IconActionButton>
+                  </div>
+                ) : null)}
+                <div ref={fixedControlsRef} className="flex shrink-0 items-center">
+                  <div ref={allVisibleFixedControlsRef} aria-hidden="true" className="pointer-events-none absolute h-0 w-0" />
+                  {overflowItems.length > 0 ? (
+                    <IconActionButton
+                      ref={actionMenu.triggerRef}
+                      tone="success"
+                      tooltip="More table actions"
+                      aria-label="More table actions"
+                      aria-haspopup="menu"
+                      aria-expanded={actionMenu.isOpen}
+                      onClick={() => actionMenu.setIsOpen((current) => !current)}
+                    >
+                      <LuEllipsisVertical size={18} />
+                    </IconActionButton>
+                  ) : null}
+                </div>
+              </div>
+              {actionMenu.isOpen ? (
+                <OverflowActionsMenu anchorRef={actionMenu.triggerRef} ariaLabel="Table actions" items={overflowItems} onClose={actionMenu.close} />
+              ) : null}
+            </div>
           </div>
-          <div className="flex flex-wrap items-center gap-3">
-            {!isStatic && (
-            <IconActionButton
-              aria-label="Refresh"
-              onClick={() => TableOutputData()}
-            >
-              <LuRefreshCw size={18} />
-            </IconActionButton>
-             )}
-            <IconActionButton
-              tone="warning"
-              aria-label="Download"
-              onClick={() =>
-                downloadTableMutate({
-                  bannerID: state.bannerID,
-                  tableID: [tableID],
-                })
-              }
-            >
-              <LuDownload size={18} />
-            </IconActionButton>
-             {!isStatic && (
-            <IconActionButton
-              tone="primary"
-              aria-label="Edit"
-              onClick={onEditHandle}
-            >
-              <LuPencilLine size={18} />
-            </IconActionButton>
-             )}
-          </div>
+          <p className="crosstab-muted mt-1 whitespace-normal break-words text-sm">{Description}</p>
         </div>
         <div className="crosstab-soft-panel my-4 overflow-x-auto mx-auto">
           {!isTableReady ? (
@@ -165,7 +205,7 @@ const isTableReady =
                     </td>
                   ))}
                 </tr>
-                {rowOrder.map((seq: any) => (
+                {rowOrder.map((seq: string) => (
                   <tr key={seq}>
                     <td className="px-6 py-4 text-sm crosstab-title">
                       {rowsData[seq as keyof typeof rowsData] ?? ""}
