@@ -37,12 +37,12 @@ import { useProgressiveOverflow } from "../../../utils/useProgressiveOverflow";
 import DropDown from "../../global/DropDown";
 import LoaderSpinner from "../../global/LoaderSpinner";
 import Button from "../../ui/Button";
+import OverflowActionsMenu, {
+  type OverflowActionMenuItem,
+} from "../../ui/OverflowActionsMenu";
 import FilterModal from "./FilterModal";
 import HistoryModal from "./HistoryModal";
 import ReportFilter from "./ReportFilter";
-import ReportActionsMenu, {
-  type ReportActionMenuItem,
-} from "./ReportActionsMenu";
 import SetSubgroupModal from "./SetSubGroupModal";
 
 type ActionButtonProps = {
@@ -187,7 +187,7 @@ export default function ActionButton({
 
   const overflowMenuItem = (
     actionId: InlineActionId
-  ): ReportActionMenuItem => {
+  ): OverflowActionMenuItem => {
     switch (actionId) {
       case "subgroups":
         return {
@@ -235,7 +235,7 @@ export default function ActionButton({
   const overflowItems = actionIds
     .filter((actionId) => !visibleIds.has(actionId))
     .map(overflowMenuItem);
-  const permanentMenuItems: readonly ReportActionMenuItem[] = [
+  const permanentMenuItems: readonly OverflowActionMenuItem[] = [
     {
       id: "add-filters",
       label: "Add New Filters",
@@ -426,8 +426,9 @@ export default function ActionButton({
               <LuEllipsis />
             </Button>
             {showMoreDropdown ? (
-              <ReportActionsMenu
+              <OverflowActionsMenu
                 anchorRef={moreButtonRef}
+                ariaLabel="Report actions"
                 items={menuItems}
                 onClose={closeMoreDropdown}
               />

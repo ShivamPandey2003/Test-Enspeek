@@ -9,9 +9,9 @@ import {
   type RefObject,
 } from "react";
 import { createPortal } from "react-dom";
-import { cn } from "../../../utils";
+import { cn } from "../../utils";
 
-export type ReportActionMenuItem = {
+export type OverflowActionMenuItem = {
   id: string;
   label: string;
   Icon: ElementType;
@@ -20,9 +20,10 @@ export type ReportActionMenuItem = {
   checked?: boolean;
 };
 
-type ReportActionsMenuProps = {
+type OverflowActionsMenuProps = {
   anchorRef: RefObject<HTMLButtonElement | null>;
-  items: readonly ReportActionMenuItem[];
+  ariaLabel: string;
+  items: readonly OverflowActionMenuItem[];
   onClose: () => void;
 };
 
@@ -30,11 +31,12 @@ const VIEWPORT_MARGIN = 8;
 const TRIGGER_GAP = 8;
 const MIN_MENU_HEIGHT = 120;
 
-export default function ReportActionsMenu({
+export default function OverflowActionsMenu({
   anchorRef,
+  ariaLabel,
   items,
   onClose,
-}: ReportActionsMenuProps) {
+}: OverflowActionsMenuProps) {
   const menuRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState<CSSProperties>();
 
@@ -61,10 +63,7 @@ export default function ReportActionsMenu({
     const placeBelow =
       spaceBelow >= Math.min(menu.scrollHeight, MIN_MENU_HEIGHT) ||
       spaceBelow >= spaceAbove;
-    const availableHeight = Math.max(
-      0,
-      placeBelow ? spaceBelow : spaceAbove
-    );
+    const availableHeight = Math.max(0, placeBelow ? spaceBelow : spaceAbove);
     const renderedHeight = Math.min(menu.scrollHeight, availableHeight);
     const top = placeBelow
       ? anchorRect.bottom + TRIGGER_GAP
@@ -117,7 +116,7 @@ export default function ReportActionsMenu({
     <div
       ref={menuRef}
       role="menu"
-      aria-label="Report actions"
+      aria-label={ariaLabel}
       style={{ visibility: "hidden", ...position }}
       className="home-dropdown fixed z-50 w-max overflow-auto overscroll-contain rounded-2xl border p-3 shadow-xl"
       onMouseDown={(event) => event.stopPropagation()}
