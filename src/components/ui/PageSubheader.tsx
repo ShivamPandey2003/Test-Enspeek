@@ -8,6 +8,7 @@ interface PageSubheaderProps {
   contentClassName?: string;
   leftClassName?: string;
   rightClassName?: string;
+  rightStyle?: React.CSSProperties;
 }
 
 const PageSubheader: React.FC<PageSubheaderProps> = ({
@@ -17,6 +18,7 @@ const PageSubheader: React.FC<PageSubheaderProps> = ({
   contentClassName,
   leftClassName,
   rightClassName,
+  rightStyle,
 }) => {
   return (
     <header
@@ -41,6 +43,7 @@ const PageSubheader: React.FC<PageSubheaderProps> = ({
         </div>
         {right ? (
           <div
+            style={rightStyle}
             className={cn(
               "flex min-h-8 flex-wrap items-center justify-end gap-2",
               rightClassName

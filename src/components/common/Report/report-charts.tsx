@@ -33,7 +33,6 @@ export default function Report() {
     <div className="report-page-bg flex h-full min-h-0 flex-col overflow-hidden">
       <ChatHistoryLoader enabled={!!state.studyID && !isReportStudyInfoLoading} />
       <ReportHeader
-        Title=""
         showTableView={showTableView}
         setShowTableView={setShowTableView}
       />
