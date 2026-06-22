@@ -6,6 +6,10 @@ import ChatWindow from "../common/chat-window/chat";
 import ChatTextArea from "./chattextares";
 import { FOCUS_CHAT_INPUT_EVENT } from "../../utils/modalFocus";
 import { useLocation } from "react-router";
+import {
+  isFloatingChatDisabledPath,
+  useHasOpenModal,
+} from "../../utils/useFloatingChatVisibility";
 
 const MOBILE_CHAT_POSITION_KEY = "enspeek-mobile-chat-button-position";
 const MOBILE_CHAT_QUERY = "(max-width: 767px)";
@@ -94,6 +98,9 @@ const getIsMobileViewport = () => {
 
 export default function MobileFloatingChat() {
   const { pathname } = useLocation();
+  const hasOpenModal = useHasOpenModal();
+  const hideFloatingLauncher =
+    hasOpenModal || isFloatingChatDisabledPath(pathname);
   const bottomClearance = pathname === "/" ? 0 : MOBILE_NAV_CLEARANCE;
   const [isOpen, setIsOpen] = React.useState(false);
   const [isMobileViewport, setIsMobileViewport] = React.useState(getIsMobileViewport);
@@ -335,7 +342,7 @@ export default function MobileFloatingChat() {
         </div>
       ) : null}
 
-      {!isOpen ? (
+      {!isOpen && !hideFloatingLauncher ? (
         <Button
           type="button"
           variant="theme"

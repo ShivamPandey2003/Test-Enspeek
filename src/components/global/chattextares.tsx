@@ -14,6 +14,10 @@ import {
   MODAL_CLOSE_FOCUS_CHAT_EVENT,
 } from "../../utils/modalFocus";
 import { useChatHistoryContextStatus } from "../../utils/useChatHistoryContextStatus";
+import {
+  isFloatingChatDisabledPath,
+  useHasOpenModal,
+} from "../../utils/useFloatingChatVisibility";
 
 interface ChatTextAreaProps {
   placement?: "floating" | "panel" | "mobileSheet";
@@ -28,9 +32,12 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
     (state: RootState) => state.chat
   );
   const { pathname } = useLocation();
+  const hasOpenModal = useHasOpenModal();
   const isHome = pathname === "/";
   const isPanelPlacement = placement === "panel";
   const isMobileSheetPlacement = placement === "mobileSheet";
+  const hideFloatingLauncher =
+    hasOpenModal || isFloatingChatDisabledPath(pathname);
   const { message, openChat, sendMessage, setDraftMessage } = useAiChat();
   const isMobileSheetEmpty = isMobileSheetPlacement && message.length === 0;
   const { isCurrentHistoryContext } = useChatHistoryContextStatus();
@@ -169,7 +176,10 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
 
   return (
     <>
-      {!isChatOpen && !isPanelPlacement && !isMobileSheetPlacement && (
+      {!isChatOpen &&
+        !isPanelPlacement &&
+        !isMobileSheetPlacement &&
+        !hideFloatingLauncher && (
         <div className="fixed bottom-8 right-8 z-50 hidden md:block">
           <Button
             onClick={handleOpen}

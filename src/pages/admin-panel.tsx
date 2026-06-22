@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useSelector } from "react-redux";
 import { useQueryClient } from "@tanstack/react-query";
@@ -13,6 +13,7 @@ import {
   LuInfo,
   LuSparkles,
   LuUsersRound,
+  LuX,
 } from "react-icons/lu";
 import {
   type AdminPanelUser,
@@ -119,6 +120,11 @@ const getUserActionDefinitionKey = (
 export default function AdminPanelPage() {
   const [activeTab, setActiveTab] = useState<AdminPanelTab>("users");
   const [search, setSearch] = useState("");
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isCompactSearch, setIsCompactSearch] = useState(false);
+  const subheaderContentRef = useRef<HTMLDivElement>(null);
+  const tabsRef = useRef<HTMLDivElement>(null);
+  const searchWidthRef = useRef<HTMLDivElement>(null);
   const [actionModal, setActionModal] = useState<ActionModalState>(null);
   const [ticketModal, setTicketModal] = useState<TicketModalState>(null);
   const [ticketStatusModal, setTicketStatusModal] =
@@ -170,6 +176,42 @@ export default function AdminPanelPage() {
     : isAdminsTab
       ? isAdminsLoading
       : isTicketsLoading;
+  const searchPlaceholder = isUsersTab
+    ? "Search users..."
+    : isAdminsTab
+      ? "Search admins..."
+      : "Search tickets...";
+
+  const measureSearchLayout = useCallback(() => {
+    const container = subheaderContentRef.current;
+    const tabs = tabsRef.current;
+    const searchMeasurement = searchWidthRef.current;
+    if (!container || !tabs || !searchMeasurement) return;
+
+    const styles = window.getComputedStyle(container);
+    const gap = Number.parseFloat(styles.columnGap || styles.gap) || 0;
+    const requiredWidth = tabs.scrollWidth + searchMeasurement.offsetWidth + gap;
+    const shouldCompact = requiredWidth > container.clientWidth;
+    setIsCompactSearch((current) =>
+      current === shouldCompact ? current : shouldCompact
+    );
+  }, []);
+
+  useLayoutEffect(() => {
+    if (isSearchOpen) return;
+
+    measureSearchLayout();
+    if (typeof ResizeObserver === "undefined") {
+      window.addEventListener("resize", measureSearchLayout);
+      return () => window.removeEventListener("resize", measureSearchLayout);
+    }
+
+    const observer = new ResizeObserver(measureSearchLayout);
+    if (subheaderContentRef.current) observer.observe(subheaderContentRef.current);
+    if (tabsRef.current) observer.observe(tabsRef.current);
+    if (searchWidthRef.current) observer.observe(searchWidthRef.current);
+    return () => observer.disconnect();
+  }, [isSearchOpen, measureSearchLayout, visibleTabs]);
 
   useEffect(() => {
     if (visibleTabs.length > 0 && !visibleTabs.includes(activeTab)) {
@@ -552,35 +594,82 @@ export default function AdminPanelPage() {
     <div className="home-page-bg flex h-full min-h-0 flex-col overflow-hidden">
       <PageSubheader
         left={
-          <AdminPanelTabs
-            activeTab={effectiveActiveTab}
-            tabs={visibleTabs}
-            onChange={(tab) => {
-              setActiveTab(tab);
-              setSearch("");
-            }}
-          />
-        }
-        right={
-          <div className="home-search-bg flex h-10 w-full items-center rounded-[18px] px-3 sm:w-72">
-            <HiSearch className="home-muted h-4 w-4" />
-            <Input
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder={
-                isUsersTab
-                  ? "Search users..."
-                  : isAdminsTab
-                    ? "Search admins..."
-                    : "Search tickets..."
-              }
-              className="home-text h-full border-0 bg-transparent px-2 text-sm home-chat-placeholder focus:outline-none focus-visible:ring-0"
-            />
+          <div
+            ref={subheaderContentRef}
+            className="relative flex min-h-10 w-full min-w-0 items-center gap-2"
+          >
+            <div ref={searchWidthRef} aria-hidden="true" className="pointer-events-none absolute invisible h-10 w-72" />
+            {isSearchOpen ? (
+              <>
+                <div className="home-search-bg flex h-10 min-w-0 flex-1 items-center rounded-[18px] px-3">
+                  <HiSearch className="home-muted h-4 w-4" />
+                  <Input
+                    autoFocus
+                    aria-label={searchPlaceholder}
+                    value={search}
+                    onChange={(event) => setSearch(event.target.value)}
+                    placeholder={searchPlaceholder}
+                    className="home-text h-full border-0 bg-transparent px-2 text-sm home-chat-placeholder focus:outline-none focus-visible:ring-0"
+                  />
+                </div>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="icon"
+                  tooltip="Close search"
+                  aria-label="Close search"
+                  className="h-10 w-10 shrink-0 border-transparent bg-transparent shadow-none"
+                  onClick={() => {
+                    setSearch("");
+                    setIsSearchOpen(false);
+                  }}
+                >
+                  <LuX className="h-4 w-4" />
+                </Button>
+              </>
+            ) : (
+              <>
+                <div ref={tabsRef} className="min-w-0 overflow-hidden">
+                  <AdminPanelTabs
+                    activeTab={effectiveActiveTab}
+                    tabs={visibleTabs}
+                    onChange={(tab) => {
+                      setActiveTab(tab);
+                      setSearch("");
+                    }}
+                  />
+                </div>
+                {isCompactSearch ? (
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="icon"
+                    tooltip={searchPlaceholder}
+                    aria-label={searchPlaceholder}
+                    className="ml-auto h-10 w-10 shrink-0 border-transparent bg-transparent shadow-none"
+                    onClick={() => setIsSearchOpen(true)}
+                  >
+                    <HiSearch className="h-4 w-4" />
+                  </Button>
+                ) : (
+                  <div className="home-search-bg ml-auto flex h-10 w-72 shrink-0 items-center rounded-[18px] px-3">
+                    <HiSearch className="home-muted h-4 w-4" />
+                    <Input
+                      aria-label={searchPlaceholder}
+                      value={search}
+                      onChange={(event) => setSearch(event.target.value)}
+                      placeholder={searchPlaceholder}
+                      className="home-text h-full border-0 bg-transparent px-2 text-sm home-chat-placeholder focus:outline-none focus-visible:ring-0"
+                    />
+                  </div>
+                )}
+              </>
+            )}
           </div>
         }
         className="shrink-0 pb-0"
-        leftClassName="items-end"
-        rightClassName="pb-3"
+        contentClassName="flex-row"
+        leftClassName="w-full min-w-0 items-end pb-3"
       />
 
       <PageContentShell className="overflow-hidden pb-3 pt-2 md:pb-4 md:pt-3">

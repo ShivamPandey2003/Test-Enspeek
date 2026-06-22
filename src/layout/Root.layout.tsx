@@ -67,7 +67,7 @@ const Root_layout = () => {
           </div>
         )}
       </div>
-      <MobileFloatingChat />
+      {!isFullWidthPage ? <MobileFloatingChat /> : null}
       {!isHome ? <MobileBottomNavigation /> : null}
     </div>
   );
