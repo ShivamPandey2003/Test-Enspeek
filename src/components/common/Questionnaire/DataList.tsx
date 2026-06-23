@@ -108,7 +108,7 @@ const DataList = () => {
                 setSelectedLogicQID(data.qID);
               }}
               deleteOption={(optionID) => {
-                const option = data.rowOptionList.find(
+                const option = data.rowOptionList?.find(
                   (item) => item.optionID === optionID
                 );
                 setPendingOptionDeletion({
@@ -190,10 +190,10 @@ const DataList = () => {
                   {
                     ...pendingOptionDeletion.question,
                     rowOptionList:
-                      pendingOptionDeletion.question.rowOptionList.filter(
+                      pendingOptionDeletion.question.rowOptionList?.filter(
                         (option) =>
                           option.optionID !== pendingOptionDeletion.optionID
-                      ),
+                      ) ?? [],
                   },
                   {
                     onSuccess: () => setPendingOptionDeletion(null),

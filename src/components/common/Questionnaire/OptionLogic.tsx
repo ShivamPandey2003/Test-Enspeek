@@ -94,7 +94,7 @@ export default function OptionLogic({
     const question = submitItems.find((item) => item.qID === qID);
     if (!question?.rowOptionList) return;
 
-    const row = question.rowOptionList.find((item) => item.optionID === rowIndex);
+    const row = question.rowOptionList?.find((item) => item.optionID === rowIndex);
     if (!row) return;
 
     setLogic((current) => {
