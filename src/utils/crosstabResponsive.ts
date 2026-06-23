@@ -1,6 +1,7 @@
 export const CROSSTAB_HEADER_ACTION_PRIORITY = [
   "create",
   "history",
+  "search",
 ] as const;
 
 export const BANNER_CARD_ACTION_PRIORITY = [

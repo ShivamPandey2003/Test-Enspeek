@@ -2,7 +2,7 @@ import { useMemo, useRef, useState, type ElementType } from "react";
 import {
   LuCopy,
   LuDownload,
-  LuEllipsis,
+  LuEllipsisVertical,
   LuPencilLine,
   LuSettings2,
   LuTable2,
@@ -233,12 +233,12 @@ export default function DefaultBanner({
                       aria-label="More banner actions"
                       aria-haspopup="menu"
                       aria-expanded={overflowMenu.isOpen}
-                      className="report-toolbar-btn bg-[var(--color-questionnaire-multi)] text-white hover:bg-[var(--color-questionnaire-multi)] hover:text-white hover:opacity-90"
+                      className="h-8 w-8 rounded-full border-transparent bg-transparent p-0 text-[var(--color-text-muted)] shadow-none hover:bg-[var(--color-brand-primary-softest)] hover:text-login-primary"
                       onClick={() =>
                         overflowMenu.setIsOpen((current) => !current)
                       }
                     >
-                      <LuEllipsis />
+                      <LuEllipsisVertical className="h-5 w-5" />
                     </Button>
                     {overflowMenu.isOpen ? (
                       <OverflowActionsMenu

@@ -67,12 +67,13 @@ export default function CrosstabHeader({
     () => ({ minWidth: minimumWidth || undefined }),
     [minimumWidth]
   );
+  const isCompactSearchOpen = isSearchOpen && !visibleIds.has("search");
 
   return (
     <>
       <PageSubheader
         contentClassName="flex-row items-center justify-between gap-2"
-        leftClassName={isSearchOpen ? "hidden" : "flex min-h-8 min-w-0 flex-1 items-center overflow-hidden"}
+        leftClassName={isCompactSearchOpen ? "hidden" : "flex min-h-8 min-w-0 shrink items-center overflow-hidden"}
         rightClassName="min-w-0 flex-1 flex-nowrap"
         rightStyle={rightStyle}
         left={
@@ -80,9 +81,9 @@ export default function CrosstabHeader({
             Banner List
           </h1>
         }
-        right={isSearchOpen ? (
-          <div className="flex h-8 w-full min-w-0 items-center gap-1.5">
-            <div className="home-search-bg flex h-8 min-w-0 flex-1 items-center rounded-[14px] px-2.5">
+        right={isCompactSearchOpen ? (
+          <div className="flex h-8 w-full min-w-0 items-center justify-end gap-1.5">
+            <div className="home-search-bg flex h-8 min-w-0 w-full max-w-[18rem] items-center rounded-[14px] px-2.5">
               <LuSearch className="home-muted h-4 w-4" />
               <Input
                 autoFocus
@@ -143,6 +144,22 @@ export default function CrosstabHeader({
                 </div>
               ) : null}
 
+              {visibleIds.has("search") ? (
+                <div
+                  ref={getItemRef("search")}
+                  className="home-search-bg flex h-8 w-64 max-w-[18rem] shrink-0 items-center rounded-[14px] px-2.5"
+                >
+                  <LuSearch className="home-muted h-4 w-4" />
+                  <Input
+                    aria-label="Search banners"
+                    placeholder="Search banner..."
+                    className="home-text h-full border-0 bg-transparent px-2 text-sm focus:outline-none focus-visible:ring-0"
+                    value={searchTerm}
+                    onChange={(event) => setSearchTerm(event.target.value)}
+                  />
+                </div>
+              ) : null}
+
               <div
                 ref={fixedControlsRef}
                 className="flex shrink-0 items-center gap-2"
@@ -153,17 +170,19 @@ export default function CrosstabHeader({
                   className="pointer-events-none absolute h-0 w-0"
                 />
 
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="icon"
-                  tooltip="Search banners"
-                  aria-label="Search banners"
-                  className="h-8 w-8 border-transparent bg-transparent shadow-none"
-                  onClick={() => setIsSearchOpen(true)}
-                >
-                  <LuSearch className="h-4 w-4" />
-                </Button>
+                {!visibleIds.has("search") ? (
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="icon"
+                    tooltip="Search banners"
+                    aria-label="Search banners"
+                    className="h-8 w-8 border-transparent bg-transparent shadow-none"
+                    onClick={() => setIsSearchOpen(true)}
+                  >
+                    <LuSearch className="h-4 w-4" />
+                  </Button>
+                ) : null}
 
                 {showOverflowButton ? (
                   <div className="relative">
