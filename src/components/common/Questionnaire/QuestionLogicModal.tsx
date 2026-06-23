@@ -70,7 +70,7 @@ export default function QuesLogicModal({
       Title="Add/Edit Question Logic"
       description="Configure logic rules for this question. Save when the conditions, skip path, or termination behavior are ready."
       closeDisabled={isPending}
-      className="max-w-[90vw]"
+      className="md:w-[min(90vw,72rem)] md:max-w-[72rem]"
       footerContent={
         <div className="flex w-full flex-col-reverse items-stretch justify-end gap-3 min-[380px]:flex-row min-[380px]:items-center">
           <Button

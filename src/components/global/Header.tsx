@@ -1,14 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { FaSignOutAlt } from "react-icons/fa";
-import { LuChevronDown, LuChevronLeft, LuLoaderCircle, LuMessageCircle, LuUsersRound, LuSettings, LuHouse, LuUserRound } from "react-icons/lu";
+import { LuChevronDown, LuLoaderCircle, LuMessageCircle, LuUsersRound, LuSettings, LuHouse, LuUserRound } from "react-icons/lu";
 import { useLocation, useNavigate } from "react-router";
 import ICON from "../../assets/icons/icon.png";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../../store/store";
 import { setMessages } from "../../store/ChatSlice";
 import DropDown from "./DropDown";
-import Modal from "../ui/Modal";
 import { cn, getFullName } from "../../utils";
 import Button from "../ui/Button";
 import ModalScaffold from "../ui/modal/ModalScaffold";
@@ -219,24 +218,6 @@ const Header = () => {
       )}
     >
       <div className="flex min-w-0 flex-1 items-center gap-3">
-        {pathname !== "/" ? (
-          <button
-            type="button"
-            onClick={() => {
-              if (window.history.length > 1) {
-                navigate(-1);
-                return;
-              }
-
-              navigate("/");
-            }}
-            className="questionnaire-muted questionnaire-clickable shrink-0 md:hidden"
-            aria-label="Go back"
-            title="Back"
-          >
-            <LuChevronLeft className="h-[22px] w-[22px]" />
-          </button>
-        ) : null}
         <a
           href="https://enspeek.ai/"
           target="_blank"
@@ -343,17 +324,14 @@ const Header = () => {
           </div>
         )}
       </div>
-      <Modal
+      <ModalScaffold
         isOpen={logoutModalOpen}
         onClose={() => setLogoutModalOpen(false)}
-        className="max-w-md"
-      >
-        <div className="p-6">
-          <h3 className="home-heading text-[22px] font-bold">Confirm Logout</h3>
-          <p className="home-muted mt-3 text-[15px] leading-6">
-            Are you sure you want to log out from your Enspeek account?
-          </p>
-          <div className="mt-6 flex justify-end gap-3">
+        className="md:max-w-md"
+        title="Confirm Logout"
+        icon={<FaSignOutAlt className="h-5 w-5" />}
+        footerRight={
+          <>
             <Button
               type="button"
               variant="cancel"
@@ -368,9 +346,13 @@ const Header = () => {
             >
               Logout
             </Button>
-          </div>
-        </div>
-      </Modal>
+          </>
+        }
+      >
+        <p className="home-muted text-[15px] leading-6">
+          Are you sure you want to logout from your Enspeek account?
+        </p>
+      </ModalScaffold>
       <PlanLimitsModal
         isOpen={isPlanLimitModalOpen}
         onClose={closePlanLimitModal}

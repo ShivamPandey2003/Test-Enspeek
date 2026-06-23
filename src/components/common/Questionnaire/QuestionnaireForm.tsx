@@ -253,12 +253,35 @@ const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({ onClose }) => {
                     <Button
                       type="button"
                       variant="success"
+                      size="default"
+                      onClick={handleUpdate}
+                      disabled={isSaving}
+                      className="hidden md:inline-flex"
+                    >
+                      {isSaving ? (
+                        <span className="h-4 w-4 rounded-full border-2 border-white/35 border-t-white animate-spin" />
+                      ) : null}
+                      Save
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="cancel"
+                      size="default"
+                      onClick={closeForm}
+                      disabled={isSaving}
+                      className="hidden border-gray-300 text-[var(--color-text-strong)] hover:bg-gray-50 md:inline-flex"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="success"
                       size="icon"
                       aria-label="Save question"
                       tooltip="Save question"
                       onClick={handleUpdate}
                       disabled={isSaving}
-                      className="h-8 w-8 rounded-full p-0"
+                      className="h-8 w-8 rounded-full p-0 md:hidden"
                     >
                       {isSaving ? (
                         <span className="h-4 w-4 rounded-full border-2 border-white/35 border-t-white animate-spin" />
@@ -274,7 +297,7 @@ const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({ onClose }) => {
                       tooltip="Cancel editing"
                       onClick={closeForm}
                       disabled={isSaving}
-                      className="h-8 w-8 rounded-full border-gray-300 p-0 text-[var(--color-text-muted)] shadow-none hover:bg-gray-50"
+                      className="h-8 w-8 rounded-full border-gray-300 p-0 text-[var(--color-text-muted)] shadow-none hover:bg-gray-50 md:hidden"
                     >
                       <LuX className="h-4 w-4" />
                     </Button>
@@ -484,8 +507,8 @@ const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({ onClose }) => {
                     </Button>
                   </div>
                   {isSelectableType === "multiple-select" && (
-                    <div className="flex flex-wrap items-end gap-2.5">
-                      <div className="w-full md:w-32">
+                    <div className="flex w-full flex-wrap items-end gap-2.5 md:ml-auto md:w-auto md:justify-end">
+                      <div className="w-[calc(50%-0.3125rem)] min-w-0 md:w-32">
                         <label className="questionnaire-label mb-1.5 block text-sm leading-tight">
                           Min Selection
                         </label>
@@ -499,7 +522,7 @@ const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({ onClose }) => {
                           placeholder="Minimum"
                         />
                       </div>
-                      <div className="w-full md:w-32">
+                      <div className="w-[calc(50%-0.3125rem)] min-w-0 md:w-32">
                         <label className="questionnaire-label mb-1.5 block text-sm leading-tight">
                           Max Selection
                         </label>
