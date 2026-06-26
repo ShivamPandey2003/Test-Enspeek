@@ -19,8 +19,8 @@ export default function ModalFooter({
       {note ? <div className="modal-footer-note">{note}</div> : <div />}
       <div
         className={cn(
-          "modal-footer-actions w-full justify-end sm:w-auto",
-          leftAction && rightAction && "sm:justify-start",
+          "modal-footer-actions w-full justify-end md:w-auto",
+          leftAction && rightAction && "md:justify-start",
           actionsClassName
         )}
       >

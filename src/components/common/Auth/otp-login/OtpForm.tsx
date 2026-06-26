@@ -52,15 +52,15 @@ const OtpForm: React.FC<OtpFormProps> = ({
       }}
     >
       <div className="text-center">
-        <h3 className="text-[1.75rem] font-semibold leading-tight theme-text-strong">
+        <h3 className="text-[clamp(1.45rem,8vw,1.75rem)] font-semibold leading-tight theme-text-strong">
           Enter OTP
         </h3>
-        <p className="mt-1 text-sm text-login-muted">
-          We sent a verification code to <span className="font-medium">{email}</span>
+        <p className="mt-1 text-wrap break-words text-sm text-login-muted">
+          We sent a verification code to <span className="font-medium break-all">{email}</span>
         </p>
       </div>
 
-      <div className="flex items-center justify-center gap-2">
+      <div className="grid w-full grid-cols-6 gap-1.5 min-[380px]:gap-2">
         {otp.map((digit, index) => (
           <Input
             key={index}
@@ -89,7 +89,7 @@ const OtpForm: React.FC<OtpFormProps> = ({
             }
             inputMode="numeric"
             maxLength={1}
-            className="h-12 w-12 rounded-xl px-0 text-center text-lg font-semibold sm:h-14 sm:w-14 border border-[var(--color-brand-primary)]/50"
+            className="h-[clamp(2.5rem,12vw,3.5rem)] w-full min-w-0 rounded-xl border border-[var(--color-brand-primary)]/50 px-0 text-center text-lg font-semibold"
           />
         ))}
       </div>

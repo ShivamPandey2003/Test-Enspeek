@@ -31,6 +31,8 @@ const refreshQuestionnaireQueries = async (studyID?: string) => {
   });
 };
 
+type HydratedQuestionItem = Question & { isLoaded?: boolean };
+
 export const useQuestionViewMutation = (studyID?: string) => {
   const dispatch = useDispatch<AppDispatch>();
 
@@ -87,14 +89,14 @@ export const useHydrateQuestionnaireSubmitItems = (
       const existingItemsMap = new Map(
         submitItemsRef.current.map((item) => [item.qID, item])
       );
-      const mergedItems: any[] = questionList.map((item) => {
+      const mergedItems: HydratedQuestionItem[] = questionList.map((item) => {
         const existingItem = existingItemsMap.get(item.qID);
         return existingItem
           ? existingItem
           : {
               ...item,
               isLoaded: false,
-            };
+            } as HydratedQuestionItem;
       });
 
       dispatch(

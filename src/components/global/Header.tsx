@@ -8,7 +8,6 @@ import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../../store/store";
 import { setMessages } from "../../store/ChatSlice";
 import DropDown from "./DropDown";
-import Modal from "../ui/Modal";
 import { cn, getFullName } from "../../utils";
 import Button from "../ui/Button";
 import ModalScaffold from "../ui/modal/ModalScaffold";
@@ -87,7 +86,7 @@ const Header = () => {
     window.location.href = "/login";
   };
 
-  const DropdownData = [
+  const desktopDropdownData = [
     ...(userAccess.canAccessAdminPanel && !isUserManagementPage
       ? [
         {
@@ -101,6 +100,53 @@ const Header = () => {
       ]
       : []),
     ...(userAccess.canAccessProfile && !isProfilePage
+      ? [
+        {
+          Title: "Profile",
+          Icon: LuUserRound,
+          onClick: () => {
+            setDropdownOpen(false);
+            navigate("/profile");
+          },
+        },
+      ]
+      : []),
+    {
+      Title: "Logout",
+      Icon: FaSignOutAlt,
+      onClick: () => {
+        setDropdownOpen(false);
+        setLogoutModalOpen(true);
+      },
+    },
+  ];
+
+  const mobileDropdownData = [
+    ...(userAccess.canRequestSupport
+      ? [
+        {
+          Title: "Request for Assistance",
+          Icon: LuMessageCircle,
+          onClick: () => {
+            setDropdownOpen(false);
+            setSupportModalOpen(true);
+          },
+        },
+      ]
+      : []),
+    ...(isPlanInfoVisible && (isFreeUser || isPaidUser)
+      ? [
+        {
+          Title: isPaidUser ? "Premium plan usage" : "Free plan usage",
+          Icon: PlanIcon,
+          onClick: () => {
+            setDropdownOpen(false);
+            void openPlanLimitModal();
+          },
+        },
+      ]
+      : []),
+    ...(userAccess.canAccessProfile
       ? [
         {
           Title: "Profile",
@@ -167,8 +213,8 @@ const Header = () => {
   return (
     <div
       className={cn(
-        "home-surface sticky top-0 flex h-[62px] items-center justify-between gap-6 border-b home-border px-6",
-        logoutModalOpen ? "z-[130]" : "z-40"
+        "home-surface sticky top-0 flex h-[62px] items-center justify-between gap-3 border-b home-border px-3 sm:gap-6 sm:px-6",
+        logoutModalOpen ? "z-[130]" : "z-[75]"
       )}
     >
       <div className="flex min-w-0 flex-1 items-center gap-3">
@@ -177,10 +223,10 @@ const Header = () => {
           target="_blank"
           rel="noopener noreferrer"
           title="Visit website"
-          className="flex shrink-0 items-center gap-3"
+          className="flex min-w-0 shrink items-center gap-2 sm:gap-3"
         >
-          <img src={ICON} alt="Enspeek" className="h-11 w-auto" />
-          <span className="text-[23px] font-bold tracking-[-0.03em] text-login-primary">
+          <img src={ICON} alt="Enspeek" className="h-10 w-auto shrink-0 sm:h-11" />
+          <span className="hidden truncate text-[22px] font-bold tracking-[-0.03em] text-login-primary min-[420px]:inline sm:text-[23px]">
             Enspeek
           </span>
         </a>
@@ -202,7 +248,7 @@ const Header = () => {
       ) : null}
       <div className="relative flex shrink-0 items-center" ref={dropdownRef}>
         <div
-          className="flex cursor-pointer items-center gap-3"
+          className="flex cursor-pointer items-center gap-2 sm:gap-3"
           onClick={toggleDropdown}
         >
           {isUserManagementPage || isProfilePage ? (
@@ -224,7 +270,7 @@ const Header = () => {
           {userAccess.canRequestSupport ? (
             <button
               type="button"
-              className={circleIconButtonClass}
+              className={cn(circleIconButtonClass, "hidden md:inline-flex")}
               aria-label="Support"
               title="Request for Assistance"
               onClick={(event) => {
@@ -245,7 +291,7 @@ const Header = () => {
                 openPlanLimitModal();
               }}
               disabled={isPlanInfoRefreshing}
-              className={cn(circleIconButtonClass, "disabled:cursor-wait disabled:opacity-70")}
+              className={cn(circleIconButtonClass, "hidden disabled:cursor-wait disabled:opacity-70 md:inline-flex")}
               aria-label={isPaidUser ? "View premium plan usage" : "View free plan usage"}
               title={isPaidUser ? "Premium plan usage" : "Free plan usage"}
             >
@@ -269,21 +315,23 @@ const Header = () => {
         </div>
         {dropdownOpen && (
           <div className="absolute right-0 top-full mt-2">
-            <DropDown Data={DropdownData} />
+            <div className="md:hidden">
+              <DropDown Data={mobileDropdownData} />
+            </div>
+            <div className="hidden md:block">
+              <DropDown Data={desktopDropdownData} />
+            </div>
           </div>
         )}
       </div>
-      <Modal
+      <ModalScaffold
         isOpen={logoutModalOpen}
         onClose={() => setLogoutModalOpen(false)}
-        className="max-w-md"
-      >
-        <div className="p-6">
-          <h3 className="home-heading text-[22px] font-bold">Confirm Logout</h3>
-          <p className="home-muted mt-3 text-[15px] leading-6">
-            Are you sure you want to log out from your Enspeek account?
-          </p>
-          <div className="mt-6 flex justify-end gap-3">
+        className="md:max-w-md"
+        title="Confirm Logout"
+        icon={<FaSignOutAlt className="h-5 w-5" />}
+        footerRight={
+          <>
             <Button
               type="button"
               variant="cancel"
@@ -298,9 +346,13 @@ const Header = () => {
             >
               Logout
             </Button>
-          </div>
-        </div>
-      </Modal>
+          </>
+        }
+      >
+        <p className="home-muted text-[15px] leading-6">
+          Are you sure you want to logout from your Enspeek account?
+        </p>
+      </ModalScaffold>
       <PlanLimitsModal
         isOpen={isPlanLimitModalOpen}
         onClose={closePlanLimitModal}
@@ -391,12 +443,12 @@ const PlanLimitRow = ({
   const remaining = Math.max(allowed - used, 0);
 
   return (
-    <div className="rounded-md border border-[var(--color-brand-primary)]/16 bg-white px-4 py-3">
+    <div className="rounded-md border border-[var(--color-brand-primary)]/16 bg-white px-3 py-3 min-[380px]:px-4">
       <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_300px] sm:items-center">
         <div className="min-w-0">
           <p className="text-[15px] font-bold text-login-primary">{label}</p>
         </div>
-        <div className="grid grid-cols-3 gap-2 text-center">
+        <div className="grid min-w-0 grid-cols-3 gap-1 text-center min-[380px]:gap-2">
           <PlanMetric mobileLabel="Used" value={used} />
           <PlanMetric mobileLabel="Allowed" value={allowed} />
           <PlanMetric mobileLabel="Remaining" value={remaining} />
@@ -407,9 +459,9 @@ const PlanLimitRow = ({
 };
 
 const PlanMetric = ({ mobileLabel, value }: { mobileLabel: string; value: number }) => (
-  <div className="rounded-md bg-[var(--color-surface-soft)] px-3 py-2">
-    <span className="home-heading block text-sm font-bold">{value}</span>
-    <span className="mt-0.5 block text-[11px] font-extrabold uppercase tracking-[0.08em] text-black sm:hidden">
+  <div className="min-w-0 rounded-md bg-[var(--color-surface-soft)] px-1.5 py-2 min-[380px]:px-3">
+    <span className="home-heading block truncate text-xs font-bold min-[380px]:text-sm">{value}</span>
+    <span className="mt-0.5 block truncate text-[8px] font-extrabold uppercase leading-tight tracking-normal text-black min-[380px]:text-[10px] sm:hidden">
       {mobileLabel}
     </span>
   </div>

@@ -11,6 +11,20 @@ interface Question_FormatProps {
 
 const Question_Format: FC<Question_FormatProps> = ({ questions = [], instruction }) => {
     const [expandedQuestions, setExpandedQuestions] = useState<Record<number, boolean>>({});
+    const questionsStateKey = useMemo(
+        () =>
+            questions
+                .map((question) =>
+                    [
+                        question.label,
+                        question.qText,
+                        question.qType,
+                        Array.isArray(question.options) ? question.options.join("\u001f") : "",
+                    ].join("\u001e")
+                )
+                .join("\u001d"),
+        [questions]
+    );
     const expandableQuestionIndexes = useMemo(
         () =>
             questions
@@ -32,7 +46,7 @@ const Question_Format: FC<Question_FormatProps> = ({ questions = [], instruction
 
     useEffect(() => {
         setExpandedQuestions({});
-    }, [questions]);
+    }, [questionsStateKey]);
 
     const setQuestionExpanded = (index: number, isExpanded: boolean) => {
         setExpandedQuestions((current) => ({

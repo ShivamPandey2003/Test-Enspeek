@@ -13,11 +13,11 @@ export default function QuestionTypeBadge({
   return (
     <span
       className={cn(
-        "inline-grid h-6 place-items-center rounded-full bg-[var(--color-questionnaire-open-bg)] px-2 text-center text-[12px] font-semibold leading-none text-[var(--color-questionnaire-open)]",
+        "inline-grid h-6 max-w-full place-items-center rounded-full bg-[var(--color-questionnaire-open-bg)] px-2 text-center text-[12px] font-semibold leading-none text-[var(--color-questionnaire-open)]",
         className
       )}
     >
-      <span className="block leading-none">{formatQuestionTypeLabel(type)}</span>
+      <span className="block max-w-full truncate leading-none">{formatQuestionTypeLabel(type)}</span>
     </span>
   );
 }

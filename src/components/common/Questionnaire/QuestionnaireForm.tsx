@@ -2,7 +2,7 @@ import React from "react";
 import { useLocation } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
-import { LuChevronDown, LuCirclePlus, LuGripVertical, LuSave } from "react-icons/lu";
+import { LuCheck, LuChevronDown, LuCirclePlus, LuGripVertical, LuSave, LuX } from "react-icons/lu";
 import Button from "../../ui/Button";
 import Input from "../../ui/Input";
 import Select from "../../ui/Select";
@@ -219,17 +219,22 @@ const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({ onClose }) => {
       <div className="w-full">
         <div className="questionnaire-card questionnaire-card-edit questionnaire-edit-frame overflow-hidden rounded-[22px]">
           <div className="questionnaire-border border-b px-2.5 py-1.5 md:px-3">
-            <div className="flex min-h-8 flex-wrap items-center justify-between gap-2 lg:flex-nowrap">
-              <div className="flex min-w-0 items-center gap-2.5">
+            <div
+              className={cn(
+                "flex min-h-8 items-center justify-between gap-2",
+                data ? "flex-nowrap" : "flex-wrap lg:flex-nowrap"
+              )}
+            >
+              <div className="flex min-w-0 flex-1 items-center gap-2.5">
                 <span className="questionnaire-muted hidden md:inline-flex">
                   <LuGripVertical className="h-4 w-4" />
                 </span>
-                <span className="questionnaire-heading shrink-0 text-[14px] font-semibold leading-tight">
-                  {data?.qID || `CQ${id || ""}`}
-                  {data ? ":" : ""}
-                </span>
-                <div className="min-w-0">
-                  <h2 className="questionnaire-heading truncate text-[14px] font-semibold leading-tight md:text-[15px]">
+                <div className="flex min-w-0 items-center gap-1">
+                  <span className="questionnaire-heading shrink-0 text-[14px] font-semibold leading-tight">
+                    {data?.qID || `CQ${id || ""}`}
+                    {data ? ":" : ""}
+                  </span>
+                  <h2 className="questionnaire-heading min-w-0 truncate text-[14px] font-semibold leading-tight md:text-[15px]">
                     {data
                       ? displayEditLabel || qtext || data?.qText || "Question"
                       : qtext || label || "Question"}
@@ -237,54 +242,105 @@ const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({ onClose }) => {
                 </div>
               </div>
 
-              <div className="flex w-full flex-wrap items-center justify-end gap-1.5 lg:w-auto">
-                <Button
-                  variant="success"
-                  size="default"
-                  className="capitalize"
-                  onClick={data ? handleUpdate : handleCreate}
-                  disabled={isSaving}
-                >
-                  {isSaving ? (
-                    <>
-                      <span className="h-4 w-4 rounded-full border-2 border-white/35 border-t-white animate-spin" />
-                      <span>
-                        Saving
-                        <span className="copying-dots ml-0.5 inline-flex w-[1.5em] justify-start">
-                          <span>.</span>
-                          <span>.</span>
-                          <span>.</span>
-                        </span>
-                      </span>
-                    </>
-                  ) : (
-                    <>
-                      <LuSave className="h-3.5 w-3.5" />
-                      {data ? "Save" : "Submit"}
-                    </>
-                  )}
-                </Button>
-                <Button
-                  type="button"
-                  variant="cancel"
-                  size="default"
-                  className="border-gray-300 text-[var(--color-text-strong)] hover:bg-gray-50"
-                  onClick={closeForm}
-                  disabled={isSaving}
-                >
-                  Close
-                </Button>
-                <Button
-                  type="button"
-                  aria-label="Close edit question"
-                  variant="secondary"
-                  size="icon"
-                  tooltip="Collapse"
-                  className="questionnaire-muted shadow-none"
-                  onClick={closeForm}
-                >
-                  <LuChevronDown className="h-4 w-4" />
-                </Button>
+              <div
+                className={cn(
+                  "flex items-center justify-end gap-1.5",
+                  data ? "w-auto flex-nowrap" : "w-full flex-wrap lg:w-auto"
+                )}
+              >
+                {data ? (
+                  <>
+                    <Button
+                      type="button"
+                      variant="success"
+                      size="default"
+                      onClick={handleUpdate}
+                      disabled={isSaving}
+                      className="hidden md:inline-flex"
+                    >
+                      {isSaving ? (
+                        <span className="h-4 w-4 rounded-full border-2 border-white/35 border-t-white animate-spin" />
+                      ) : null}
+                      Save
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="cancel"
+                      size="default"
+                      onClick={closeForm}
+                      disabled={isSaving}
+                      className="hidden border-gray-300 text-[var(--color-text-strong)] hover:bg-gray-50 md:inline-flex"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="success"
+                      size="icon"
+                      aria-label="Save question"
+                      tooltip="Save question"
+                      onClick={handleUpdate}
+                      disabled={isSaving}
+                      className="h-8 w-8 rounded-full p-0 md:hidden"
+                    >
+                      {isSaving ? (
+                        <span className="h-4 w-4 rounded-full border-2 border-white/35 border-t-white animate-spin" />
+                      ) : (
+                        <LuCheck className="h-4 w-4" />
+                      )}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="icon"
+                      aria-label="Cancel question editing"
+                      tooltip="Cancel editing"
+                      onClick={closeForm}
+                      disabled={isSaving}
+                      className="h-8 w-8 rounded-full border-gray-300 p-0 text-[var(--color-text-muted)] shadow-none hover:bg-gray-50 md:hidden"
+                    >
+                      <LuX className="h-4 w-4" />
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button
+                      variant="success"
+                      size="default"
+                      className="capitalize"
+                      onClick={handleCreate}
+                      disabled={isSaving}
+                    >
+                      {isSaving ? (
+                        <span className="h-4 w-4 rounded-full border-2 border-white/35 border-t-white animate-spin" />
+                      ) : (
+                        <LuSave className="h-3.5 w-3.5" />
+                      )}
+                      Submit
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="cancel"
+                      size="default"
+                      className="border-gray-300 text-[var(--color-text-strong)] hover:bg-gray-50"
+                      onClick={closeForm}
+                      disabled={isSaving}
+                    >
+                      Close
+                    </Button>
+                    <Button
+                      type="button"
+                      aria-label="Close new question"
+                      variant="secondary"
+                      size="icon"
+                      tooltip="Collapse"
+                      className="questionnaire-muted shadow-none"
+                      onClick={closeForm}
+                    >
+                      <LuChevronDown className="h-4 w-4" />
+                    </Button>
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -451,8 +507,8 @@ const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({ onClose }) => {
                     </Button>
                   </div>
                   {isSelectableType === "multiple-select" && (
-                    <div className="flex flex-wrap items-end gap-2.5">
-                      <div className="w-full md:w-32">
+                    <div className="flex w-full flex-wrap items-end gap-2.5 md:ml-auto md:w-auto md:justify-end">
+                      <div className="w-[calc(50%-0.3125rem)] min-w-0 md:w-32">
                         <label className="questionnaire-label mb-1.5 block text-sm leading-tight">
                           Min Selection
                         </label>
@@ -466,7 +522,7 @@ const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({ onClose }) => {
                           placeholder="Minimum"
                         />
                       </div>
-                      <div className="w-full md:w-32">
+                      <div className="w-[calc(50%-0.3125rem)] min-w-0 md:w-32">
                         <label className="questionnaire-label mb-1.5 block text-sm leading-tight">
                           Max Selection
                         </label>

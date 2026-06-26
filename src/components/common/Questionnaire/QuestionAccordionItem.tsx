@@ -7,6 +7,7 @@ import {
   LuChevronDown,
   LuChevronRight,
   LuCopy,
+  LuEllipsisVertical,
   LuGripVertical,
   LuGitBranchPlus,
   LuPencilLine,
@@ -20,6 +21,7 @@ import { cn } from "../../../utils";
 import { useAccordionContext } from "../../ui/Accrodion/Accordion";
 import IconActionButton from "../../ui/IconActionButton";
 import QuestionTypeBadge from "./QuestionTypeBadge";
+import NewDropdown from "../../global/NewDropDown";
 
 interface QuestionAccordionItem {
   Data: Question;
@@ -27,6 +29,8 @@ interface QuestionAccordionItem {
   setIsCopyOpen: (qID: string, qLabel: string) => void;
   setEditData: () => void;
   openLogicModal: () => void;
+  deleteOption: (optionID: string) => void;
+  isDeletingOption?: boolean;
 }
 
 const QuestionAccordionItem: React.FC<QuestionAccordionItem> = ({
@@ -35,6 +39,8 @@ const QuestionAccordionItem: React.FC<QuestionAccordionItem> = ({
   setIsCopyOpen,
   setEditData,
   openLogicModal,
+  deleteOption,
+  isDeletingOption = false,
 }) => {
   const { isExpanded, toggleItem } = useAccordionContext();
   const { launch, output } = useSelector((state: RootState) => state.study);
@@ -46,6 +52,43 @@ const QuestionAccordionItem: React.FC<QuestionAccordionItem> = ({
     (state: RootState) => state.question.logic2Skip?.[Data.qID]
   );
   const expanded = isExpanded(Data.qID);
+  const toggleQuestion = () => {
+    if (isLoaded) {
+      toggleItem(Data.qID);
+    }
+  };
+
+  const mobileActions = [
+    {
+      id: "logic",
+      label: "Add/Edit Logic",
+      icon: <LuGitBranchPlus />,
+      onClick: openLogicModal,
+      disabled: disableActions,
+    },
+    {
+      id: "edit",
+      label: "Edit Question",
+      icon: <LuPencilLine />,
+      onClick: setEditData,
+      disabled: disableActions,
+    },
+    {
+      id: "copy",
+      label: "Copy Question",
+      icon: <LuCopy />,
+      onClick: () => setIsCopyOpen(Data.qID, Data.qLabel),
+      disabled: disableActions,
+    },
+    {
+      id: "delete",
+      label: "Delete Question",
+      icon: <LuTrash2 />,
+      onClick: setIsDeleteOpen,
+      disabled: disableActions,
+      tone: "danger" as const,
+    },
+  ];
 
   return (
     <AccordionItem value={Data.qID} className="border-0" disabled={!isLoaded}>
@@ -66,39 +109,26 @@ const QuestionAccordionItem: React.FC<QuestionAccordionItem> = ({
           >
             <LuGripVertical className="h-4 w-4" />
           </div>
-          <div
-            role="button"
-            tabIndex={isLoaded ? 0 : -1}
+          <button
+            type="button"
             aria-expanded={expanded}
-            className={cn(
-              "min-w-0 flex-1 self-stretch",
-              isLoaded ? "cursor-pointer" : "cursor-not-allowed"
-            )}
-            onClick={() => {
-              if (isLoaded) {
-                toggleItem(Data.qID);
-              }
-            }}
-            onKeyDown={(e) => {
-              if (!isLoaded) return;
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                toggleItem(Data.qID);
-              }
-            }}
+            disabled={!isLoaded}
+            className="min-w-0 flex-1 self-stretch text-left disabled:cursor-not-allowed"
+            onClick={toggleQuestion}
           >
-            <div className="flex h-full w-full min-w-0 items-center gap-1.5">
+            <span className="flex h-full w-full min-w-0 items-center gap-1.5">
               <span className="questionnaire-heading shrink-0 text-[14px] font-semibold leading-tight">
                 {Data.qID}:
               </span>
-              <div className="min-w-0 flex-1 pr-2">
-                <p className="questionnaire-heading truncate text-left text-[14px] font-semibold leading-tight">
+              <span className="min-w-0 flex-1 pr-2">
+                <span className="questionnaire-heading block truncate text-left text-[14px] font-semibold leading-tight">
                   {displayLabel}
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="ml-auto hidden h-full items-center justify-end gap-2 md:flex">
+                </span>
+              </span>
+            </span>
+          </button>
+
+          <div className="ml-auto hidden h-full min-w-0 items-center justify-end gap-1.5 md:flex">
             <button
               type="button"
               title="Add or edit logic"
@@ -106,23 +136,39 @@ const QuestionAccordionItem: React.FC<QuestionAccordionItem> = ({
               onClick={openLogicModal}
             >
               <LuGitBranchPlus className="h-4 w-4" />
-              <span>Add / Edit Logic</span>
+              <span className="hidden min-[1100px]:inline">Add / Edit Logic</span>
             </button>
-            <QuestionTypeBadge type={Data.qType} />
+            <QuestionTypeBadge type={Data.qType} className="max-w-[96px]" />
           </div>
-          {!disableActions && isLoaded && (
-            <div className="questionnaire-muted flex items-center gap-1 md:gap-1.5">
+
+          <div className="ml-auto flex min-w-0 max-w-[46%] items-center justify-end gap-1.5 md:hidden">
+            <QuestionTypeBadge type={Data.qType} className="min-w-0 max-w-full" />
+            {isLoaded ? (
+              <NewDropdown
+                position="bottom-right"
+                searchable={false}
+                items={mobileActions}
+                trigger={
+                  <button
+                    type="button"
+                    aria-label="Question actions"
+                    title="Question actions"
+                    className="questionnaire-muted inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-[var(--color-brand-primary-softest)] hover:text-login-primary"
+                  >
+                    <LuEllipsisVertical className="h-5 w-5" />
+                  </button>
+                }
+              />
+            ) : null}
+          </div>
+
+          {!disableActions && isLoaded ? (
+            <div className="questionnaire-muted hidden items-center gap-1 md:flex md:gap-1.5">
               <IconActionButton
                 tone="primary"
                 tooltip="Edit question"
                 data-test-id={`${Data.qID}_EDIT`}
-                onClick={() => setEditData()}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    setEditData();
-                  }
-                }}
+                onClick={setEditData}
               >
                 <LuPencilLine className="h-4 w-4" />
               </IconActionButton>
@@ -131,12 +177,6 @@ const QuestionAccordionItem: React.FC<QuestionAccordionItem> = ({
                 tooltip="Copy question"
                 data-test-id={`${Data.qID}_COPY`}
                 onClick={() => setIsCopyOpen(Data.qID, Data.qLabel)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    setIsCopyOpen(Data.qID, Data.qLabel);
-                  }
-                }}
               >
                 <LuCopy className="h-4 w-4" />
               </IconActionButton>
@@ -144,19 +184,15 @@ const QuestionAccordionItem: React.FC<QuestionAccordionItem> = ({
                 tone="danger"
                 tooltip="Delete question"
                 data-test-id={`${Data.qID}_DELETE`}
-                onClick={() => setIsDeleteOpen()}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    setIsDeleteOpen();
-                  }
-                }}
+                onClick={setIsDeleteOpen}
               >
                 <LuTrash2 className="h-4 w-4" />
               </IconActionButton>
             </div>
-          )}
-          <div
+          ) : null}
+
+          <button
+            type="button"
             title={
               !isLoaded
                 ? "Loading question details"
@@ -164,12 +200,9 @@ const QuestionAccordionItem: React.FC<QuestionAccordionItem> = ({
                   ? "Collapse question"
                   : "Expand question"
             }
-            className="questionnaire-muted questionnaire-clickable shrink-0"
-            onClick={() => {
-              if (isLoaded) {
-                toggleItem(Data.qID);
-              }
-            }}
+            disabled={!isLoaded}
+            className="questionnaire-muted questionnaire-clickable hidden shrink-0 disabled:cursor-not-allowed md:block"
+            onClick={toggleQuestion}
           >
             {!isLoaded ? (
               <span className="copying-dots inline-flex w-[1.5em] justify-start text-lg font-bold leading-none">
@@ -182,7 +215,7 @@ const QuestionAccordionItem: React.FC<QuestionAccordionItem> = ({
             ) : (
               <LuChevronRight className="h-4 w-4" />
             )}
-          </div>
+          </button>
         </div>
       </div>
       <AccordionContent>
@@ -246,6 +279,8 @@ const QuestionAccordionItem: React.FC<QuestionAccordionItem> = ({
                               qID={Data.qID}
                               rowIndex={key.optionID}
                               optionText={key.optionText}
+                              onDelete={() => deleteOption(key.optionID)}
+                              deleteDisabled={isDeletingOption}
                             />
                           </div>
                         </div>

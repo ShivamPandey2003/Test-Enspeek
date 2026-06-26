@@ -2,7 +2,7 @@ type ChatStudyResponse = Record<string, any>;
 
 const CHAT_HISTORY_FALLBACK_MESSAGES = {
   ai: "Unable to load the AI response.",
-  user: "Unable to load the your message.",
+  user: "Unable to load your message.",
 };
 
 const toRecord = (value: unknown): ChatStudyResponse | null =>
@@ -16,6 +16,23 @@ const toText = (value: unknown) => {
   }
 
   return "";
+};
+
+const toTextArray = (value: unknown) =>
+  Array.isArray(value)
+    ? value.map((item) => toText(item).trim()).filter(Boolean)
+    : [];
+
+const createSuggestion = (message: unknown, list: unknown) => {
+  const suggestionMessage = toText(message).trim();
+  const suggestionList = toTextArray(list);
+
+  if (!suggestionMessage && suggestionList.length === 0) return undefined;
+
+  return {
+    message: suggestionMessage,
+    list: suggestionList,
+  };
 };
 
 export const createUserChatMessage = (text: unknown, createdAt?: string) => {
@@ -38,6 +55,7 @@ export const createAiChatMessageFromResponse = (
   if (!data) return null;
 
   const messageText = toText(data.message || options.fallbackText);
+  const suggestion = data.suggestion ?? createSuggestion("", data.suggestions);
 
   if (data.showGraph) {
     return {
@@ -46,7 +64,7 @@ export const createAiChatMessageFromResponse = (
       sdata: data.sdata,
       text: messageText,
       studyID: data.studyID,
-      suggestion: data.suggestion,
+      suggestion,
       source: options.source,
     };
   }
@@ -58,15 +76,46 @@ export const createAiChatMessageFromResponse = (
     instruction: data.instruction,
     response: data.response || {},
     liveLink: data.liveLink,
-    suggestion: data.suggestion,
+    suggestion,
     source: options.source,
+  };
+};
+
+const createAiChatMessageFromHistoryRow = (
+  historyRow: ChatStudyResponse,
+  createdAt?: string
+) => {
+  const responseMessage = createAiChatMessageFromResponse(historyRow.response, {
+    fallbackText: historyRow.assistant,
+    source: "history",
+  });
+
+  if (responseMessage) {
+    return {
+      ...responseMessage,
+      createdAt,
+      suggestion:
+        responseMessage.suggestion ??
+        createSuggestion("", historyRow.suggestions),
+    };
+  }
+
+  const assistantText = toText(historyRow.assistant);
+  if (!assistantText) return null;
+
+  return {
+    sender: "ai",
+    text: assistantText,
+    suggestion: createSuggestion("", historyRow.suggestions),
+    source: "history",
+    createdAt,
   };
 };
 
 export const normalizeChatHistoryRows = (rows: unknown) => {
   if (!Array.isArray(rows)) return [];
 
-  return rows.flatMap((row) => {
+  return [...rows].reverse().flatMap((row) => {
     const historyRow = toRecord(row);
     if (!historyRow) return [];
 
@@ -76,7 +125,7 @@ export const normalizeChatHistoryRows = (rows: unknown) => {
       createUserChatMessage(historyRow.user, createdAt) ??
       createUserChatMessage(CHAT_HISTORY_FALLBACK_MESSAGES.user, createdAt);
     const aiMessage =
-      createAiChatMessageFromResponse(historyRow.response, { source: "history" }) ??
+      createAiChatMessageFromHistoryRow(historyRow, createdAt) ??
       createAiChatMessageFromResponse({
         message: CHAT_HISTORY_FALLBACK_MESSAGES.ai,
       }, { source: "history" });
