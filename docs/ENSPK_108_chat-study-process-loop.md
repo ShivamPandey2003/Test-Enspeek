@@ -1,38 +1,46 @@
-# Chat Study Process Loop Flow
+# ENSPK-108 Chat Study Process Loop
 
 ## Goal
 
-Support a backend-driven `chatStudy` process loop using `response.process` from:
+- [x] Support backend-driven continuation of `chatStudy` work using `response.process`
+- [x] Persist process state in `localStorage` using `masterData`
+- [x] Resume pending process work after `chatStudy/history` completes
+- [x] Keep the chat blocked while the backend process is still running
+- [x] Avoid showing unnecessary chat messages for process-only responses
+- [x] Never show `Loading...` and `Thinking...` together in the chat window
 
-- `POST /studychatbot/chatStudy`
-- `POST /studychatbot/chatStudy/history`
+## APIs In Scope
 
-The UI should keep showing `Thinking...` and prevent the user from sending a new chat message while the backend process chain is still active.
+- [x] `POST /studychatbot/chatStudy`
+- [x] `POST /studychatbot/chatStudy/history`
 
-## API Shape
+## API Contract
 
-The existing `chatStudy` API envelope is:
+- [x] `chatStudy` uses the standard envelope
 
 ```json
 {
   "code": 200,
-  "message": "...",
-  "response": {
-    "process": {
-      "process_id": "some-id",
-      "order": 2
-    }
-  }
+  "message": "Success",
+  "response": {}
 }
 ```
 
-The `process` object is optional.
+- [x] `response.process` is optional
+- [x] When valid, `response.process` may contain:
+  - [x] `process_id`
+  - [x] `order`
+  - [x] optional extra fields like `status`
 
-## masterData
+## masterData Rules
 
-We will use a local-storage-backed object named `masterData`.
+- [x] `masterData` is stored in `localStorage`
+- [x] `masterData` is an object
+- [x] `masterData` may contain:
+  - [x] `process_id`
+  - [x] `order`
 
-Expected keys inside `masterData`:
+Example:
 
 ```json
 {
@@ -41,48 +49,80 @@ Expected keys inside `masterData`:
 }
 ```
 
-## Storage Rules
+## Storage Helper Rules
 
-We need helper functions for:
+- [x] We must have a helper to read `masterData` from `localStorage`
+- [x] We must have a helper to write `masterData` back to `localStorage`
+- [x] We must have a helper to update `process_id` and `order`
+- [x] We must have a helper to remove `process_id` and `order`
+- [x] Any time `masterData` changes, it must be saved back to `localStorage`
 
-- reading `masterData` from `localStorage`
-- writing `masterData` to `localStorage`
-- updating/removing `process_id` and `order`
+## chatStudy Response Handling Rules
 
-Behavior:
+- [x] Every `chatStudy` response must be checked for `response.process`
+- [x] If both `response.process.process_id` and `response.process.order` exist:
+  - [x] save both into `masterData`
+  - [x] update `localStorage`
+- [x] If either `process_id` or `order` is missing:
+  - [x] remove both from `masterData`
+  - [x] update `localStorage`
 
-1. If a `chatStudy` response contains both:
-   - `response.process.process_id`
-   - `response.process.order`
-2. Then update:
-   - `masterData["process_id"]`
-   - `masterData["order"]`
-3. Save the updated `masterData` back to `localStorage`
+## Process-Only Response Rule
 
-If either value is missing:
+- [x] If `response` contains only process data, do not add any visible AI message to the chat
 
-1. Remove both:
-   - `masterData["process_id"]`
-   - `masterData["order"]`
-2. Save the updated `masterData` back to `localStorage`
+Example of process-only response:
 
-This rule applies every time a `chatStudy` response is handled.
+```json
+{
+  "code": 200,
+  "message": "Success",
+  "response": {
+    "process": {
+      "process_id": "2427499e-bd4f-4e3e-94b6-a139e7bf44ac",
+      "order": 2
+    }
+  }
+}
+```
 
-## History Trigger
+- [x] For this case:
+  - [x] update `masterData`
+  - [x] continue the loop if needed
+  - [x] do not insert `AI responded with no message.`
+  - [x] do not insert any empty/fallback AI bubble into the chat UI
 
-After `POST /studychatbot/chatStudy/history` completes and all current history-related work is finished:
+- [x] If the response includes user-visible content, normal rendering should still happen
 
-1. Read `masterData` from `localStorage`
-2. Check whether both exist:
-   - `masterData.process_id`
-   - `masterData.order`
-3. Only if both exist, call `POST /studychatbot/chatStudy`
+Example:
 
-This extra `chatStudy` call is not driven by user input. It is driven by saved process state.
+```json
+{
+  "code": 200,
+  "message": "Success",
+  "response": {
+    "process": {
+      "process_id": "25bc565f-085f-470f-b028-3eb08fbc0219",
+      "status": "RUNNING",
+      "order": 1
+    },
+    "message": "Working on your request..."
+  }
+}
+```
 
-## Payload For Process Loop Call
+## History Completion Trigger Rules
 
-When triggered from `masterData`, the `chatStudy` payload must be exactly:
+- [x] `chatStudy/history` is called when a page with valid chat-history context loads
+- [x] After all history-related work is complete, check `masterData`
+- [x] If `masterData.process_id` and `masterData.order` both exist:
+  - [x] call `chatStudy`
+- [x] If either value is missing:
+  - [x] do nothing extra
+
+## Payload For History-Triggered chatStudy Call
+
+- [x] The history-triggered process call must send only:
 
 ```json
 {
@@ -92,158 +132,142 @@ When triggered from `masterData`, the `chatStudy` payload must be exactly:
 }
 ```
 
-Notes:
+- [x] Do not send `prompt`
+- [x] Do not send `pageName`
+- [x] Do not send `studyID`
+- [x] Do not send `followUp`
 
-- Only `process_id`, `order`, and `apiToken` are sent
-- Do not send `prompt`, `pageName`, `studyID`, or `followUp` in this process-loop call
-- This may change in the future, but not for the current implementation
+## Empty History Rule
 
-## Process Loop Behavior
+- [x] The process loop must still start even if history response is empty
 
-When the history-triggered `chatStudy` call returns:
-
-1. Run the normal current `chatStudy` response handling as-is
-2. Also inspect `response.process`
-3. If both `process_id` and `order` are present:
-   - update `masterData`
-   - wait 5 seconds
-   - call `chatStudy` again with the new `masterData`
-4. If either one is missing:
-   - remove both keys from `masterData`
-   - save updated `masterData`
-   - stop the loop
-
-This creates a polling-like loop that continues until the backend stops returning a valid process pair.
-
-## Thinking State And Input Blocking
-
-While the process loop is active:
-
-- chat must stay in `Thinking...` state
-- user input/send must remain disabled
-
-Important:
-
-- the loading state must remain active even during the 5-second wait between loop calls
-- the user should feel that the AI is still working during the entire backend process chain
-
-The loading/thinking state should stop only when:
-
-- the loop ends because `process_id` or `order` is no longer valid in the latest `chatStudy` response
-- or the process flow fails and we intentionally exit the loop
-
-## Existing Chat Behavior Must Remain
-
-The looped `chatStudy` response must still go through the current normal response handling.
-
-That means existing behaviors should continue to work:
-
-- AI message rendering
-- graph/table response handling
-- suggestions
-- navigation
-- follow-up handling
-- downloads
-- recall behavior
-- any other current `chatStudy` logic
-
-The only added behavior is:
-
-- process tracking in `masterData`
-- history-triggered process-loop calls
-- persistent thinking/input blocking while the loop is active
-
-## Full End-To-End Flow
-
-### 1. User lands on a page
-
-If the page has chat-history context, the app calls:
-
-```text
-POST /studychatbot/chatStudy/history
-```
-
-### 2. Chat history finishes loading
-
-After all current history processing is done:
-
-1. read `masterData` from `localStorage`
-2. check `process_id` and `order`
-
-### 3. No stored process state
-
-If `masterData.process_id` or `masterData.order` is missing:
-
-- do nothing
-- allow normal chat behavior
-
-### 4. Stored process state exists
-
-If both exist:
-
-1. set chat to thinking/loading
-2. block chat input/send
-3. call:
+Example:
 
 ```json
 {
-  "process_id": "...",
-  "order": 2,
-  "apiToken": "..."
+  "code": 200,
+  "message": "Success",
+  "response": {
+    "page": 1,
+    "pageSize": 20,
+    "total": 0,
+    "has_more": false,
+    "data": []
+  }
 }
 ```
 
-### 5. Process response comes back
+- [x] Empty history does not cancel the follow-up `chatStudy` trigger
 
-1. run the existing `chatStudy` response flow normally
-2. inspect `response.process`
+## Process Loop Rules
 
-### 6. Valid process returned again
+- [x] After history is done and valid process state exists, start the process loop
+- [x] The follow-up `chatStudy` response must still go through the normal response flow
+- [x] If the response again contains valid `process_id` and `order`:
+  - [x] update `masterData`
+  - [x] wait 5 seconds
+  - [x] call `chatStudy` again
+- [x] Continue this loop until `process_id` or `order` is no longer valid
+- [x] When either value is no longer valid:
+  - [x] remove both from `masterData`
+  - [x] save to `localStorage`
+  - [x] stop the loop
 
-If both `process_id` and `order` are returned again:
+## Thinking State Rules
 
-1. update `masterData`
-2. save `masterData` to `localStorage`
-3. keep `Thinking...` active
-4. keep chat input blocked
-5. wait 5 seconds
-6. call `chatStudy` again
+- [x] While the process loop is active, the chat must stay in `Thinking...`
+- [x] While the process loop is active, user send/input must stay disabled
+- [x] The `Thinking...` state must remain visible even during the 5-second wait
+- [x] The user should feel that the AI is still working until the loop finishes
 
-### 7. Process no longer returned
+## Loading vs Thinking Rules
 
-If either `process_id` or `order` is missing:
+- [x] Do not show `Loading...` and `Thinking...` together
+- [x] If `Loading...` is visible, `Thinking...` must not be visible
+- [x] The history-triggered `chatStudy` call must begin only after history-loading UI work has settled
+- [x] Once history loading is finished, the UI may move into the AI `Thinking...` state
 
-1. remove both keys from `masterData`
-2. save `masterData` to `localStorage`
-3. stop the loop
-4. stop the extra thinking/loading state
-5. re-enable user chat input
+## Existing Behavior That Must Still Work
 
-## Failure Handling Expectation
+- [x] Normal user send flow
+- [x] Existing `chatStudy` response handling
+- [x] Graph response handling
+- [x] Suggestion handling
+- [x] Navigation handling
+- [x] Follow-up handling
+- [x] Download handling
+- [x] Recall chaining behavior
 
-If a looped `chatStudy` call fails:
+## Failure Handling Rules
 
-- the current chat error handling should still apply
-- the process loop should not remain stuck forever
-- the thinking/input-block state must be released if the loop is abandoned
+- [x] If a looped `chatStudy` call fails, current chat error handling should still run
+- [x] The loop must not stay stuck forever after an unrecoverable failure
+- [x] The blocked input / thinking state must be released if the loop is abandoned
 
-Exact failure behavior can be finalized during implementation, but the UI must not stay permanently blocked after an unrecoverable failure.
+## Full Step-By-Step Flow
 
-## Implementation Notes
+### Step 1: Page loads
 
-- Do not break the existing direct user-send flow
-- Do not break existing recall chaining behavior
-- Do not mix the process-loop payload with the normal prompt payload
-- Centralize `masterData` local-storage access so updates stay consistent
-- Make sure the loop starts only after history processing is complete
-- Make sure the loop does not allow duplicate overlapping process calls
+- [x] User lands on a page with valid chat-history context
+- [x] App calls `POST /studychatbot/chatStudy/history`
+
+### Step 2: History finishes
+
+- [x] History response is processed
+- [x] Redux history state is updated
+- [x] History-loading UI is allowed to settle
+- [x] Only after that, app checks `masterData`
+
+### Step 3: Check stored process state
+
+- [x] Read `masterData` from `localStorage`
+- [x] If `process_id` is missing, stop here
+- [x] If `order` is missing, stop here
+- [x] If both exist, continue to the next step
+
+### Step 4: Start process continuation
+
+- [x] Set chat to `Thinking...`
+- [x] Disable user input/send
+- [x] Call `POST /studychatbot/chatStudy` with only:
+  - [x] `process_id`
+  - [x] `order`
+  - [x] `apiToken`
+
+### Step 5: Handle chatStudy response
+
+- [x] Process the response with existing `chatStudy` logic
+- [x] Inspect `response.process`
+- [x] Update `masterData` accordingly
+
+### Step 6: Process-only response case
+
+- [x] If the response contains only `process` data:
+  - [x] do not add a visible AI message
+  - [x] do not add fallback text
+  - [x] keep loop logic working
+
+### Step 7: Continue or stop loop
+
+- [x] If valid `process_id` and `order` are returned again:
+  - [x] save them
+  - [x] wait 5 seconds
+  - [x] call `chatStudy` again
+- [x] If either one is missing:
+  - [x] clear both keys from `masterData`
+  - [x] stop the loop
+
+### Step 8: Finish UI state
+
+- [x] When the loop ends, stop `Thinking...`
+- [x] Re-enable chat input/send
+- [x] Keep history UI behavior normal
 
 ## Summary
 
-We are adding a local-storage-backed process tracker (`masterData`) that:
-
-- stores `process_id` and `order`
-- is updated on every `chatStudy` response
-- is cleared when either value is missing
-- triggers an automatic `chatStudy` loop after chat history load
-- keeps the chat in `Thinking...` state until the backend process chain finishes
+- [x] `masterData` tracks `process_id` and `order`
+- [x] `chatStudy` updates or clears that state on every response
+- [x] `chatStudy/history` can restart pending backend work after page load
+- [x] Process-only responses stay invisible in the chat UI
+- [x] The chat remains blocked with `Thinking...` while backend work is active
+- [x] `Loading...` and `Thinking...` never appear together

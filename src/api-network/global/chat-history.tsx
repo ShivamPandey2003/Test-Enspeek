@@ -15,6 +15,7 @@ import {
 } from "../../store/ChatSlice";
 import { getChatHistoryContext } from "../../utils/chatHistoryContext";
 import { normalizeChatHistoryRows } from "../../utils/chatMessageMapper";
+import { CHAT_HISTORY_READY_EVENT } from "../../utils/masterData";
 
 type ChatHistoryPayload = {
   page: number;
@@ -67,6 +68,7 @@ export const useInitializeChatHistory = (enabled = true) => {
     if (!enabled || !apiToken || !pageName) return;
 
     let isActive = true;
+    let historyReadyTimer: number | null = null;
 
     const loadInitialHistory = async () => {
       dispatch(startChatHistoryLoad(contextKey));
@@ -83,6 +85,17 @@ export const useInitializeChatHistory = (enabled = true) => {
             page: response.page ?? 1,
           })
         );
+        historyReadyTimer = window.setTimeout(() => {
+          if (!isActive) return;
+
+          window.dispatchEvent(
+            new CustomEvent(CHAT_HISTORY_READY_EVENT, {
+              detail: {
+                contextKey,
+              },
+            })
+          );
+        }, 0);
       } catch {
         if (isActive) {
           dispatch(finishChatHistoryLoad(contextKey));
@@ -94,6 +107,9 @@ export const useInitializeChatHistory = (enabled = true) => {
 
     return () => {
       isActive = false;
+      if (historyReadyTimer !== null) {
+        window.clearTimeout(historyReadyTimer);
+      }
     };
   }, [apiToken, contextKey, dispatch, enabled, fetchHistory, pageName, studyID]);
 };
