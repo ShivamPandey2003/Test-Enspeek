@@ -432,7 +432,11 @@ export const useChat = () => {
             }
           );
 
-          await processChatResponseChain(res?.response);
+          if (!res?.response) {
+            throw new Error("Empty response from chat study API");
+          }
+
+          await processChatResponseChain(res.response);
 
           if (!hasActiveStoredProcess()) {
             break;
