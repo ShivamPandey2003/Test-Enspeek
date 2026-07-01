@@ -980,7 +980,7 @@ const ChatWindow: React.FC<{
           );
         })}
 
-        {(isTyping || pending) && (
+        {!isInitialHistoryLoading && (isTyping || pending) && (
           <TypingIndicator />
         )}
         {visibleMessages.length === 0 && !isTyping && !isInitialHistoryLoading && (
