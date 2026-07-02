@@ -214,18 +214,7 @@ const HomeSidebar: React.FC = () => {
                 >
                   {`Active (${activeCount})`}
                 </Button>
-                <Button
-                  variant={activeTab === "allactive" ? "theme" : "secondary"}
-                  className={cn(
-                    "min-w-0 text-center text-[12px] leading-none",
-                    activeTab === "allactive"
-                      ? "shadow-sm hover:bg-login-primary-hover"
-                      : "home-muted border-transparent bg-transparent shadow-none hover:border-transparent hover:bg-transparent hover:text-[var(--color-text-strong)]"
-                  )}
-                  onClick={() => setActiveTab("allactive")}
-                >
-                  {`All (${allCount})`}
-                </Button>
+                
                 <Button
                   variant={activeTab === "isarchived" ? "theme" : "secondary"}
                   className={cn(
