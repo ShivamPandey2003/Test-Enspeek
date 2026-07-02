@@ -43,7 +43,7 @@ const getStudyNumber = (study: StudyListItem, key: string) => {
 };
 
 const HomeSidebar: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<"myactive" | "allactive" | "isarchived">("myactive");
+  const [activeTab, setActiveTab] = useState<StudyListSelection>("myactive");
   const { Studys, FilterStudys } = useSelector((state: RootState) => state.study);
   const studies = useMemo(
     () => (Array.isArray(Studys) ? (Studys as StudyListItem[]) : []),
@@ -126,11 +126,11 @@ const HomeSidebar: React.FC = () => {
   const hasResults = filteredStudies?.length > 0;
   const activeCount = studyList?.count?.active ?? studies.filter((study) => !getStudyNumber(study, "isarchived")).length;
   const archivedCount = studyList?.count?.archived ?? studies.filter((study) => getStudyNumber(study, "isarchived")).length;
-  const allCount = studyList?.count?.all ?? (
-    studyList?.count
-      ? (studyList.count.active || 0) + (studyList.count.archived || 0) + (studyList.count.shared || 0)
-      : studies.length
-  );
+  // const allCount = studyList?.count?.all ?? (
+  //   studyList?.count
+  //     ? (studyList.count.active || 0) + (studyList.count.archived || 0) + (studyList.count.shared || 0)
+  //     : studies.length
+  // );
 
   useEffect(() => {
     if (!Number.isFinite(backendCurrentPage) || backendCurrentPage <= 0) return;
@@ -201,7 +201,7 @@ const HomeSidebar: React.FC = () => {
             </>
           ) : (
             <>
-              <div className="grid min-w-0 flex-1 grid-cols-3 gap-1 text-sm">
+              <div className="grid min-w-0 flex-1 grid-cols-2 gap-1 text-sm">
                 <Button
                   variant={activeTab === "myactive" ? "theme" : "secondary"}
                   className={cn(
@@ -214,18 +214,7 @@ const HomeSidebar: React.FC = () => {
                 >
                   {`Active (${activeCount})`}
                 </Button>
-                <Button
-                  variant={activeTab === "allactive" ? "theme" : "secondary"}
-                  className={cn(
-                    "min-w-0 text-center text-[12px] leading-none",
-                    activeTab === "allactive"
-                      ? "shadow-sm hover:bg-login-primary-hover"
-                      : "home-muted border-transparent bg-transparent shadow-none hover:border-transparent hover:bg-transparent hover:text-[var(--color-text-strong)]"
-                  )}
-                  onClick={() => setActiveTab("allactive")}
-                >
-                  {`All (${allCount})`}
-                </Button>
+                
                 <Button
                   variant={activeTab === "isarchived" ? "theme" : "secondary"}
                   className={cn(
