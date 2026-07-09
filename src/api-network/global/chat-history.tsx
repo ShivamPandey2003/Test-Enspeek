@@ -16,6 +16,7 @@ import {
 import { getChatHistoryContext } from "../../utils/chatHistoryContext";
 import { normalizeChatHistoryRows } from "../../utils/chatMessageMapper";
 import { CHAT_HISTORY_READY_EVENT } from "../../utils/masterData";
+import { useQuery } from "@tanstack/react-query";
 
 type ChatHistoryPayload = {
   page: number;
@@ -39,6 +40,81 @@ const buildChatHistoryPayload = ({
   ...(studyID ? { studyID } : {}),
 });
 
+// export const useInitializeChatHistory = (enabled = true) => {
+//   const dispatch = useDispatch<AppDispatch>();
+//   const { pathname, state } = useLocation();
+//   const apiToken = useSelector((storeState: RootState) => storeState.user.apiToken);
+//   const { contextKey, pageName, studyID } = useMemo(
+//     () => getChatHistoryContext(pathname, state?.studyID),
+//     [pathname, state?.studyID]
+//   );
+
+//   const { mutateAsync: fetchHistory } = mutationStructure<
+//     ChatHistoryResponse,
+//     Error,
+//     ChatHistoryPayload
+//   >({
+//     mutationKey: [url.chatHistory.mutationKey, "initial"],
+//     mutationFn: async (payload) => {
+//       const res = await apiRequest(
+//         url.chatHistory.method,
+//         url.chatHistory.endpoint,
+//         buildChatHistoryPayload(payload)
+//       );
+//       return res?.response ?? {};
+//     },
+//   });
+
+//   useEffect(() => {
+//     if (!enabled || !apiToken || !pageName) return;
+
+//     let isActive = true;
+//     let historyReadyTimer: number | null = null;
+
+//     const loadInitialHistory = async () => {
+//       dispatch(startChatHistoryLoad(contextKey));
+
+//       try {
+//         const response = await fetchHistory({ page: 1, pageName, studyID });
+//         if (!isActive) return;
+
+//         dispatch(
+//           setInitialChatHistory({
+//             contextKey,
+//             hasMore: Boolean(response.has_more),
+//             messages: normalizeChatHistoryRows(response.data ?? []),
+//             page: response.page ?? 1,
+//           })
+//         );
+//         historyReadyTimer = window.setTimeout(() => {
+//           if (!isActive) return;
+
+//           window.dispatchEvent(
+//             new CustomEvent(CHAT_HISTORY_READY_EVENT, {
+//               detail: {
+//                 contextKey,
+//               },
+//             })
+//           );
+//         }, 0);
+//       } catch {
+//         if (isActive) {
+//           dispatch(finishChatHistoryLoad(contextKey));
+//         }
+//       }
+//     };
+
+//     void loadInitialHistory();
+
+//     return () => {
+//       isActive = false;
+//       if (historyReadyTimer !== null) {
+//         window.clearTimeout(historyReadyTimer);
+//       }
+//     };
+//   }, [apiToken, contextKey, dispatch, enabled, fetchHistory, pageName, studyID]);
+// };
+
 export const useInitializeChatHistory = (enabled = true) => {
   const dispatch = useDispatch<AppDispatch>();
   const { pathname, state } = useLocation();
@@ -48,13 +124,12 @@ export const useInitializeChatHistory = (enabled = true) => {
     [pathname, state?.studyID]
   );
 
-  const { mutateAsync: fetchHistory } = mutationStructure<
-    ChatHistoryResponse,
-    Error,
-    ChatHistoryPayload
-  >({
-    mutationKey: [url.chatHistory.mutationKey, "initial"],
-    mutationFn: async (payload) => {
+  const queryEnabled = Boolean(enabled && apiToken && pageName);
+
+  const { data, isFetching, isSuccess, isError } = useQuery<ChatHistoryResponse, Error>({
+    queryKey: [url.chatHistory.queryKey, "initial", contextKey, pageName, studyID],
+    queryFn: async () => {
+      const payload = { page: 1, pageName, studyID };
       const res = await apiRequest(
         url.chatHistory.method,
         url.chatHistory.endpoint,
@@ -62,56 +137,42 @@ export const useInitializeChatHistory = (enabled = true) => {
       );
       return res?.response ?? {};
     },
+    enabled: queryEnabled,
+    staleTime: 0,
+    retry: false,
+    refetchOnWindowFocus: false
   });
 
   useEffect(() => {
-    if (!enabled || !apiToken || !pageName) return;
-
-    let isActive = true;
-    let historyReadyTimer: number | null = null;
-
-    const loadInitialHistory = async () => {
+    if (queryEnabled && isFetching) {
       dispatch(startChatHistoryLoad(contextKey));
+    }
+  }, [queryEnabled, isFetching, contextKey, dispatch]);
 
-      try {
-        const response = await fetchHistory({ page: 1, pageName, studyID });
-        if (!isActive) return;
+  // Handle success
+  useEffect(() => {
+    if (!isSuccess || !data) return;
 
-        dispatch(
-          setInitialChatHistory({
-            contextKey,
-            hasMore: Boolean(response.has_more),
-            messages: normalizeChatHistoryRows(response.data ?? []),
-            page: response.page ?? 1,
-          })
-        );
-        historyReadyTimer = window.setTimeout(() => {
-          if (!isActive) return;
+    dispatch(
+      setInitialChatHistory({
+        contextKey,
+        hasMore: Boolean(data.has_more),
+        messages: normalizeChatHistoryRows(data.data ?? []),
+        page: data.page ?? 1,
+      })
+    );
+    dispatch(finishChatHistoryLoad(contextKey));
 
-          window.dispatchEvent(
-            new CustomEvent(CHAT_HISTORY_READY_EVENT, {
-              detail: {
-                contextKey,
-              },
-            })
-          );
-        }, 0);
-      } catch {
-        if (isActive) {
-          dispatch(finishChatHistoryLoad(contextKey));
-        }
-      }
-    };
+    window.dispatchEvent(
+      new CustomEvent(CHAT_HISTORY_READY_EVENT, { detail: { contextKey } })
+    );
+  }, [isSuccess, data, contextKey, dispatch]);
 
-    void loadInitialHistory();
-
-    return () => {
-      isActive = false;
-      if (historyReadyTimer !== null) {
-        window.clearTimeout(historyReadyTimer);
-      }
-    };
-  }, [apiToken, contextKey, dispatch, enabled, fetchHistory, pageName, studyID]);
+  useEffect(() => {
+    if (isError) {
+      dispatch(finishChatHistoryLoad(contextKey));
+    }
+  }, [isError, contextKey, dispatch]);
 };
 
 export const usePrepareChatHistoryContext = () => {
