@@ -34,7 +34,7 @@ const EmailPermissionsTable: React.FC<EmailPermissionsTableProps> = ({ addedEmai
                             {["share"].map((field) => (
                                 <td key={field} className="px-4 py-3 text-center">
                                     <Checkbox
-                                        checked={entry[field as keyof EmailEntry] as boolean || field === "share"}
+                                        checked={Boolean(entry[field as keyof EmailEntry])}
                                         onChange={() => toggleCheckbox(index, field as keyof Omit<EmailEntry, "email">)}
                                     />
                                 </td>

@@ -263,7 +263,10 @@ export const useChat = () => {
       }
 
       if (data.active && data.route) {
-        navigate(data.route, { state: { studyID: data?.studyId } });
+        // Backend payload field is `studyID` (as used at lines below); the
+        // previous `data?.studyId` was undefined, so AI-driven navigation lost
+        // its study context.
+        navigate(data.route, { state: { studyID: data?.studyID } });
       }
 
       if (pageName === "qnr" && data.add) {

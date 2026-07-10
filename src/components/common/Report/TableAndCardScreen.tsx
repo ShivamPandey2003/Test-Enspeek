@@ -113,6 +113,19 @@ const TableAndCardScreen: FC<TableAndCardScreenProp> = ({
     }),
   };
 
+  // For crosstab, `questionData.base` is an object (base per column); passing it
+  // straight to the chart made the tooltip "Count" compute NaN. Reduce it to a
+  // numeric total (falling back to 0, matching the previous `base ?? 0`).
+  const totalRespondents =
+    typeof questionData.base === "number"
+      ? questionData.base
+      : questionData.base && typeof questionData.base === "object"
+        ? Object.values(questionData.base).reduce(
+            (acc: number, val: any) => acc + (typeof val === "number" ? val : 0),
+            0
+          )
+        : 0;
+
   if (questionData.external === 1 && questionData.external_link) {
     return (
       <QuestionCard title={questionData.label} qId={qid}>
@@ -138,7 +151,7 @@ const TableAndCardScreen: FC<TableAndCardScreenProp> = ({
         chartData={chartData}
         baseText={baseText}
         questionText={questionData.text || ""}
-        totalRespondents={questionData.base ?? 0}
+        totalRespondents={totalRespondents}
       />
     </QuestionCard>
   );

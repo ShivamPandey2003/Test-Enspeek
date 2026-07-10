@@ -5,7 +5,7 @@ import { cn, handleKeyPress } from "../../utils";
 import { LuMessageCircle, LuSendHorizontal } from "react-icons/lu";
 import { useLocation } from "react-router";
 import NewDropdown from "./NewDropDown";
-import PromptsList from "./PromptsList";
+import buildPromptItems from "./PromptsList";
 import { CiCircleList } from "react-icons/ci";
 import useAiChat from "../../api-network/global/ai-chat";
 import Button from "../ui/Button";
@@ -230,7 +230,7 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
                 <CiCircleList className="w-5 h-5" />
               </Button>
             }
-            items={PromptsList()}
+            items={buildPromptItems(setDraftMessage)}
           />
           <textarea
             ref={internalTextareaRef}

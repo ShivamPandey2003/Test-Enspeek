@@ -52,8 +52,16 @@ export const useArchive = (onArchived?: () => void) => {
       });
     },
     onMutate(variables) {
+      const previousFilterStudys = FilterStudys;
       const newData = removeStudyFromList(FilterStudys, variables);
       dispatch(setFilterStudys(newData));
+      return { previousFilterStudys };
+    },
+    onError: (_error, _variables, context) => {
+      // Roll back the optimistic removal if archiving fails.
+      if (context?.previousFilterStudys) {
+        dispatch(setFilterStudys(context.previousFilterStudys));
+      }
     },
     onSuccess: async () => {
       await refreshStudyList();
@@ -80,8 +88,16 @@ export const useDelete = () => {
       return res;
     },
     onMutate(variables) {
+      const previousFilterStudys = FilterStudys;
       const newData = removeStudyFromList(FilterStudys, variables);
       dispatch(setFilterStudys(newData));
+      return { previousFilterStudys };
+    },
+    onError: (_error, _variables, context) => {
+      // Roll back the optimistic removal if deletion fails.
+      if (context?.previousFilterStudys) {
+        dispatch(setFilterStudys(context.previousFilterStudys));
+      }
     },
     onSuccess: async (data) => {
       if (!data) {
@@ -147,8 +163,16 @@ export const useActive = (onActivated?: () => void) => {
       });
     },
     onMutate: (variables) => {
+      const previousFilterStudys = FilterStudys;
       const newData = removeStudyFromList(FilterStudys, variables);
       dispatch(setFilterStudys(newData));
+      return { previousFilterStudys };
+    },
+    onError: (_error, _variables, context) => {
+      // Roll back the optimistic removal if activation fails.
+      if (context?.previousFilterStudys) {
+        dispatch(setFilterStudys(context.previousFilterStudys));
+      }
     },
     onSuccess: async () => {
       await refreshStudyList({
