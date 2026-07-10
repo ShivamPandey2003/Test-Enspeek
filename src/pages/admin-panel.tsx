@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useSelector } from "react-redux";
 import { useQueryClient } from "@tanstack/react-query";
@@ -54,17 +54,20 @@ import {
   getUserAccessConfig,
 } from "../config/userAccess";
 import type { RootState } from "../store/store";
+import {
+  type SubscriptionFormState,
+  blockedNumericKeys,
+  getUserActionDefinitionKey,
+  isTicketResolvedStatus,
+  normalizeNumericInput,
+  toOptionalUpdatedLimit,
+} from "./adminPanel/adminPanelUtils";
+import { useAdminPanelSearchLayout } from "./adminPanel/useAdminPanelSearchLayout";
 
 type ActionModalState = {
   user: AdminPanelUser;
   action: AdminPanelActionType;
 } | null;
-
-type SubscriptionFormState = {
-  allowedPrompt: string;
-  allowedStudies: string;
-  allowedQuestions: string;
-};
 
 type AdminPanelTab = AdminPanelTabId;
 type TicketModalState = {
@@ -76,55 +79,9 @@ type TicketStatusModalState = {
   nextIsResolved: boolean;
 } | null;
 
-const toPositiveInteger = (value: string) => {
-  if (!/^\d+$/.test(value.trim())) return null;
-
-  const parsedValue = Number(value);
-  return Number.isSafeInteger(parsedValue) ? parsedValue : null;
-};
-
-const toOptionalUpdatedLimit = (value: string) => {
-  const normalizedValue = value.trim();
-
-  if (!normalizedValue) return undefined;
-
-  return toPositiveInteger(normalizedValue);
-};
-
-const normalizeNumericInput = (value: string) => value.replace(/\D/g, "");
-
-const blockedNumericKeys = new Set(["e", "E", "-", "+", "."]);
-
-const isTicketResolvedStatus = (status: string) =>
-  ["resolved", "closed", "completed"].includes(status.trim().toLowerCase());
-
-const getUserActionDefinitionKey = (
-  action: AdminPanelActionType,
-  user: AdminPanelUser
-): keyof typeof modalDefinitions => {
-  if (action === "status") {
-    return user.status === "active" ? "deactivateUser" : "activateUser";
-  }
-
-  if (action === "plan") {
-    return user.plan === "free" ? "changeToPaidUser" : "changeToFreeUser";
-  }
-
-  if (action === "verification") {
-    return "verifyUser";
-  }
-
-  return "updateUserSubscription";
-};
-
 export default function AdminPanelPage() {
   const [activeTab, setActiveTab] = useState<AdminPanelTab>("users");
   const [search, setSearch] = useState("");
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [isCompactSearch, setIsCompactSearch] = useState(false);
-  const subheaderContentRef = useRef<HTMLDivElement>(null);
-  const tabsRef = useRef<HTMLDivElement>(null);
-  const searchWidthRef = useRef<HTMLDivElement>(null);
   const [actionModal, setActionModal] = useState<ActionModalState>(null);
   const [ticketModal, setTicketModal] = useState<TicketModalState>(null);
   const [ticketStatusModal, setTicketStatusModal] =
@@ -147,6 +104,14 @@ export default function AdminPanelPage() {
   const canViewUsersTab = visibleTabs.includes("users");
   const canViewAdminsTab = visibleTabs.includes("admins");
   const canViewTicketsTab = visibleTabs.includes("tickets");
+  const {
+    isSearchOpen,
+    setIsSearchOpen,
+    isCompactSearch,
+    subheaderContentRef,
+    tabsRef,
+    searchWidthRef,
+  } = useAdminPanelSearchLayout(visibleTabs);
   const {
     users,
     isLoading: isUsersLoading,
@@ -181,37 +146,6 @@ export default function AdminPanelPage() {
     : isAdminsTab
       ? "Search admins..."
       : "Search tickets...";
-
-  const measureSearchLayout = useCallback(() => {
-    const container = subheaderContentRef.current;
-    const tabs = tabsRef.current;
-    const searchMeasurement = searchWidthRef.current;
-    if (!container || !tabs || !searchMeasurement) return;
-
-    const styles = window.getComputedStyle(container);
-    const gap = Number.parseFloat(styles.columnGap || styles.gap) || 0;
-    const requiredWidth = tabs.scrollWidth + searchMeasurement.offsetWidth + gap;
-    const shouldCompact = requiredWidth > container.clientWidth;
-    setIsCompactSearch((current) =>
-      current === shouldCompact ? current : shouldCompact
-    );
-  }, []);
-
-  useLayoutEffect(() => {
-    if (isSearchOpen) return;
-
-    measureSearchLayout();
-    if (typeof ResizeObserver === "undefined") {
-      window.addEventListener("resize", measureSearchLayout);
-      return () => window.removeEventListener("resize", measureSearchLayout);
-    }
-
-    const observer = new ResizeObserver(measureSearchLayout);
-    if (subheaderContentRef.current) observer.observe(subheaderContentRef.current);
-    if (tabsRef.current) observer.observe(tabsRef.current);
-    if (searchWidthRef.current) observer.observe(searchWidthRef.current);
-    return () => observer.disconnect();
-  }, [isSearchOpen, measureSearchLayout, visibleTabs]);
 
   useEffect(() => {
     if (visibleTabs.length > 0 && !visibleTabs.includes(activeTab)) {
