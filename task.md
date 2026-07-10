@@ -420,3 +420,6 @@ The project should end up being:
 * Free of hidden performance issues.
 * Consistent across the entire codebase.
 * Ready for long-term development by a team.
+
+
+<!-- claude --resume 7443e7a0-e486-4b9e-b4b1-2642cb9c71b1 -->

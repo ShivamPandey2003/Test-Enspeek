@@ -54,3 +54,49 @@ export const getUserActionDefinitionKey = (
 
   return "updateUserSubscription";
 };
+
+export const getTableEmptyMessage = (
+  error: unknown,
+  label: "users" | "admins" | "tickets"
+) => {
+  if (error instanceof globalThis.Error) {
+    return error.message;
+  }
+
+  if (error) {
+    return `Unable to load ${label}.`;
+  }
+
+  return `No ${label} found`;
+};
+
+export const formatStatusLabel = (status: string) => {
+  const normalizedStatus = status.trim();
+
+  if (!normalizedStatus) return "-";
+
+  return normalizedStatus
+    .split(/\s+/)
+    .map((word) => `${word.charAt(0).toUpperCase()}${word.slice(1).toLowerCase()}`)
+    .join(" ");
+};
+
+export const getTicketStatusTone = (
+  status: string
+): "primary" | "success" | "danger" | "warning" | "neutral" => {
+  const normalizedStatus = status.toLowerCase();
+
+  if (["resolved", "closed", "completed"].includes(normalizedStatus)) {
+    return "success";
+  }
+
+  if (["rejected", "failed", "cancelled"].includes(normalizedStatus)) {
+    return "danger";
+  }
+
+  if (["pending", "in progress", "open"].includes(normalizedStatus)) {
+    return "warning";
+  }
+
+  return "neutral";
+};
