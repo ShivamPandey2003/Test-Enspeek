@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import DOMPurify from "dompurify";
 import type { AdminPanelUser } from "../api-network/admin-panel/query";
 import { toast } from "sonner";
 
@@ -104,8 +105,11 @@ const escapeHtml = (value: string) =>
 export const formatRichText = (value?: string) => {
   if (!value) return "";
 
+  // When the source already contains HTML, sanitize it before it reaches
+  // `dangerouslySetInnerHTML`. Previously the raw string was returned as-is,
+  // which allowed script/`onerror` injection from AI/backend-supplied content.
   if (HTML_TAG_PATTERN.test(value)) {
-    return value;
+    return DOMPurify.sanitize(value);
   }
 
   return escapeHtml(value).replace(/\r\n|\r|\n/g, "<br />");

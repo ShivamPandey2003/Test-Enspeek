@@ -1,11 +1,24 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
 const encrypt = (data: any): string => btoa(JSON.stringify(data));
-const decrypt = (data: string): User => JSON.parse(atob(data));
+
+// Decode the persisted user, tolerating a corrupt/tampered `localStorage`
+// value. A bad payload previously threw during store initialization and
+// white-screened the whole app; now we fall back to the default (logged-out)
+// state instead.
+const decrypt = (data: string): User | null => {
+  try {
+    return JSON.parse(atob(data)) as User;
+  } catch {
+    localStorage.removeItem("user");
+    return null;
+  }
+};
 
 const saved = localStorage.getItem("user");
+const savedUser = saved ? decrypt(saved) : null;
 
-const initialState: User = saved ? decrypt(saved) : {
+const initialState: User = savedUser ?? {
   apiToken: "",
   email: "",
   userId: "",
