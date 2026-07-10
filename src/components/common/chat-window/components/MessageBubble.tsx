@@ -57,11 +57,9 @@ const MessageBubble = ({ msg, onCopyLink, surveySlot }: MessageBubbleProps) => {
         )
       )}
       {surveySlot}
-      <>
-        {msg.liveLink && (
-          <ResearchLink liveLink={msg.liveLink} onCopy={onCopyLink} />
-        )}
-      </>
+      {msg.liveLink && (
+        <ResearchLink liveLink={msg.liveLink} onCopy={onCopyLink} />
+      )}
     </>
   );
 };

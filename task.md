@@ -1,274 +1,422 @@
-You are a senior React + TypeScript architect.
+# Comprehensive Project Audit, Refactoring & Bug Fix Mission
 
-I have a large `ChatWindow` component that has become difficult to maintain. Your task is to **refactor it without changing any existing functionality or UI**.
+You are acting as a Senior Staff Software Engineer, Software Architect, Performance Engineer, and Code Reviewer.
+
+Your objective is **not just to fix bugs**, but to transform this entire project into a production-quality codebase that is clean, maintainable, easy to understand, and highly performant.
 
 ## Primary Goal
 
-Make this component:
+Perform a complete audit of the entire project.
 
-* Easier to read
-* Easier to maintain
-* Easier to test
-* Easier to extend
-* More performant by preventing unnecessary re-renders
+You must inspect **every single file** without skipping anything.
 
-The final application **must behave exactly the same** as before.
+Do not assume something is correct simply because it compiles.
 
-## Important Rules
-
-* **Do NOT change any business logic.**
-* **Do NOT change any UI or styling.**
-* **Do NOT change API calls.**
-* **Do NOT change Redux logic.**
-* **Do NOT change user experience.**
-* **Do NOT introduce bugs.**
-* Every existing feature must continue working exactly as it does now.
+Think like someone preparing this codebase for a large engineering team.
 
 ---
 
-# Refactoring Objectives
+# Phase 1 — Project Understanding
 
-## 1. Break the component into smaller components
+Before modifying anything:
 
-Move large UI blocks into dedicated components.
+* Read the complete project.
+* Understand the architecture.
+* Understand data flow.
+* Understand folder structure.
+* Understand business logic.
+* Understand state management.
+* Understand API flow.
+* Understand component hierarchy.
+* Understand custom hooks.
+* Understand utility functions.
+* Understand routing.
+* Understand styling architecture.
+* Understand build configuration.
+* Understand TypeScript configuration.
+* Understand testing setup.
+* Understand deployment configuration if present.
 
-For example:
+Create a mental model of how everything works.
 
-* ChatMessage
-* UserMessage
-* AIMessage
-* SurveyMessage
-* SurveyChart
-* SurveyTable
-* MessageActions
-* ChatHeader
-* ChatBody
-* EmptyConversation
-* LoadingConversation
-* ChatModals
-* MessageBubble
-* MessageAvatar
-
-Choose a clean folder structure.
-
----
-
-## 2. Extract reusable hooks
-
-Move complex logic into custom hooks.
-
-Examples:
-
-* useChatScrolling()
-* useChatModals()
-* useSurveyData()
-* useMessageFormatting()
-* useClipboard()
-* useSuggestionHandling()
-
-The main component should become mostly JSX composition.
+Do NOT start randomly editing files.
 
 ---
 
-## 3. Extract utilities
+# Phase 2 — Full Audit Report
 
-Move repeated logic into utility files.
+Generate a report before making changes.
 
-Examples:
+Include every issue you discover.
 
-* surveyDataParser.ts
-* chartBuilder.ts
-* tableBuilder.ts
-* messageHelpers.ts
-* scrollHelpers.ts
-* typeGuards.ts
+## Architecture Problems
 
-Avoid large inline helper functions.
+* Tight coupling
+* Circular dependencies
+* Bad abstractions
+* Duplicate logic
+* Poor folder organization
+* Components with too many responsibilities
+* Business logic inside UI
+* Poor separation of concerns
 
 ---
 
-## 4. Prevent unnecessary re-renders
+## React Problems
 
-Optimize rendering wherever possible.
+Find every:
 
-Examples:
+* unnecessary re-render
+* unnecessary useEffect
+* missing dependency
+* stale closure
+* memory leak
+* infinite render possibility
+* unnecessary state
+* derived state
+* prop drilling
+* context misuse
+* unstable callback
+* unstable object creation
+* incorrect key usage
+* hydration issue
+* StrictMode issue
+* Suspense issue
+* lazy loading opportunity
 
-* React.memo
+---
+
+## Performance Problems
+
+Check for:
+
+* expensive renders
+* missing memoization
+* unnecessary memoization
+* bad React Query usage
+* Redux performance
+* Zustand performance
+* selector optimization
+* large bundle size
+* duplicate packages
+* unnecessary imports
+* code splitting opportunities
+* lazy loading
+* image optimization
+* CSS optimization
+* unnecessary API calls
+* waterfall requests
+* layout shift
+* unnecessary DOM updates
+
+---
+
+## TypeScript Problems
+
+Find:
+
+* any usage
+* unsafe casting
+* incorrect generic usage
+* duplicated interfaces
+* poor naming
+* weak typing
+* nullable issues
+* unreachable code
+* dead code
+
+---
+
+## UI Problems
+
+Find:
+
+* inconsistent spacing
+* accessibility issues
+* keyboard navigation issues
+* missing aria labels
+* bad responsive layouts
+* inconsistent colors
+* inconsistent typography
+* duplicated components
+
+---
+
+## Code Quality
+
+Find:
+
+* duplicated code
+* long functions
+* long components
+* magic numbers
+* magic strings
+* nested conditions
+* nested ternaries
+* unnecessary comments
+* poor naming
+* inconsistent formatting
+* poor file organization
+
+---
+
+## API Layer
+
+Check:
+
+* error handling
+* retry logic
+* loading states
+* race conditions
+* cancellation
+* timeout handling
+* caching
+* optimistic updates
+* request deduplication
+
+---
+
+## Security
+
+Check for:
+
+* XSS
+* unsafe HTML rendering
+* token handling
+* secret exposure
+* localStorage misuse
+* cookie misuse
+* authentication issues
+* authorization issues
+
+---
+
+## Testing
+
+Report:
+
+* missing tests
+* components difficult to test
+* missing edge cases
+* flaky logic
+
+---
+
+## Bundle Analysis
+
+Identify:
+
+* large dependencies
+* duplicated libraries
+* unnecessary packages
+* tree shaking opportunities
+
+---
+
+# Phase 3 — Prioritize
+
+Categorize every issue.
+
+## Critical
+
+Can crash the app or produce incorrect behavior.
+
+## High
+
+Performance or maintainability issue.
+
+## Medium
+
+Code quality issue.
+
+## Low
+
+Minor cleanup.
+
+Estimate the impact of every issue.
+
+---
+
+# Phase 4 — Refactoring Rules
+
+You must NOT refactor the entire project at once.
+
+Instead, work component by component.
+
+For every component:
+
+1. Understand it.
+2. Explain its purpose.
+3. List all issues.
+4. Fix all bugs.
+5. Improve readability.
+6. Improve performance.
+7. Improve naming.
+8. Improve typing.
+9. Remove duplication.
+10. Simplify logic.
+11. Keep functionality identical unless a bug exists.
+12. Follow React and TypeScript best practices.
+13. Follow SOLID principles where appropriate.
+14. Reduce complexity.
+15. Make the component beginner-friendly.
+
+The finished code should be understandable by a junior developer with only basic React knowledge.
+
+---
+
+# Coding Standards
+
+The resulting code should:
+
+* be simple
+* be readable
+* be modular
+* be maintainable
+* avoid clever tricks
+* avoid unnecessary abstractions
+* use descriptive names
+* have small functions
+* have small components
+* follow single responsibility
+* avoid deeply nested code
+* avoid duplicate logic
+* have predictable behavior
+
+Prefer clarity over cleverness.
+
+---
+
+# Performance Standards
+
+Every refactor should improve or preserve performance.
+
+Look for:
+
+* unnecessary renders
+* unstable references
+* object recreation
+* callback recreation
+* unnecessary effects
+* unnecessary state
+* expensive computations
+
+Only use:
+
 * useMemo
 * useCallback
-* stable props
-* avoid recreating arrays/objects
-* avoid unnecessary state updates
+* React.memo
 
-Only memoize where it provides actual benefit.
+when there is a measurable benefit.
 
----
-
-## 5. Reduce component size
-
-The main ChatWindow component should mainly orchestrate the application.
-
-Ideally it should read like:
-
-* get state
-* call hooks
-* render components
-
-Large rendering logic should live elsewhere.
+Do not over-optimize.
 
 ---
 
-## 6. Separate survey rendering
+# Documentation
 
-The survey rendering section is very large.
+For every completed component provide:
 
-Move all survey-related parsing and rendering into dedicated modules.
+## Summary
 
-Example:
+What the component does.
 
-SurveyRenderer
+## Bugs Fixed
 
-internally decides whether to render:
+List everything fixed.
 
-* Chart
-* Table
-* Crosstab
-* External Image
+## Refactors
 
-The ChatWindow should not know those implementation details.
+Explain every improvement.
 
----
+## Performance Improvements
 
-## 7. Improve readability
+Explain why performance improved.
 
-Replace deeply nested JSX with small components.
+## Readability Improvements
 
-Avoid:
+Explain why the code is easier to understand.
 
-* nested ternaries
-* giant anonymous functions
-* inline calculations
-* long JSX conditions
+## Risk Level
 
-Prefer early returns and descriptive variables.
+Low / Medium / High
 
 ---
 
-## 8. Organize files
+# Workflow (Very Important)
 
-Create a maintainable folder structure.
+You MUST work incrementally.
 
-Example:
+Never refactor multiple major components in one step.
 
-chat/
+Process:
 
-* ChatWindow.tsx
-* ChatMessage.tsx
-* ChatAvatar.tsx
-* ChatSuggestion.tsx
-* SurveyRenderer.tsx
-* MessageBubble.tsx
-* MessageActions.tsx
-* EmptyState.tsx
-* LoadingState.tsx
-* hooks/
-* utils/
-* types/
+1. Choose ONE component.
+2. Analyze it.
+3. Show your findings.
+4. Show the proposed refactor.
+5. Apply the refactor.
+6. Verify behavior is unchanged (except intentional bug fixes).
+7. Present a summary.
+8. STOP.
 
-You may improve this structure if you find a better one.
+Then ask:
 
----
+> "Component complete. Would you like me to continue with the next component?"
 
-## 9. Preserve scrolling behavior
+Do not continue until I explicitly approve.
 
-The scrolling system is critical.
-
-Do not change its behavior.
-
-You may move it into a custom hook but it must continue working exactly as before.
+Repeat this process until the entire project has been completed.
 
 ---
 
-## 10. Preserve modal behavior
+# Bug Hunting
 
-Chart modal
+Assume bugs exist even if they are not immediately visible.
 
-Table modal
+Look for:
 
-Crosstab modal
+* edge cases
+* race conditions
+* async issues
+* stale data
+* concurrency problems
+* incorrect cleanup
+* hidden performance bottlenecks
+* inconsistent state
+* unreachable code
+* memory leaks
+* event listener leaks
+* improper error handling
 
-must continue working exactly the same.
-
----
-
-## 11. Preserve Redux behavior
-
-Do not change:
-
-* selectors
-* dispatch flow
-* store structure
-* actions
-
-Only reorganize where the code lives.
+Think like a QA engineer and a performance engineer.
 
 ---
 
-## 12. Improve TypeScript
+# Constraints
 
-Reduce usage of:
-
-* any
-* unknown where avoidable
-* repeated type assertions
-
-Create reusable interfaces where appropriate.
-
----
-
-## 13. Remove duplicate logic
-
-Find repeated code and extract reusable helpers/components.
+* Do not introduce unnecessary dependencies.
+* Do not rewrite working code without a clear benefit.
+* Preserve existing functionality unless fixing a bug.
+* Keep commits focused on one component or logical unit.
+* Prefer composition over inheritance.
+* Prefer explicit code over clever abstractions.
+* Ensure every change is production-ready.
 
 ---
 
-## 14. Performance
+# Success Criteria
 
-Avoid rendering expensive components unless necessary.
+The project should end up being:
 
-Memoize expensive survey parsing and chart/table data generation.
-
----
-
-## 15. Keep commits incremental
-
-Refactor in small safe steps.
-
-Suggested order:
-
-1. Extract utility functions.
-2. Extract custom hooks.
-3. Extract presentational components.
-4. Extract survey renderer.
-5. Optimize rendering with React.memo/useMemo/useCallback.
-6. Clean imports.
-7. Remove dead code.
-8. Verify behavior after each step.
-
-Never perform a massive rewrite in one step.
-
----
-
-# Deliverables
-
-* Smaller, modular components
-* Cleaner folder structure
-* Better separation of concerns
-* Reduced unnecessary re-renders
-* Easier future maintenance
-* Zero functional regressions
-* No UI changes
-* No API changes
-* No behavior changes
-
-Treat this as a production-grade refactor focused on maintainability, readability, and performance—not a feature rewrite.
+* Easier to understand.
+* Easier to maintain.
+* Easier for beginners to contribute to.
+* Faster.
+* More reliable.
+* Better typed.
+* More modular.
+* Free of obvious bugs.
+* Free of hidden performance issues.
+* Consistent across the entire codebase.
+* Ready for long-term development by a team.
