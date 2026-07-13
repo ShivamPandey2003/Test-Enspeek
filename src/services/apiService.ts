@@ -191,7 +191,7 @@ export const apiRequest = async (
     // Terminal fallback: any error not matched above (network failure, timeout,
     // CORS, an already-toasted re-thrown error, or an unexpected shape) must
     // still reject so callers never receive `undefined` from `apiRequest`.
-    if (error?.hasToast) {
+    if (error?.hasToast || error?.status === 401) {
       throw error;
     }
     const message = getApiErrorMessage(error, "Something went wrong. Please try again.");
