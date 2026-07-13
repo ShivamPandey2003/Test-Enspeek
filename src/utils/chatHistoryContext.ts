@@ -1,4 +1,4 @@
-// import { getPageName } from "./getPageName";
+import { NewPageNameProvider } from "./getPageName";
 
 const STUDY_CONTEXT_PATHS = [
   "/questionnaire",
@@ -17,7 +17,7 @@ export const getChatHistoryContext = (
   pathname: string,
   studyID?: string
 ) => {
-  const pageName = isSupportedChatHistoryPath(pathname) ? "Chat_INSIDE" : "";
+  const pageName = isSupportedChatHistoryPath(pathname) ? NewPageNameProvider(pathname) : "";
   const resolvedStudyID = shouldIncludeStudyIdForChatHistory(pathname)
     ? studyID
     : undefined;
