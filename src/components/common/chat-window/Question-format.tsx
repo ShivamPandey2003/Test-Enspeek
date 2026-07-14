@@ -16,9 +16,9 @@ const Question_Format: FC<Question_FormatProps> = ({ questions = [], instruction
             questions
                 .map((question) =>
                     [
-                        question.label,
-                        question.qText,
-                        question.qType,
+                        question?.label,
+                        question?.qText,
+                        question?.qType,
                         Array.isArray(question.options) ? question.options.join("\u001f") : "",
                     ].join("\u001e")
                 )
