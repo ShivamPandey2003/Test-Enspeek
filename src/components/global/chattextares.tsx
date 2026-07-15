@@ -3,11 +3,10 @@ import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "../../store/store";
 import { clearPendingSuggestions } from "../../store/ChatSlice";
 import { cn, handleKeyPress } from "../../utils";
-import { LuMessageCircle, LuSendHorizontal } from "react-icons/lu";
+import { LuListChecks, LuMessageCircle, LuSend } from "react-icons/lu";
 import { useLocation } from "react-router";
 import NewDropdown from "./NewDropDown";
 import buildPromptItems from "./PromptsList";
-import { CiCircleList } from "react-icons/ci";
 import useAiChat from "../../api-network/global/ai-chat";
 import Button from "../ui/Button";
 import {
@@ -233,21 +232,23 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
 
       <div
         className={cn(
-          "home-surface z-50 flex cursor-text flex-col border home-border-strong transition-all duration-300 ease-in-out",
+          "z-50 flex cursor-text flex-col rounded-3xl border border-slate-100 bg-white p-4 shadow-[0_4px_24px_rgba(79,70,229,0.08)] transition-all duration-300 ease-in-out",
           isChatOpen
             ? "opacity-100 translate-y-0 scale-100"
             : "opacity-0 translate-y-8 scale-95 pointer-events-none",
           isPanelPlacement
-            ? "questionnaire-chatbar-panel relative m-4 mt-3 w-auto overflow-hidden rounded-[24px] bg-white"
+            ? "relative m-4 mt-3 w-auto overflow-hidden"
             : isMobileSheetPlacement
-              ? "relative m-3 mt-2 w-auto overflow-hidden rounded-[20px] bg-white shadow-[0_10px_24px_rgba(15,23,42,0.08)]"
-              : "platform-chat-shell absolute bottom-4 left-1/2 hidden w-[min(94%,1120px)] -translate-x-1/2 rounded-[26px] md:bottom-6 md:flex",
+              ? "relative m-3 mt-2 w-auto overflow-hidden"
+              : "absolute bottom-4 left-1/2 hidden w-[min(94%,1120px)] -translate-x-1/2 md:bottom-6 md:flex",
           !isHome && !isPanelPlacement && "w-[min(92%,820px)]",
         )}
       >
         {hasSuggestions && (
-          <div className="flex items-center gap-3 overflow-visible p-2">
-            <h3 className="text-login-primary font-medium">Quick actions</h3>
+          <div className="flex items-center gap-3 overflow-x-auto pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <h3 className="shrink-0 text-sm font-semibold text-indigo-600">
+              Quick actions
+            </h3>
             {suggestionList.map((item: string) => {
               return (
                 <TruncatedSuggestionButton
@@ -263,7 +264,7 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
 
         <div
           className={cn(
-            "flex items-center gap-3 overflow-visible p-2",
+            "flex items-end gap-2 rounded-2xl border border-slate-100 bg-slate-50/60 px-3 py-2",
             isMobileSheetPlacement && "gap-2",
           )}
           style={{ maxHeight: isMobileSheetPlacement ? "92px" : "400px" }}
@@ -278,10 +279,10 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
                 variant="ghost"
                 size="icon"
                 tooltip="Quick Commands"
-                className="home-dropdown-icon-wrap h-10 w-10 shrink-0 rounded-full shadow-sm hover:opacity-90"
+                className="h-8 w-8 shrink-0 rounded-full bg-indigo-50 text-indigo-400 hover:bg-indigo-100"
                 disabled
               >
-                <CiCircleList className="w-5 h-5" />
+                <LuListChecks className="w-4 h-4" />
               </Button>
             }
             items={buildPromptItems(setDraftMessage)}
@@ -297,9 +298,9 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
             onKeyDown={(e) => handleKeyPress(e, handleSubmit)}
             placeholder="Ask me anything..."
             className={cn(
-              "home-chat-placeholder home-text min-h-8 w-full resize-none border-0 bg-transparent py-2 pr-2 text-[16px] focus:ring-0 focus-visible:outline-none",
+              "min-h-8 max-h-40 w-full resize-none border-0 bg-transparent py-2 pr-2 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-0 focus-visible:outline-none",
               "min-h-8",
-              isPanelPlacement && "text-[15px] md:text-[16px]",
+              isPanelPlacement && "text-sm",
               isMobileSheetPlacement &&
                 "max-h-20 overflow-y-hidden py-2.5 leading-5",
               isMobileSheetEmpty &&
@@ -315,15 +316,12 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
               disabled={isChatInputDisabled}
               data-test-id="SEND"
               onClick={handleSubmit}
-              className={cn(
-                "platform-chat-send h-11 w-11 border-0 bg-gradient-to-r from-login-primary to-login-bg-end text-sm font-medium transition-all hover:brightness-95 disabled:opacity-75",
-                isPanelPlacement && "platform-chat-send-panel h-12 w-12",
-              )}
+              className="h-9 w-9 rounded-full border-0 bg-indigo-500 text-sm font-medium text-white shadow-md transition-all hover:bg-indigo-600 disabled:cursor-not-allowed disabled:bg-indigo-200 disabled:opacity-100 disabled:shadow-none"
             >
               {isChatInputDisabled ? (
                 <span className="h-4 w-4 rounded-full border-2 border-white/35 border-t-white animate-spin" />
               ) : (
-                <LuSendHorizontal className="h-5 w-5 text-white" />
+                <LuSend className="h-4 w-4 text-white" />
               )}
               <span className="sr-only">Send message</span>
             </Button>

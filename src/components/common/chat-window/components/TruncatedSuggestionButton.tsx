@@ -117,7 +117,7 @@ const TruncatedSuggestionButton = ({
     // button is disabled (disabled buttons swallow mouse events).
     <span
       ref={wrapperRef}
-      className="inline-flex min-w-0"
+      className="inline-flex min-w-0 shrink-0"
       onMouseEnter={showTooltip}
       onMouseLeave={hideTooltip}
       onFocus={showTooltip}
@@ -128,7 +128,7 @@ const TruncatedSuggestionButton = ({
         variant="chip"
         size="default"
         disabled={disabled}
-        className="h-auto min-h-8 min-w-0 max-w-48 rounded-full border home-border bg-white px-2.5 py-1.5 text-left text-[13px] font-semibold leading-snug shadow-sm hover:bg-brand-primary-softest"
+        className="h-auto min-w-0 max-w-48 shrink-0 whitespace-nowrap rounded-full border border-indigo-100 bg-white px-4 py-2 text-left text-sm font-medium leading-snug text-slate-700 shadow-sm hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700 active:scale-[0.97]"
         onClick={onClick}
       >
         <span ref={textRef} className="block min-w-0 max-w-full truncate">
