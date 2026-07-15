@@ -263,7 +263,7 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
 
         <div
           className={cn(
-            "flex items-center gap-3 overflow-visible p-2 bg-slate-100",
+            "flex items-center gap-3 overflow-visible p-2",
             isMobileSheetPlacement && "gap-2",
           )}
           style={{ maxHeight: isMobileSheetPlacement ? "92px" : "400px" }}
@@ -278,7 +278,7 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
                 variant="ghost"
                 size="icon"
                 tooltip="Quick Commands"
-                className="home-dropdown-icon-wrap h-10 w-10 shrink-0 rounded-full shadow-sm hover:opacity-90 bg-white!"
+                className="home-dropdown-icon-wrap h-10 w-10 shrink-0 rounded-full shadow-sm hover:opacity-90"
                 disabled
               >
                 <CiCircleList className="w-5 h-5" />
