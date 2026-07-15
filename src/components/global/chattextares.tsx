@@ -1,6 +1,7 @@
 import * as React from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "../../store/store";
+import { clearPendingSuggestions } from "../../store/ChatSlice";
 import { cn, handleKeyPress } from "../../utils";
 import { LuMessageCircle, LuSendHorizontal } from "react-icons/lu";
 import { useLocation } from "react-router";
@@ -18,6 +19,7 @@ import {
   isFloatingChatDisabledPath,
   useHasOpenModal,
 } from "../../utils/useFloatingChatVisibility";
+import TruncatedSuggestionButton from "../common/chat-window/components/TruncatedSuggestionButton";
 
 interface ChatTextAreaProps {
   placement?: "floating" | "panel" | "mobileSheet";
@@ -27,10 +29,18 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
   placement = "floating",
 }) => {
   const internalTextareaRef = React.useRef<HTMLTextAreaElement>(null);
-  const selectionRef = React.useRef<{ start: number; end: number } | null>(null);
-  const { hasLoadedHistory, isHistoryLoading, isTyping, isChatOpen, pending, pendingSuggestionCount } = useSelector(
-    (state: RootState) => state.chat
+  const selectionRef = React.useRef<{ start: number; end: number } | null>(
+    null,
   );
+  const {
+    hasLoadedHistory,
+    isHistoryLoading,
+    isTyping,
+    isChatOpen,
+    pending,
+    pendingSuggestionCount,
+    message,
+  } = useSelector((state: RootState) => state.chat);
   const { pathname } = useLocation();
   const hasOpenModal = useHasOpenModal();
   const isHome = pathname === "/";
@@ -38,7 +48,11 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
   const isMobileSheetPlacement = placement === "mobileSheet";
   const hideFloatingLauncher =
     hasOpenModal || isFloatingChatDisabledPath(pathname);
-  const { message, openChat, sendMessage, setDraftMessage } = useAiChat();
+  const { messages, openChat, sendMessage, setDraftMessage } = useAiChat();
+  const dispatch = useDispatch();
+  const suggestionList: string[] =
+    (messages[messages.length - 1]?.suggestion?.list as string[]) ?? [];
+  const hasSuggestions = suggestionList.length > 0;
   const isMobileSheetEmpty = isMobileSheetPlacement && message.length === 0;
   const { isCurrentHistoryContext } = useChatHistoryContextStatus();
   const isChatInputDisabled =
@@ -81,6 +95,24 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
     openChat();
   };
 
+  const sendMessageRef = React.useRef(sendMessage);
+  React.useEffect(() => {
+    sendMessageRef.current = sendMessage;
+  });
+  const handleSend = React.useCallback((value: string) => {
+    sendMessageRef.current(value);
+  }, []);
+
+  // Suggestions now render immediately in this bar (the old ChatSuggestionBlock
+  // that released this lock via onSuggestionsVisible is no longer rendered), so
+  // clear the pending-suggestion lock here once they're on screen. Without this
+  // the count never returns to 0 and isChatInputDisabled latches to true.
+  React.useEffect(() => {
+    if (hasSuggestions && pendingSuggestionCount > 0) {
+      dispatch(clearPendingSuggestions());
+    }
+  }, [dispatch, hasSuggestions, pendingSuggestionCount]);
+
   React.useLayoutEffect(() => {
     const textarea = internalTextareaRef.current;
     if (textarea) {
@@ -90,7 +122,7 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
       const contentHeight = textarea.scrollHeight;
       const newHeight = Math.max(
         minTextareaHeight,
-        Math.min(contentHeight, maxTextareaHeight)
+        Math.min(contentHeight, maxTextareaHeight),
       );
       textarea.style.height = `${newHeight}px`;
       textarea.style.overflowY =
@@ -99,7 +131,7 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
       if (selectionRef.current && document.activeElement === textarea) {
         textarea.setSelectionRange(
           selectionRef.current.start,
-          selectionRef.current.end
+          selectionRef.current.end,
         );
         selectionRef.current = null;
       }
@@ -167,10 +199,16 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
     };
 
     window.addEventListener(FOCUS_CHAT_INPUT_EVENT, handleModalCloseFocus);
-    window.addEventListener(MODAL_CLOSE_FOCUS_CHAT_EVENT, handleModalCloseFocus);
+    window.addEventListener(
+      MODAL_CLOSE_FOCUS_CHAT_EVENT,
+      handleModalCloseFocus,
+    );
     return () => {
       window.removeEventListener(FOCUS_CHAT_INPUT_EVENT, handleModalCloseFocus);
-      window.removeEventListener(MODAL_CLOSE_FOCUS_CHAT_EVENT, handleModalCloseFocus);
+      window.removeEventListener(
+        MODAL_CLOSE_FOCUS_CHAT_EVENT,
+        handleModalCloseFocus,
+      );
     };
   }, [focusChatInput, isChatOpen, openChat]);
 
@@ -180,18 +218,18 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
         !isPanelPlacement &&
         !isMobileSheetPlacement &&
         !hideFloatingLauncher && (
-        <div className="fixed bottom-8 right-8 z-50 hidden md:block">
-          <Button
-            onClick={handleOpen}
-            variant="theme"
-            size="icon"
-            tooltip="Open Chat"
-            className="h-14 w-14 text-white shadow-lg transition-all duration-300 hover:scale-110"
-          >
-            <LuMessageCircle className="w-6 h-6" />
-          </Button>
-        </div>
-      )}
+          <div className="fixed bottom-8 right-8 z-50 hidden md:block">
+            <Button
+              onClick={handleOpen}
+              variant="theme"
+              size="icon"
+              tooltip="Open Chat"
+              className="h-14 w-14 text-white shadow-lg transition-all duration-300 hover:scale-110"
+            >
+              <LuMessageCircle className="w-6 h-6" />
+            </Button>
+          </div>
+        )}
 
       <div
         className={cn(
@@ -203,14 +241,30 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
             ? "questionnaire-chatbar-panel relative m-4 mt-3 w-auto overflow-hidden rounded-[24px] bg-white"
             : isMobileSheetPlacement
               ? "relative m-3 mt-2 w-auto overflow-hidden rounded-[20px] bg-white shadow-[0_10px_24px_rgba(15,23,42,0.08)]"
-            : "platform-chat-shell absolute bottom-4 left-1/2 hidden w-[min(94%,1120px)] -translate-x-1/2 rounded-[26px] md:bottom-6 md:flex",
-          !isHome && !isPanelPlacement && "w-[min(92%,820px)]"
+              : "platform-chat-shell absolute bottom-4 left-1/2 hidden w-[min(94%,1120px)] -translate-x-1/2 rounded-[26px] md:bottom-6 md:flex",
+          !isHome && !isPanelPlacement && "w-[min(92%,820px)]",
         )}
       >
+        {hasSuggestions && (
+          <div className="flex items-center gap-3 overflow-visible p-2">
+            <h3 className="text-login-primary font-medium">Quick actions</h3>
+            {suggestionList.map((item: string) => {
+              return (
+                <TruncatedSuggestionButton
+                  key={item}
+                  item={item}
+                  disabled={isChatInputDisabled}
+                  onClick={() => handleSend(item)}
+                />
+              );
+            })}
+          </div>
+        )}
+
         <div
           className={cn(
-            "flex items-center gap-3 overflow-visible p-2",
-            isMobileSheetPlacement && "gap-2"
+            "flex items-center gap-3 overflow-visible p-2 bg-slate-100",
+            isMobileSheetPlacement && "gap-2",
           )}
           style={{ maxHeight: isMobileSheetPlacement ? "92px" : "400px" }}
         >
@@ -224,8 +278,8 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
                 variant="ghost"
                 size="icon"
                 tooltip="Quick Commands"
-                className="home-dropdown-icon-wrap h-10 w-10 shrink-0 rounded-full shadow-sm hover:opacity-90"
-              disabled
+                className="home-dropdown-icon-wrap h-10 w-10 shrink-0 rounded-full shadow-sm hover:opacity-90 bg-white!"
+                disabled
               >
                 <CiCircleList className="w-5 h-5" />
               </Button>
@@ -246,8 +300,10 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
               "home-chat-placeholder home-text min-h-8 w-full resize-none border-0 bg-transparent py-2 pr-2 text-[16px] focus:ring-0 focus-visible:outline-none",
               "min-h-8",
               isPanelPlacement && "text-[15px] md:text-[16px]",
-              isMobileSheetPlacement && "max-h-20 overflow-y-hidden py-2.5 leading-5",
-              isMobileSheetEmpty && "h-10 whitespace-nowrap overflow-x-hidden text-ellipsis"
+              isMobileSheetPlacement &&
+                "max-h-20 overflow-y-hidden py-2.5 leading-5",
+              isMobileSheetEmpty &&
+                "h-10 whitespace-nowrap overflow-x-hidden text-ellipsis",
             )}
           />
           <div className="ml-auto flex items-center gap-2">
@@ -261,7 +317,7 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
               onClick={handleSubmit}
               className={cn(
                 "platform-chat-send h-11 w-11 border-0 bg-gradient-to-r from-login-primary to-login-bg-end text-sm font-medium transition-all hover:brightness-95 disabled:opacity-75",
-                isPanelPlacement && "platform-chat-send-panel h-12 w-12"
+                isPanelPlacement && "platform-chat-send-panel h-12 w-12",
               )}
             >
               {isChatInputDisabled ? (
