@@ -23,7 +23,14 @@ interface Props {
 
 export default function AddCustomTableListModal({ rows, setRows }: Props) {
   const handleCreateRow = () => {
-    const newRowId = `CT-${rows.length + 1}`;
+    // Derive the next id from the highest existing `CT-n`, not the row count:
+    // `rows.length + 1` collides with a surviving id after a middle row is
+    // deleted, producing duplicate ids/React keys.
+    const maxNum = rows.reduce((max, row) => {
+      const n = Number(String(row.id).replace(/^CT-/, ""));
+      return Number.isFinite(n) ? Math.max(max, n) : max;
+    }, 0);
+    const newRowId = `CT-${maxNum + 1}`;
     setRows([
       ...rows,
       {

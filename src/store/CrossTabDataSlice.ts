@@ -2,10 +2,23 @@ import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
 const localData = localStorage.getItem("BannerPoniterList");
 
-const initialState: CrossTabDataSliceState = localData
+// Parse the persisted banner list once, tolerating a corrupt value instead of
+// throwing at store init.
+const parsePersistedBanners = (raw: string | null): Banner[] | null => {
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw) as Banner[];
+  } catch {
+    localStorage.removeItem("BannerPoniterList");
+    return null;
+  }
+};
+const persistedBanners = parsePersistedBanners(localData);
+
+const initialState: CrossTabDataSliceState = persistedBanners
   ? {
-      Banners: JSON.parse(localData),
-      BannersAll: JSON.parse(localData),
+      Banners: persistedBanners,
+      BannersAll: persistedBanners,
       optsData: {},
       varsData: {},
       LogicData: {},

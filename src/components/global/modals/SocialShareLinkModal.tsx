@@ -49,20 +49,20 @@ export default function SocialShareLinkModal({
       <div className="flex flex-col gap-5">
         {linkData?.short_url ? (
           <>
-            <div className="modal-card flex items-center gap-5 p-3">
+            <div className="modal-card flex items-start gap-3 p-3 sm:gap-5">
               <span className={`modal-header-icon ${accentClassName}`}>
                 <LuLink className="h-5 w-5" />
               </span>
               <div className="min-w-0 flex-1 text-left">
-                <div className="flex items-center gap-3 overflow-hidden whitespace-nowrap">
-                  <strong className="questionnaire-heading shrink-0 text-[var(--color-text-strong)]">
+                <div className="flex min-w-0 flex-wrap items-start gap-x-3 gap-y-1">
+                  <strong className="questionnaire-heading shrink-0 text-[var(--color-text-strong)] sm:pt-0.5">
                     Link:
                   </strong>
                   <a
                     href={linkData.short_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="min-w-0 truncate text-[var(--color-brand-primary)] underline decoration-dashed underline-offset-4"
+                    className="min-w-0 break-all text-[var(--color-brand-primary)] underline decoration-dashed underline-offset-4"
                   >
                     {linkData.short_url}
                   </a>
@@ -71,16 +71,16 @@ export default function SocialShareLinkModal({
             </div>
 
             {linkData.Message ? (
-              <div className="modal-card flex items-center gap-5 p-3">
+              <div className="modal-card flex items-start gap-3 p-3 sm:gap-5">
                 <span className={`modal-header-icon ${accentClassName}`}>
                   <LuMessageSquareQuote className="h-5 w-5" />
                 </span>
                 <div className="min-w-0 flex-1 text-left">
-                  <div className="flex items-center gap-3 overflow-hidden whitespace-nowrap">
-                    <p className="questionnaire-heading shrink-0 text-[var(--color-text-strong)]">
+                  <div className="flex min-w-0 flex-wrap items-start gap-x-3 gap-y-1">
+                    <p className="questionnaire-heading shrink-0 text-[var(--color-text-strong)] sm:pt-0.5">
                       Message:
                     </p>
-                    <p className="min-w-0 truncate text-[var(--color-text-default)]">
+                    <p className="min-w-0 whitespace-pre-wrap break-words text-[var(--color-text-default)]">
                       {linkData.Message}
                     </p>
                   </div>

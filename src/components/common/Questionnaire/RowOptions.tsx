@@ -1,7 +1,5 @@
 import React from "react";
 import Input from "../../ui/Input";
-import { LuTrash2 } from "react-icons/lu";
-import IconActionButton from "../../ui/IconActionButton";
 import OptionLogic from "./OptionLogic";
 
 interface RowOptions {
@@ -41,17 +39,23 @@ const RowOptions: React.FC<RowOptions> = ({
         required
       />
       {qID && optionID ? (
-        <OptionLogic qID={qID} rowIndex={optionID} optionText={Value} />
-      ) : null}
-      <IconActionButton
-        type="button"
-        tone="danger"
-        onClick={onDelete}
-        tooltip="Delete option"
-        className="h-7 w-7 p-1"
-      >
-        <LuTrash2 size={18} />
-      </IconActionButton>
+        <OptionLogic
+          qID={qID}
+          rowIndex={optionID}
+          optionText={Value}
+          onDelete={onDelete}
+        />
+      ) : (
+        <button
+          type="button"
+          onClick={onDelete}
+          className="inline-flex h-7 w-7 items-center justify-center rounded-full text-[var(--color-questionnaire-stop)]"
+          aria-label="Delete option"
+          title="Delete option"
+        >
+          &times;
+        </button>
+      )}
     </div>
   );
 };

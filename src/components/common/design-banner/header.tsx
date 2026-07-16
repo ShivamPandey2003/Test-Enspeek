@@ -29,9 +29,9 @@ const DesignBanner_Header = () => {
   }));
 
   const onSubmitHandle = () => {
-    const hasInvalid = Object.values(validateLogic).some((logicList: any[]) =>
+    const hasInvalid = Object.values(validateLogic).some((logicList) =>
       logicList.some(
-        (val: any) =>
+        (val) =>
           val.variable.trim() === "" ||
           val.option.trim() === "" ||
           val.value.trim() === ""
@@ -63,6 +63,9 @@ const DesignBanner_Header = () => {
 
   return (
     <PageSubheader
+      contentClassName="flex-row items-center justify-between gap-2"
+      leftClassName="min-w-0 flex-1 overflow-hidden"
+      rightClassName="shrink-0 flex-nowrap justify-end"
       left={
         <PageBreadcrumbs
           prefix={`${bannerName} :`}
@@ -111,7 +114,6 @@ const DesignBanner_Header = () => {
           )}
         </Button>
       }
-      rightClassName="justify-end"
     />
   );
 };

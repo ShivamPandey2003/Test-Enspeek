@@ -23,17 +23,10 @@ export default function ModalHeader({
 }: ModalHeaderProps) {
   return (
     <div className="modal-header">
-      <div className="flex items-start justify-between gap-4">
-        <div className="min-w-0 flex-1">
-          <div className="modal-header-row">
-            {icon ? <span className="modal-header-icon">{icon}</span> : null}
-            <h3 className="modal-title">{title}</h3>
-          </div>
-          {description ? (
-            <p className={cn("modal-description", descriptionClassName)}>
-              {description}
-            </p>
-          ) : null}
+      <div className="flex min-w-0 items-center gap-3">
+        <div className="modal-header-row min-w-0 flex-1">
+          {icon ? <span className="modal-header-icon">{icon}</span> : null}
+          <h3 className="modal-title">{title}</h3>
         </div>
         {showCloseButton ? (
           <button
@@ -47,6 +40,11 @@ export default function ModalHeader({
           </button>
         ) : null}
       </div>
+      {description ? (
+        <p className={cn("modal-description", descriptionClassName)}>
+          {description}
+        </p>
+      ) : null}
     </div>
   );
 }

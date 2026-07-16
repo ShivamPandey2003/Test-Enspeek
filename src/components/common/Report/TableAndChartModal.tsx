@@ -103,6 +103,19 @@ const TableAndChartModal: React.FC<TableAndChartModalProps> = ({
     return "Base: (n = 0)";
   })();
 
+  // For crosstab, `questionData.base` is an object (base per column); passing it
+  // straight to the chart made the tooltip "Count" compute NaN. Reduce it to a
+  // numeric total (falling back to 1, matching the previous `base ?? 1`).
+  const totalRespondents =
+    typeof questionData.base === "number"
+      ? questionData.base
+      : questionData.base && typeof questionData.base === "object"
+        ? Object.values(questionData.base).reduce(
+            (acc: number, val: any) => acc + (typeof val === "number" ? val : 0),
+            0
+          )
+        : 1;
+
   return (
     <DynamicModel
       className="max-w-5xl"
@@ -129,7 +142,7 @@ const TableAndChartModal: React.FC<TableAndChartModalProps> = ({
             categories={categories}
             baseText={baseText}
             questionText={questionData.text || ""}
-            totalRespondents={questionData.base ?? 1}
+            totalRespondents={totalRespondents}
             questionId={qid}
           />
           )}

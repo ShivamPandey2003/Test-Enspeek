@@ -18,6 +18,7 @@ import { useHydrateQuestionnaireSubmitItems } from "../../../api-network/questio
 import { useQuestionnaireList, useQuestionnaireQuestionTypes, useQuestionnaireStudyInfo } from "../../../api-network/questionnaire/query";
 import { focusChatInput } from "../../../utils/modalFocus";
 import PlatformHero from "../../ui/PlatformHero";
+import ChatHistoryLoader from "../../global/ChatHistoryLoader";
 
 export default function QuestionList() {
   const navigate = useNavigate();
@@ -89,10 +90,11 @@ export default function QuestionList() {
 
   return (
     <div className="relative flex h-full min-h-0 flex-col overflow-hidden">
+      <ChatHistoryLoader enabled={!!studyID && !isStudyInfoLoading} />
       <PageSubheader
         left={
-          <div className="flex flex-wrap items-center gap-2.5">
-            <h1 className="questionnaire-heading text-[16px] font-semibold leading-none">
+          <div className="min-w-0">
+            <h1 className="questionnaire-heading truncate text-[16px] font-semibold leading-none">
               Questionnaire
             </h1>
           </div>
@@ -100,15 +102,8 @@ export default function QuestionList() {
         right={
           submitItems.length > 0 ? (
             <>
-              <div className="questionnaire-question-count inline-flex min-h-8 items-center gap-2">
-                <div className="flex items-center gap-1.5">
-                  <span className="questionnaire-question-count-value text-sm font-semibold md:text-base">
-                    {submitItems.length}
-                  </span>
-                  <span className="questionnaire-question-count-label text-[11px] font-semibold uppercase tracking-[0.16em]">
-                    Questions
-                  </span>
-                </div>
+              <div className="questionnaire-question-count min-w-0 truncate whitespace-nowrap text-sm font-semibold md:text-base">
+                {`${submitItems.length} ${submitItems.length === 1 ? "Question" : "Questions"}`}
               </div>
               <Button
                 data-test-id="NEXTTOSURVEY"
@@ -125,7 +120,9 @@ export default function QuestionList() {
             </>
           ) : null
         }
-        rightClassName="justify-between gap-2.5 md:justify-end md:gap-3"
+        contentClassName="flex-row items-center justify-between gap-2"
+        leftClassName="min-w-0 flex-1 overflow-hidden"
+        rightClassName="min-w-0 shrink flex-nowrap justify-end gap-2 md:gap-3"
       />
       <div className="flex flex-1 min-h-0">
         <div

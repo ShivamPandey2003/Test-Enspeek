@@ -162,6 +162,13 @@ const url = {
     mutationKey: "study_chatbot",
   },
 
+  chatHistory: {
+    endpoint: "/studychatbot/chatStudy/history",
+    method: "post",
+    queryKey: "chatHistory",
+    mutationKey: "chat_history",
+  },
+
   getCategories: {
     endpoint: "/specification/getCategories",
     method: "post",

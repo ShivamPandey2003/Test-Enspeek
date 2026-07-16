@@ -23,7 +23,9 @@ export default function BannerSettings({
   isOpen,
   onClose,
 }: BannerSettingsModalProps) {
-  if (!isOpen) return null;
+  // This component is mounted only while open (both call sites gate on the
+  // open flag), so no pre-hook early return is needed — that previously ran
+  // before the hooks below and violated the Rules of Hooks.
   const definition = modalDefinitions.bannerSettings;
   const [bannerLogic, setBannerLogic] = useState<{ pointLogic: string }[]>([]);
   const { BannersAll, BannerPointer, tableData } = useSelector(

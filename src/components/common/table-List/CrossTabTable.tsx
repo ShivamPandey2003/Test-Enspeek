@@ -20,11 +20,6 @@ import { cn } from "../../../utils";
 
 const CrossTabTable = () => {
   const { state } = useLocation();
-
-  if (!state) {
-    return <Error showHome />;
-  }
-
   const dispatch = useDispatch();
   const {
     isEditModal,
@@ -34,6 +29,12 @@ const CrossTabTable = () => {
     selectedQid,
     selectedTable,
   } = useSelector((state: RootState) => state.crosstab);
+
+  // All hooks are called above this guard so the hook order stays stable
+  // across renders (Rules of Hooks) even when `state` toggles present/absent.
+  if (!state) {
+    return <Error showHome />;
+  }
 
   return (
     <div>
@@ -103,11 +104,13 @@ const SuspenseContent = ({
         open={isModalOpen}
         onOpenChange={(open) => dispatch(setIsModalOpen(open))}
       />
-      <BannerSettings
-        Id={bannerID}
-        isOpen={isBannerSettingsOpen}
-        onClose={() => dispatch(setIsBannerSettingsOpen(false))}
-      />
+      {isBannerSettingsOpen ? (
+        <BannerSettings
+          Id={bannerID}
+          isOpen={isBannerSettingsOpen}
+          onClose={() => dispatch(setIsBannerSettingsOpen(false))}
+        />
+      ) : null}
       <HistoryModal
         open={isHistoryModalOpen}
         onOpenChange={() => {

@@ -1,5 +1,11 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
+export interface ValidatedLogicRow {
+  variable: string;
+  option: string;
+  value: string;
+}
+
 interface CrosstabState {
   modalOpen: boolean;
   bannerName: string;
@@ -17,7 +23,7 @@ interface CrosstabState {
   logic: Record<string, { pointLogic: string }[]>;
   selectedTable: string;
   selectedQid: string;
-  validateLogic: Record<number, any[]>;
+  validateLogic: Record<number, ValidatedLogicRow[]>;
   isFbModalOpen: boolean;
   isWhatsappModalOpen: boolean;
   subgroupOn: boolean;
@@ -134,7 +140,10 @@ const crosstabSlice = createSlice({
     resetLogic(state) {
       state.logic = {};
     },
-    setValidateLogic: (state, action: PayloadAction<Record<number, any[]>>) => {
+    setValidateLogic: (
+      state,
+      action: PayloadAction<Record<number, ValidatedLogicRow[]>>
+    ) => {
       state.validateLogic = action.payload;
       return state;
     },
