@@ -153,7 +153,7 @@ const NewDropdown: React.FC<DropdownProps> = ({
           left = triggerRect.left;
           break;
         case "top":
-          top = triggerRect.top - menuRect.height - 8;
+          top = triggerRect.top - menuHeight - 8;
           left = triggerRect.left + (triggerRect.width - menuWidth) / 2;
           break;
         case "bottom":
