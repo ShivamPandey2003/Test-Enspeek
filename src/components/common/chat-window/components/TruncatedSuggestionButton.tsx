@@ -94,13 +94,27 @@ const TruncatedSuggestionButton = ({
   React.useLayoutEffect(() => {
     if (!isTooltipOpen) return;
 
+    // Coalesce scroll/resize bursts (capture-phase scroll can fire once per
+    // scrollable ancestor in a single frame) into one layout pass per frame.
+    let scheduledAnimationFrame: number | null = null;
+    const handleScrollOrResize = () => {
+      if (scheduledAnimationFrame !== null) return;
+      scheduledAnimationFrame = window.requestAnimationFrame(() => {
+        scheduledAnimationFrame = null;
+        updateTooltipLayout();
+      });
+    };
+
     updateTooltipLayout();
 
-    window.addEventListener("resize", updateTooltipLayout);
-    window.addEventListener("scroll", updateTooltipLayout, true);
+    window.addEventListener("resize", handleScrollOrResize);
+    window.addEventListener("scroll", handleScrollOrResize, true);
     return () => {
-      window.removeEventListener("resize", updateTooltipLayout);
-      window.removeEventListener("scroll", updateTooltipLayout, true);
+      window.removeEventListener("resize", handleScrollOrResize);
+      window.removeEventListener("scroll", handleScrollOrResize, true);
+      if (scheduledAnimationFrame !== null) {
+        window.cancelAnimationFrame(scheduledAnimationFrame);
+      }
     };
   }, [isTooltipOpen, updateTooltipLayout]);
 

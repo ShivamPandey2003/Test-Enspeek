@@ -19,7 +19,7 @@ const Question_Format: FC<Question_FormatProps> = ({ questions = [], instruction
                         question?.label,
                         question?.qText,
                         question?.qType,
-                        Array.isArray(question.options) ? question.options.join("\u001f") : "",
+                        Array.isArray(question?.options) ? question.options.join("\u001f") : "",
                     ].join("\u001e")
                 )
                 .join("\u001d"),
@@ -30,7 +30,7 @@ const Question_Format: FC<Question_FormatProps> = ({ questions = [], instruction
             questions
                 .map((question, index) => ({
                     index,
-                    isExpandable: Array.isArray(question.options) && question.options.length > 0,
+                    isExpandable: Array.isArray(question?.options) && question?.options.length > 0,
                 }))
                 .filter((question) => question.isExpandable)
                 .map((question) => question.index),
