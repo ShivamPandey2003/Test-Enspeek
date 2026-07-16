@@ -97,6 +97,7 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
       textarea.setSelectionRange(caretPosition, caretPosition);
     }
   }, []);
+  const promptItems = React.useMemo(() => buildPromptItems(setDraftMessage), [setDraftMessage]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     if (e.target.selectionStart !== null && e.target.selectionEnd !== null) {
@@ -323,7 +324,7 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
                   <LuListChecks className="w-4 h-4" />
                 </Button>
               }
-              items={buildPromptItems(setDraftMessage)}
+              items={promptItems}
             />
             <textarea
               ref={internalTextareaRef}
