@@ -49,9 +49,33 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
     hasOpenModal || isFloatingChatDisabledPath(pathname);
   const { messages, openChat, sendMessage, setDraftMessage } = useAiChat();
   const dispatch = useDispatch();
-  const suggestionList: string[] =
-    (messages[messages.length - 1]?.suggestion?.list as string[]) ?? [];
+  const latestSuggestions = messages[messages.length - 1]?.suggestion?.list as
+    | string[]
+    | undefined;
+  const suggestionList: string[] = React.useMemo(
+    () => latestSuggestions ?? [],
+    [latestSuggestions],
+  );
   const hasSuggestions = suggestionList.length > 0;
+  // Keep the last non-empty list around while the bar fades out so it doesn't
+  // pop away with empty content mid-transition, and flip `isSuggestionsShown`
+  // a frame after mount so the fade/slide-in actually animates.
+  const [visibleSuggestions, setVisibleSuggestions] = React.useState<string[]>(
+    [],
+  );
+  const [isSuggestionsShown, setIsSuggestionsShown] = React.useState(false);
+  React.useEffect(() => {
+    if (hasSuggestions) {
+      setVisibleSuggestions(suggestionList);
+      const frameId = window.requestAnimationFrame(() =>
+        setIsSuggestionsShown(true),
+      );
+      return () => window.cancelAnimationFrame(frameId);
+    }
+    setIsSuggestionsShown(false);
+    const timeoutId = window.setTimeout(() => setVisibleSuggestions([]), 300);
+    return () => window.clearTimeout(timeoutId);
+  }, [hasSuggestions, suggestionList]);
   const isMobileSheetEmpty = isMobileSheetPlacement && message.length === 0;
   const { isCurrentHistoryContext } = useChatHistoryContextStatus();
   const isChatInputDisabled =
@@ -229,105 +253,119 @@ const ChatTextArea: React.FC<ChatTextAreaProps> = ({
             </Button>
           </div>
         )}
-
-      <div
-        className={cn(
-          "z-50 flex cursor-text flex-col rounded-3xl border border-slate-100 bg-white p-4 shadow-[0_4px_24px_rgba(79,70,229,0.08)] transition-all duration-300 ease-in-out",
-          isChatOpen
-            ? "opacity-100 translate-y-0 scale-100"
-            : "opacity-0 translate-y-8 scale-95 pointer-events-none",
-          isPanelPlacement
-            ? "relative m-4 mt-3 w-auto overflow-hidden"
-            : isMobileSheetPlacement
-              ? "relative m-3 mt-2 w-auto overflow-hidden"
-              : "absolute bottom-4 left-1/2 hidden w-[min(94%,1120px)] -translate-x-1/2 md:bottom-6 md:flex",
-          !isHome && !isPanelPlacement && "w-[min(92%,820px)]",
-        )}
-      >
-        {hasSuggestions && (
-          <div className="flex items-center gap-3 overflow-x-auto pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            <h3 className="shrink-0 text-sm font-semibold text-indigo-600">
-              Quick actions
-            </h3>
-            {suggestionList.map((item: string) => {
-              return (
-                <TruncatedSuggestionButton
-                  key={item}
-                  item={item}
-                  disabled={isChatInputDisabled}
-                  onClick={() => handleSend(item)}
-                />
-              );
-            })}
-          </div>
-        )}
-
         <div
           className={cn(
-            "flex items-end gap-2 rounded-2xl border border-slate-100 bg-slate-50/60 px-3 py-2",
-            isMobileSheetPlacement && "gap-2",
+            "z-50 flex cursor-text flex-col rounded-3xl border border-slate-100 bg-white p-4 shadow-[0_4px_24px_rgba(79,70,229,0.08)] transition-all duration-300 ease-in-out",
+            isChatOpen
+              ? "opacity-100 translate-y-0 scale-100"
+              : "opacity-0 translate-y-8 scale-95 pointer-events-none",
+            isPanelPlacement
+              ? "relative m-4 mt-3 w-auto overflow-hidden"
+              : isMobileSheetPlacement
+                ? "relative m-3 mt-2 w-auto overflow-hidden"
+                : "absolute bottom-4 left-1/2 hidden w-[min(94%,1120px)] -translate-x-1/2 md:bottom-6 md:flex",
+            !isHome && !isPanelPlacement && "w-[min(92%,820px)]",
           )}
-          style={{ maxHeight: isMobileSheetPlacement ? "92px" : "400px" }}
         >
-          <NewDropdown
-            position="top-left"
-            searchable
-            searchPlaceholder="Search commands..."
-            trigger={
+          {visibleSuggestions.length > 0 && (
+            <div
+              className={cn(
+                "rounded-2xl px-4 py-3 transition-all duration-300 ease-in-out",
+                // Floating: pin above the input card, tracking its width.
+                // Panel / mobile sheet: the parent is overflow-hidden and not
+                // bottom-anchored, so render in-flow above the input row.
+                isPanelPlacement || isMobileSheetPlacement
+                  ? "mb-0"
+                  : "absolute inset-x-0 bottom-full mb-0",
+                isSuggestionsShown
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-2 pointer-events-none",
+              )}
+            >
+              <div className="-m-1 flex items-center gap-2 overflow-x-auto p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                <h3 className="mr-1 shrink-0 text-xs font-semibold text-indigo-600">
+                  Quick actions
+                </h3>
+                {visibleSuggestions.map((item: string) => {
+                  return (
+                    <TruncatedSuggestionButton
+                      key={item}
+                      item={item}
+                      disabled={isChatInputDisabled}
+                      onClick={() => handleSend(item)}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          <div
+            className={cn(
+              "flex items-center gap-2 rounded-2xl",
+              isMobileSheetPlacement && "gap-2",
+            )}
+            style={{ maxHeight: isMobileSheetPlacement ? "92px" : "400px" }}
+          >
+            <NewDropdown
+              position="top-left"
+              searchable
+              searchPlaceholder="Search commands..."
+              trigger={
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  tooltip="Quick Commands"
+                  className="h-8 w-8 shrink-0 rounded-full bg-indigo-50 text-indigo-400 hover:bg-indigo-100"
+                  disabled
+                >
+                  <LuListChecks className="w-4 h-4" />
+                </Button>
+              }
+              items={buildPromptItems(setDraftMessage)}
+            />
+            <textarea
+              ref={internalTextareaRef}
+              data-test-id="CONVER"
+              disabled={isChatInputDisabled}
+              // autoFocus={false}
+              rows={1}
+              value={message}
+              onChange={handleInputChange}
+              onKeyDown={(e) => handleKeyPress(e, handleSubmit)}
+              placeholder="Ask me anything..."
+              className={cn(
+                "min-h-8 max-h-40 w-full resize-none border-0 bg-transparent py-2 pr-2 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-0 focus-visible:outline-none",
+                "min-h-8",
+                isPanelPlacement && "text-sm",
+                isMobileSheetPlacement &&
+                  "max-h-20 overflow-y-hidden py-2.5 leading-5",
+                isMobileSheetEmpty &&
+                  "h-10 whitespace-nowrap overflow-x-hidden text-ellipsis",
+              )}
+            />
+            <div className="ml-auto flex items-center gap-2">
               <Button
                 type="button"
-                variant="ghost"
+                variant="theme"
                 size="icon"
-                tooltip="Quick Commands"
-                className="h-8 w-8 shrink-0 rounded-full bg-indigo-50 text-indigo-400 hover:bg-indigo-100"
-                disabled
+                tooltip="Send"
+                disabled={isChatInputDisabled}
+                data-test-id="SEND"
+                onClick={handleSubmit}
+                className="h-9 w-9 rounded-full border-0 bg-indigo-500 text-sm font-medium text-white shadow-md transition-all hover:bg-indigo-600 disabled:cursor-not-allowed disabled:bg-indigo-200 disabled:opacity-100 disabled:shadow-none"
               >
-                <LuListChecks className="w-4 h-4" />
+                {isChatInputDisabled ? (
+                  <span className="h-4 w-4 rounded-full border-2 border-white/35 border-t-white animate-spin" />
+                ) : (
+                  <LuSend className="h-4 w-4 text-white" />
+                )}
+                <span className="sr-only">Send message</span>
               </Button>
-            }
-            items={buildPromptItems(setDraftMessage)}
-          />
-          <textarea
-            ref={internalTextareaRef}
-            data-test-id="CONVER"
-            disabled={isChatInputDisabled}
-            // autoFocus={false}
-            rows={1}
-            value={message}
-            onChange={handleInputChange}
-            onKeyDown={(e) => handleKeyPress(e, handleSubmit)}
-            placeholder="Ask me anything..."
-            className={cn(
-              "min-h-8 max-h-40 w-full resize-none border-0 bg-transparent py-2 pr-2 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-0 focus-visible:outline-none",
-              "min-h-8",
-              isPanelPlacement && "text-sm",
-              isMobileSheetPlacement &&
-                "max-h-20 overflow-y-hidden py-2.5 leading-5",
-              isMobileSheetEmpty &&
-                "h-10 whitespace-nowrap overflow-x-hidden text-ellipsis",
-            )}
-          />
-          <div className="ml-auto flex items-center gap-2">
-            <Button
-              type="button"
-              variant="theme"
-              size="icon"
-              tooltip="Send"
-              disabled={isChatInputDisabled}
-              data-test-id="SEND"
-              onClick={handleSubmit}
-              className="h-9 w-9 rounded-full border-0 bg-indigo-500 text-sm font-medium text-white shadow-md transition-all hover:bg-indigo-600 disabled:cursor-not-allowed disabled:bg-indigo-200 disabled:opacity-100 disabled:shadow-none"
-            >
-              {isChatInputDisabled ? (
-                <span className="h-4 w-4 rounded-full border-2 border-white/35 border-t-white animate-spin" />
-              ) : (
-                <LuSend className="h-4 w-4 text-white" />
-              )}
-              <span className="sr-only">Send message</span>
-            </Button>
+            </div>
           </div>
         </div>
-      </div>
     </>
   );
 };

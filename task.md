@@ -1,61 +1,30 @@
-# Prompt: Restyle ChatTextArea UI (No Logic Changes)
+# Task: Fix and Polish the "Quick actions" Suggestion Bar in `ChatTextArea.tsx`
 
-I have an existing component `ChatTextArea.tsx` that contains working logic
-(Redux state, focus handling, keyboard shortcuts, auto-resizing textarea,
-suggestion dispatching, send/open chat handlers, disabled states, etc.). I
-want you to **restyle it only** — do not change any functionality, hooks,
-state management, event handlers, refs, or business logic.
+## Context
+The suggestion bar (rendered when `hasSuggestions` is true) should look like the reference screenshot — a separate pill-shaped card floating directly above the chat input, with a "Quick actions" label followed by rounded outline buttons (e.g. "Show archived studies", "Open a study", "View study statistics"), and the input bar below it with a rounded icon button on the left and a circular indigo send button on the right.
 
-Apply the following visual/UI design to the existing component, matching
-this reference styling as closely as possible:
+## Bugs to Fix
 
-## Outer container
+1. **Broken positioning value**
+   The suggestions container uses `absolute -top-18`, but `18` is not in Tailwind's default spacing scale (it jumps from 16 to 20), so this class silently does nothing. Replace it with a working value (e.g. `-top-16` or an arbitrary value like `-top-[72px]`) and verify the bar actually sits above the input with a visible gap, not overlapping it.
 
-- `rounded-3xl`, `border border-slate-100`, white background
-- Soft indigo-tinted shadow: `shadow-[0_4px_24px_rgba(79,70,229,0.08)]`
-- Padding `p-4`
+2. **Duplicate styling causing visual clutter**
+   The suggestions div currently repeats the exact same `rounded-3xl border border-slate-100 bg-white p-4 shadow-[0_4px_24px_rgba(79,70,229,0.08)]` classes as the parent chat container. Instead, give it its own distinct card treatment — e.g. a lighter shadow, slightly smaller padding — and make sure its width tracks the parent container's width rather than being an independent absolutely-positioned block that can mismatch/overflow.
 
-## Quick actions row (when suggestions exist)
+3. **Alignment inside the pill bar**
+   Ensure the "Quick actions" label and pill buttons are vertically centered on the same baseline (use `items-center` consistently), have consistent horizontal gaps (`gap-2`/`gap-3`), and that the row scrolls horizontally without clipping the last pill or the drop shadow (`overflow-x-auto` currently can clip `shadow`/focus rings — add horizontal padding or allow `overflow-visible` on the y-axis).
 
-- `flex items-center gap-3`, horizontally scrollable with scrollbar hidden
-  (`overflow-x-auto` + `[scrollbar-width:none] [&::-webkit-scrollbar]:hidden`)
-- Label "Quick actions" styled as `text-sm font-semibold text-indigo-600`,
-  `shrink-0`
-- Suggestion chips restyled as pill buttons: `rounded-full border
-  border-indigo-100 bg-white px-4 py-2 text-sm font-medium text-slate-700
-  shadow-sm`, with hover state `hover:border-indigo-300 hover:bg-indigo-50
-  hover:text-indigo-700` and `active:scale-[0.97]` press feedback,
-  `whitespace-nowrap shrink-0`
+4. **Input row alignment**
+   Double check vertical alignment between the left dropdown-trigger icon button, the textarea, and the right send button — they should all align on the same center line even as the textarea grows in height (the `items-end` on the flex row may look wrong once the "Quick actions" bar is also present; test with 1-line and multi-line input).
 
-## Input row
+## UI Polish Requests
+(Make it better than the current version, matching the screenshot's style)
 
-- Wrap in `flex items-end gap-2 rounded-2xl border border-slate-100
-  bg-slate-50/60 px-3 py-2`
-- Left icon button (keep existing `NewDropdown`/quick-commands trigger
-  functionality, but restyle to): `h-8 w-8 rounded-full bg-indigo-50
-  text-indigo-400 hover:bg-indigo-100`, using the `ListChecks` icon from
-  `lucide-react` in place of `CiCircleList` if you want icon parity —
-  otherwise keep existing icon but apply this coloring
-- Textarea: transparent background, `text-sm text-slate-800`,
-  `placeholder:text-slate-400`, `focus:outline-none`, no border, keep
-  existing auto-resize behavior but constrain to `max-h-40`
-- Send button: circular, `h-9 w-9 rounded-full bg-indigo-500 text-white
-  shadow-md hover:bg-indigo-600`, disabled state `disabled:bg-indigo-200
-  disabled:shadow-none disabled:cursor-not-allowed`, using `Send` icon from
-  `lucide-react`
+- Style the pill buttons (`TruncatedSuggestionButton`) as clean white/rounded-full outline buttons with a subtle border (`border-slate-200`), dark slate text, and a soft hover state (e.g. `hover:bg-slate-50` or `hover:border-indigo-200`) rather than whatever default styling exists now.
+- Make the "Quick actions" label visually distinct (indigo, semibold, smaller size) with a bit of right margin before the first pill, matching the screenshot spacing.
+- Give the whole floating widget (suggestions bar + input bar) consistent corner radius and shadow depth so they read as one connected component, with a small visible gap between the two rather than being flush/overlapping.
+- Smooth the transition when suggestions appear/disappear (fade + slight slide, not an abrupt pop-in) — reuse the existing `transition-all duration-300 ease-in-out` pattern already applied to the parent container.
+- Verify this all works across the three `placement` variants (`floating`, `panel`, `mobileSheet`), since the absolute positioning trick for suggestions likely breaks under `panel`/`mobileSheet` where the parent isn't `absolute`-positioned at the bottom.
 
-## Important constraints
-
-- Preserve all existing props, refs, Redux selectors/dispatch,
-  `useEffect`s, keyboard handling, placement variants (`floating`, `panel`,
-  `mobileSheet`), and the `isChatInputDisabled` logic exactly as-is
-- Only modify `className` strings and JSX structure needed for visual
-  styling — do not remove any functional wrapper elements (floating
-  launcher button, chat open/close animation classes, etc.) unless purely
-  cosmetic
-- Keep `TruncatedSuggestionButton` if it has its own logic (truncation,
-  tooltips) — just update its internal className/styling to match the chip
-  design above, don't replace it with a plain button unless it has no extra
-  behavior
-- Test that disabled states, loading spinner on send, and mobile sheet
-  placement still render correctly after restyling
+## Deliverable
+Updated `ChatTextArea.tsx` (and `TruncatedSuggestionButton` if needed) with the above fixes, plus a one-line summary of what was changed and why.
