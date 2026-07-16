@@ -72,8 +72,6 @@ export const useChatModals = (visibleMessages: ChatMessage[]) => {
     closeTableModal,
     selectedCrosstab,
     isCrosstabModalOpen,
-    setSelectedCrosstab,
-    setIsCrosstabModalOpen,
     closeCrosstabModal,
   };
 };

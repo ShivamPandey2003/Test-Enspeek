@@ -21,13 +21,18 @@ export const TypewriterDescription: React.FC<TypewriterDescriptionProps> = ({
     if (!descriptions.length) return;
 
     const currentDescription = descriptions[currentDescriptionIndex];
-    
+
+    // The pause-before-delete timer must be tracked too; previously it was
+    // never cleared, so it could fire after unmount (set-state-on-unmounted)
+    // or double-schedule the delete phase across re-renders.
+    let pauseTimer: ReturnType<typeof setTimeout> | undefined;
+
     const timer = setTimeout(() => {
       if (!isDeleting) {
         if (currentText.length < currentDescription.length) {
           setCurrentText(currentDescription.slice(0, currentText.length + 1));
         } else {
-          setTimeout(() => setIsDeleting(true), pauseDuration);
+          pauseTimer = setTimeout(() => setIsDeleting(true), pauseDuration);
         }
       } else {
         if (currentText.length > 0) {
@@ -39,7 +44,10 @@ export const TypewriterDescription: React.FC<TypewriterDescriptionProps> = ({
       }
     }, isDeleting ? typingSpeed / 2 : typingSpeed);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      if (pauseTimer) clearTimeout(pauseTimer);
+    };
   }, [currentText, isDeleting, currentDescriptionIndex, descriptions, typingSpeed, pauseDuration]);
 
   return (

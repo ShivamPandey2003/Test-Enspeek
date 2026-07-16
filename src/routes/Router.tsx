@@ -1,24 +1,26 @@
+import { lazy } from "react";
 import { createBrowserRouter } from "react-router";
 import Root_layout from "../layout/Root.layout";
-import ProjectListing from "../components/common/list/project-list";
-import CreateProject from "../components/common/create/create-project";
 import Auth_layout from "../layout/Auth.layout";
-import LoginForm from "../components/common/Auth/Form/LoginForm";
-import OtpLoginPage from "../components/common/Auth/otp-login/OtpLoginPage";
-import PublishSurvey from "../components/common/Publish-survey/survey";
-import QuestionList from "../components/common/Questionnaire/question-list";
 import ProtectedRoute from "./ProtectedRoutes";
-import Report_page from "../pages/Report.page";
-import Cross_Tab_Page from "../pages/Cross_Tab.page";
 import Error from "../components/global/Error";
-import BannerDesign_page from "../pages/BannerDesign.page";
 import { ErrorBoundary } from "react-error-boundary";
-import TableList_page from "../pages/TableList.page";
-import AdminPanelPage from "../pages/admin-panel";
-import ProfilePage from "../pages/Profile.page";
-import { Suspense } from "react";
-import { AiOutlineLoading3Quarters } from "react-icons/ai";
-import { cn } from "../utils";
+
+// Route-level code splitting: each page is loaded on demand so heavy screens
+// (admin panel, Highcharts-backed report/crosstab) stay out of the initial
+// bundle. Suspense boundaries live in the layouts, around <Outlet />.
+const ProjectListing = lazy(() => import("../components/common/list/project-list"));
+const CreateProject = lazy(() => import("../components/common/create/create-project"));
+const LoginForm = lazy(() => import("../components/common/Auth/Form/LoginForm"));
+const OtpLoginPage = lazy(() => import("../components/common/Auth/otp-login/OtpLoginPage"));
+const PublishSurvey = lazy(() => import("../components/common/Publish-survey/survey"));
+const QuestionList = lazy(() => import("../components/common/Questionnaire/question-list"));
+const Report_page = lazy(() => import("../pages/Report.page"));
+const Cross_Tab_Page = lazy(() => import("../pages/Cross_Tab.page"));
+const BannerDesign_page = lazy(() => import("../pages/BannerDesign.page"));
+const TableList_page = lazy(() => import("../pages/TableList.page"));
+const AdminPanelPage = lazy(() => import("../pages/admin-panel"));
+const ProfilePage = lazy(() => import("../pages/Profile.page"));
 
 const Router = createBrowserRouter(
   [
@@ -62,18 +64,7 @@ const Router = createBrowserRouter(
           path: "crosstab/table-list",
           element: (
             <ErrorBoundary fallbackRender={() => <Error showHome />}>
-              <Suspense
-                fallback={
-                  <div className="flex items-center justify-center w-full h-full">
-                    <AiOutlineLoading3Quarters
-                      size={34}
-                      className={cn("animate-spin text-action")}
-                    />
-                  </div>
-                }
-              >
-                <TableList_page />
-              </Suspense>
+              <TableList_page />
             </ErrorBoundary>
           ),
         },

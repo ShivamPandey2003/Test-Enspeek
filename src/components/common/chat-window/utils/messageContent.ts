@@ -34,5 +34,5 @@ export const shouldRenderQuestionFormat = (msg: ChatMessage): boolean =>
 /** Whether the `response` is a study list rendered as bullet points. */
 export const isStudyListResponse = (
   response: unknown
-): response is Array<{ studyID: string; studyName: string }> =>
+): response is Array<{ studyID: string; name: string }> =>
   Array.isArray(response);

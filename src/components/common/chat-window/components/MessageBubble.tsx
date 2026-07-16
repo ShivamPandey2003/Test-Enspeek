@@ -40,8 +40,8 @@ const MessageBubble = ({ msg, onCopyLink, surveySlot }: MessageBubbleProps) => {
       )}
       {isStudyListResponse(msg.response) ? (
         <ul className="list-disc px-6">
-          {msg.response.map((item: { studyID: string; studyName: string }, index) => (
-            <li key={index}>{item.studyName}</li>
+          {msg.response.map((item: { studyID: string; name: string }, index) => (
+            <li key={index}>{item.name}</li>
           ))}
         </ul>
       ) : (
@@ -57,11 +57,9 @@ const MessageBubble = ({ msg, onCopyLink, surveySlot }: MessageBubbleProps) => {
         )
       )}
       {surveySlot}
-      <>
-        {msg.liveLink && (
-          <ResearchLink liveLink={msg.liveLink} onCopy={onCopyLink} />
-        )}
-      </>
+      {msg.liveLink && (
+        <ResearchLink liveLink={msg.liveLink} onCopy={onCopyLink} />
+      )}
     </>
   );
 };

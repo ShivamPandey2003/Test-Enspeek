@@ -1,4 +1,6 @@
 import { Outlet, useLocation } from "react-router";
+import { Suspense } from "react";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import Header from "../components/global/Header";
 import Sidebar from "../components/global/sidebar";
 import ChatWindow from "../components/common/chat-window/chat";
@@ -49,7 +51,15 @@ const Root_layout = () => {
       >
         {!isHome && !isFullWidthPage ? <Sidebar /> : isHome ? <HomeSidebar /> : null}
         <div className={cn("h-full min-h-0 min-w-0 flex-1 overflow-hidden transition-all duration-300", isFullWidthPage || isHome ? "w-full" : "md:w-0")}>
-          <Outlet />
+          <Suspense
+            fallback={
+              <div className="flex h-full w-full items-center justify-center">
+                <AiOutlineLoading3Quarters size={34} className="animate-spin text-action" />
+              </div>
+            }
+          >
+            <Outlet />
+          </Suspense>
           {(!isHome && !isFullWidthPage && (submitItems.length > 0 || isForceShowChat) && !usePanelChatLayout) && <ChatTextArea />}
         </div>
         {showRightChat && (

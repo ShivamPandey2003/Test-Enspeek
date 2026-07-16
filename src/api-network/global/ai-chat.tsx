@@ -52,7 +52,8 @@ const hasVisibleChatContent = (data: any) => {
   if (!data || typeof data !== "object") return false;
 
   if (data.showGraph) return true;
-  if (typeof data.message === "string" && data.message.trim() !== "") return true;
+  if (typeof data.message === "string" && data.message.trim() !== "")
+    return true;
   if (data.questions !== undefined) return true;
   if (data.instruction !== undefined) return true;
   if (data.liveLink !== undefined) return true;
@@ -70,10 +71,9 @@ export const useChat = () => {
   const pageName = getPageName(pathname);
   const studyID = state?.studyID;
   const apiToken = useSelector(
-    (storeState: RootState) => storeState.user.apiToken
+    (storeState: RootState) => storeState.user.apiToken,
   );
-  const { contextKey, isCurrentHistoryContext } =
-    useChatHistoryContextStatus();
+  const { contextKey, isCurrentHistoryContext } = useChatHistoryContextStatus();
 
   const {
     followUp,
@@ -125,7 +125,7 @@ export const useChat = () => {
     (chatMessage: any) => {
       dispatch(setMessages([...getLatestMessages(), chatMessage]));
     },
-    [dispatch]
+    [dispatch],
   );
 
   const setDraftMessage = (value: string) => {
@@ -150,7 +150,7 @@ export const useChat = () => {
     const res = await apiRequest(
       url.studyChatbot.method,
       url.studyChatbot.endpoint,
-      payload
+      payload,
     );
     return res?.response;
   }, [studyID]);
@@ -198,7 +198,7 @@ export const useChat = () => {
             selection: "myactive",
             resolve,
           },
-        })
+        }),
       );
     });
 
@@ -219,7 +219,7 @@ export const useChat = () => {
       const res = await apiRequest(
         url.questionView.method,
         url.questionView.endpoint.replace(":qId", questionId),
-        { studyID }
+        { studyID },
       );
       return res.response;
     },
@@ -263,7 +263,12 @@ export const useChat = () => {
       }
 
       if (data.active && data.route) {
-        navigate(data.route, { state: { studyID: data?.studyId } });
+        // Backend payload field is `studyID` (as used at lines below); the
+        // previous `data?.studyId` was undefined, so AI-driven navigation lost
+        // its study context.
+        const state =
+          data.route != "/" ? { state: { studyID: data?.studyId } } : {};
+        navigate(data.route, state);
       }
 
       if (pageName === "qnr" && data.add) {
@@ -283,7 +288,7 @@ export const useChat = () => {
             livelink: data.liveLink,
             link: data.liveLink,
             launch: 0,
-          })
+          }),
         );
         dispatch(
           setStudyInfo({
@@ -294,7 +299,7 @@ export const useChat = () => {
             output: currentStudyState.output,
             link: 1,
             closed: 0,
-          })
+          }),
         );
         refreshPublishSurveyData(studyID);
       }
@@ -317,7 +322,7 @@ export const useChat = () => {
       processDownload,
       studyID,
       submitQuestionById,
-    ]
+    ],
   );
 
   const processChatResponseChain = useCallback(
@@ -344,7 +349,7 @@ export const useChat = () => {
 
       return currentResponse;
     },
-    [processChatResponse, requestRecallResponse]
+    [processChatResponse, requestRecallResponse],
   );
 
   const handleChatError = useCallback(() => {
@@ -429,7 +434,7 @@ export const useChat = () => {
               process_id: currentMasterData.process_id,
               order: currentMasterData.order,
               apiToken: currentApiToken,
-            }
+            },
           );
 
           if (!res?.response) {
@@ -463,7 +468,7 @@ export const useChat = () => {
         }
       }
     },
-    [dispatch, handleChatError, processChatResponseChain]
+    [dispatch, handleChatError, processChatResponseChain],
   );
 
   const {
@@ -476,7 +481,7 @@ export const useChat = () => {
       const res = await apiRequest(
         url.studyChatbot.method,
         url.studyChatbot.endpoint,
-        { prompt: payload.prompt, pageName, followUp, studyID }
+        { prompt: payload.prompt, pageName, followUp, studyID },
       );
       return res.response;
     },
@@ -497,8 +502,7 @@ export const useChat = () => {
 
   const sendMessage = (rawPrompt?: string) => {
     const prompt = (rawPrompt ?? message).trim();
-    const pendingSuggestionCount =
-      store.getState().chat.pendingSuggestionCount;
+    const pendingSuggestionCount = store.getState().chat.pendingSuggestionCount;
 
     if (
       !prompt ||
@@ -558,13 +562,13 @@ export const useChat = () => {
 
     window.addEventListener(
       CHAT_HISTORY_READY_EVENT,
-      handleHistoryReady as EventListener
+      handleHistoryReady as EventListener,
     );
 
     return () => {
       window.removeEventListener(
         CHAT_HISTORY_READY_EVENT,
-        handleHistoryReady as EventListener
+        handleHistoryReady as EventListener,
       );
     };
   }, [contextKey, runStoredProcessLoop]);

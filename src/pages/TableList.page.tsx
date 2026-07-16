@@ -10,6 +10,7 @@ import { useReportProcessDownload } from "../api-network/report/mutation";
 import { useDownloadtable } from "../api-network/crosstab/tablelist/mutation";
 import { useCrosstabStudyInfo } from "../api-network/crosstab/query";
 import ChatHistoryLoader from "../components/global/ChatHistoryLoader";
+import Error from "../components/global/Error";
 
 const TableList_page = () => {
   const dispatch = useDispatch();
@@ -22,14 +23,20 @@ const TableList_page = () => {
 
    const { processDownload } = useReportProcessDownload();
     const { downloadTableMutate } = useDownloadtable({
-      studyID: state.studyID,
+      studyID: state?.studyID,
       cb: ({ studyID, pid }) => {
         if (studyID && pid) {
           processDownload({ studyID, pid });
         }
       },
     });
-  
+
+    // On a hard refresh / deep-link without router state, bail cleanly (matches
+    // CrossTabTable's own no-state guard) instead of dereferencing null below.
+    if (!state?.studyID) {
+      return <Error showHome />;
+    }
+
     const tableIDList = tableData.map((t) => t.tableID);
     const dropDownData = [
       {

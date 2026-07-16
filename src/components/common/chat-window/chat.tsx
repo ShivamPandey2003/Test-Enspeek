@@ -14,7 +14,7 @@ import { useChatModals } from "./hooks/useChatModals";
 import { useClipboard } from "./hooks/useClipboard";
 import ChatMessage from "./components/ChatMessage";
 import ChatModals from "./components/ChatModals";
-import LoadingConversation from "./components/LoadingConversation";
+import ConversationStatusBanner from "./components/ConversationStatusBanner";
 import EmptyConversation from "./components/EmptyConversation";
 
 const ChatWindow: React.FC<{
@@ -48,6 +48,9 @@ const ChatWindow: React.FC<{
   );
   const isInitialHistoryLoading =
     !isCurrentHistoryContext || !hasLoadedHistory || isHistoryLoading;
+  const isConversationEmpty = visibleMessages.length === 0;
+  const showHistoryStartMarker =
+    hasLoadedHistory && !hasMoreHistory && visibleMessages.length > 0;
 
   const { rootRef, messagesEndRef, scrollContainerRef, messageRowRefs, scheduleBottomScroll } =
     useChatScroll({
@@ -148,34 +151,23 @@ const ChatWindow: React.FC<{
         className={cn(
           "min-h-0 flex-1",
           scrollMode === "internal" && "overflow-y-auto",
-          surface === "page"
-            ? "home-surface"
-            : surface === "card"
-              ? "home-surface"
-              : pathname === "/"
-                ? "home-surface"
-                : "home-surface"
+          "home-surface"
         )}
         style={scrollMode === "internal" ? { scrollbarGutter: "stable" } : undefined}
       >
         <div
           className={cn(
             isHomePageSurface
-              ? "mx-auto w-[min(94%,1120px)] pb-28 pt-4 md:pt-6"
+              ? `mx-auto w-[min(94%,1120px)] pt-4 md:pt-6 pb-36`
               : "px-4 pb-3 pt-4 md:px-6 md:pt-6"
           )}
         >
-          {isInitialHistoryLoading && visibleMessages.length === 0 ? (
-            <LoadingConversation />
-          ) : isOlderHistoryLoading ? (
-            <div className="mb-3 flex justify-center">
-              <LoadingConversation compact />
-            </div>
-          ) : hasLoadedHistory && !hasMoreHistory && visibleMessages.length > 0 ? (
-            <div className="mb-3 text-center text-xs font-semibold text-text-supporting">
-              Conversation started here.
-            </div>
-          ) : null}
+          <ConversationStatusBanner
+            isInitialHistoryLoading={isInitialHistoryLoading}
+            isConversationEmpty={isConversationEmpty}
+            isOlderHistoryLoading={isOlderHistoryLoading}
+            showHistoryStartMarker={showHistoryStartMarker}
+          />
 
           {!isInitialHistoryLoading &&
             visibleMessages.map((msg, index) => (
@@ -198,7 +190,7 @@ const ChatWindow: React.FC<{
             ))}
 
           {!isInitialHistoryLoading && (isTyping || pending) && <TypingIndicator />}
-          {visibleMessages.length === 0 && !isTyping && !isInitialHistoryLoading && (
+          {isConversationEmpty && !isTyping && !isInitialHistoryLoading && (
             <EmptyConversation />
           )}
 

@@ -547,7 +547,7 @@ const QuestionnaireForm: React.FC<QuestionnaireFormProps> = ({ onClose }) => {
                   <div className="space-y-1">
                     {options.map((option, index) => (
                       <RowOptions
-                        key={index}
+                        key={option.optionID ?? index}
                         optionKey={`${index + 1}`}
                         Value={option.optionText}
                         onChange={(e) => optionsValueChange(index, e)}
