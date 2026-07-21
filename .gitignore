@@ -1,1 +1,47 @@
-node_modules
+# Logs
+.env
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Dependency directories
+node_modules/
+
+# Build output
+dist/
+dist-ssr/
+
+# Environment and local settings
+*.local
+*.env*
+
+# Dummy data
+src/dummyData/
+
+# IDE and editor settings
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Optional: OS-specific junk files
+Thumbs.db
+ehthumbs.db
+.vercel
+.env*.local
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
