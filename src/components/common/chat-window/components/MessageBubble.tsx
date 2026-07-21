@@ -38,7 +38,7 @@ const MessageBubble = ({ msg, onCopyLink, surveySlot }: MessageBubbleProps) => {
         // />
         <div className={cn("prose prose-sm max-w-none", msg.sender === "user" && "text-white")}>
           <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>
-            {markdown}
+            {markdown ?? ""}
           </ReactMarkdown>
         </div> 
       )}
