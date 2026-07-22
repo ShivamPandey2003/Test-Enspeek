@@ -1,4 +1,4 @@
-import { formatRichText } from "../../../../utils";
+import { cn } from "../../../../utils";
 import Question_Format from "../Question-format";
 import type { ChatMessage } from "../types";
 import {
@@ -8,6 +8,9 @@ import {
   shouldRenderQuestionFormat,
 } from "../utils/messageContent";
 import ResearchLink from "./ResearchLink";
+import ReactMarkdown from "react-markdown";
+import remarkBreaks from "remark-breaks";
+import remarkGfm from "remark-gfm";
 
 type MessageBubbleProps = {
   msg: ChatMessage;
@@ -21,16 +24,23 @@ type MessageBubbleProps = {
  * preview, study-list / key-value responses, the survey slot, and the live
  * research link. Field-level conditions match the original render exactly.
  */
+
 const MessageBubble = ({ msg, onCopyLink, surveySlot }: MessageBubbleProps) => {
   const responseKeys = getResponseKeys(msg.response);
+  const markdown = msg.text?.replace(/\\n/g, "\n");
 
   return (
     <>
       {shouldRenderMessageText(msg) && (
-        <div
-          className="break-words text-[14px] leading-6"
-          dangerouslySetInnerHTML={{ __html: formatRichText(msg.text) }}
-        />
+        // <div
+        //   className="break-words text-[14px] leading-6"
+        //   dangerouslySetInnerHTML={{ __html: formatRichText(msg.text) }}
+        // />
+        <div className={cn("prose prose-sm max-w-none", msg.sender === "user" && "text-white")}>
+          <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>
+            {markdown ?? ""}
+          </ReactMarkdown>
+        </div> 
       )}
       {shouldRenderQuestionFormat(msg) && (
         <Question_Format
@@ -40,9 +50,11 @@ const MessageBubble = ({ msg, onCopyLink, surveySlot }: MessageBubbleProps) => {
       )}
       {isStudyListResponse(msg.response) ? (
         <ul className="list-disc px-6">
-          {msg.response.map((item: { studyID: string; name: string }, index) => (
-            <li key={index}>{item.name}</li>
-          ))}
+          {msg.response.map(
+            (item: { studyID: string; name: string }, index) => (
+              <li key={index}>{item.name}</li>
+            ),
+          )}
         </ul>
       ) : (
         responseKeys.length > 0 && (
