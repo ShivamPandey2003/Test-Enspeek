@@ -134,7 +134,10 @@ const TruncatedSuggestionButton = ({
     // button is disabled (disabled buttons swallow mouse events).
     <span
       ref={wrapperRef}
-      className="inline-flex min-w-0 shrink-0"
+      // The wrapper is the flex item.  It must be constrained by its parent;
+      // otherwise an overlong label makes this wrapper grow to its intrinsic
+      // width and the inner `truncate` element never has an overflow to show.
+      className="inline-flex min-w-0 max-w-full shrink-0"
       onMouseEnter={showTooltip}
       onMouseLeave={hideTooltip}
       onFocus={showTooltip}
