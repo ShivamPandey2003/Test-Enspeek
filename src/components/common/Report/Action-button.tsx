@@ -1,71 +1,160 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useDispatch, useSelector } from "react-redux";
+import { useLocation, useNavigate } from "react-router";
+import {
+  LuArrowRight,
+  LuChartColumnBig,
+  LuDownload,
+  LuEllipsis,
+  LuFileSpreadsheet,
+  LuFilter,
+  LuFiles,
+  LuHand,
+  LuListFilter,
+  LuPresentation,
+  LuTable2,
+  LuToggleLeft,
+  LuToggleRight,
+} from "react-icons/lu";
+import {
+  useReportExcelDownload,
+  useReportPptDownload,
+  useReportProcessDownload,
+  useReportSpssDownload,
+  useReportTableDownload,
+} from "../../../api-network/report/mutation";
+import { useReportSideBySideVariables } from "../../../api-network/report/query";
+import reportKeys from "../../../api-network/report/keys";
+import { setSubgroupOn } from "../../../store/CrosstabSlice";
+import {
+  setFliterReportData,
+  setSelected,
+  setSide_by_side,
+} from "../../../store/FiltersSlice";
+import type { RootState } from "../../../store/store";
+import { useProgressiveOverflow } from "../../../utils/useProgressiveOverflow";
+import DropDown from "../../global/DropDown";
+import LoaderSpinner from "../../global/LoaderSpinner";
 import Button from "../../ui/Button";
-import { LuArrowRight, LuChartColumnBig, LuDownload, LuEllipsis, LuFileSpreadsheet, LuFilter, LuFiles, LuHand, LuListFilter, LuPresentation, LuTable2, LuToggleLeft, LuToggleRight } from "react-icons/lu";
-import ReportFilter from "./ReportFilter";
+import OverflowActionsMenu, {
+  type OverflowActionMenuItem,
+} from "../../ui/OverflowActionsMenu";
 import FilterModal from "./FilterModal";
 import HistoryModal from "./HistoryModal";
-import { useReportSideBySideVariables } from "../../../api-network/report/query";
-import { useReportExcelDownload, useReportPptDownload, useReportProcessDownload, useReportSpssDownload, useReportTableDownload } from "../../../api-network/report/mutation";
-import LoaderSpinner from "../../global/LoaderSpinner";
-import DropDown from "../../global/DropDown";
+import ReportFilter from "./ReportFilter";
 import SetSubgroupModal from "./SetSubGroupModal";
-import { useQueryClient } from "@tanstack/react-query";
-import type { RootState } from "../../../store/store";
-import { useDispatch, useSelector } from "react-redux";
-import { setFliterReportData, setSelected, setSide_by_side } from "../../../store/FiltersSlice";
-import { Link, useLocation } from "react-router";
-import { setSubgroupOn } from "../../../store/CrosstabSlice";
-import reportKeys from "../../../api-network/report/keys";
 
 type ActionButtonProps = {
+  onMinimumWidthChange: (width: number) => void;
   showTableView: boolean;
   setShowTableView: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-const ActionButton: React.FC<ActionButtonProps> = ({
+type InlineActionId =
+  | "subgroups"
+  | "configure-subgroups"
+  | "select-questions"
+  | "view-mode"
+  | "filters";
+
+export default function ActionButton({
+  onMinimumWidthChange,
   showTableView,
   setShowTableView,
-}) => {
+}: ActionButtonProps) {
   const [showMoreDropdown, setShowMoreDropdown] = useState(false);
   const [showPointerDropdown, setShowPointerDropdown] = useState(false);
-  const [showModal, setShowModal] = useState(false);
-  const [open, setOpen] = useState(false);
-  const [showFilter, setShowFilter] = useState(false);
-  const subgroupOn = useSelector((state: RootState) => state.crosstab.subgroupOn);
-
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const selectDropdownRef = useRef<HTMLDivElement>(null);
-  const { tableQList, fliterReportData } = useSelector((state: RootState) => state.filter);
+  const [showFilterModal, setShowFilterModal] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
+  const [showFiltersPanel, setShowFiltersPanel] = useState(false);
+  const [showSubgroupModal, setShowSubgroupModal] = useState(false);
+  const interactionRef = useRef<HTMLDivElement>(null);
+  const moreButtonRef = useRef<HTMLButtonElement>(null);
+  const subgroupOn = useSelector(
+    (state: RootState) => state.crosstab.subgroupOn
+  );
+  const { tableQList, fliterReportData } = useSelector(
+    (state: RootState) => state.filter
+  );
   const { state } = useLocation();
-  const [showSubgroupModal, setshowSubgroupModal] = useState(false);
+  const studyID = state?.studyID;
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
 
+  const actionIds = useMemo<readonly InlineActionId[]>(
+    () => [
+      "subgroups",
+      ...(subgroupOn ? (["configure-subgroups"] as const) : []),
+      "select-questions",
+      "view-mode",
+      "filters",
+    ],
+    [subgroupOn]
+  );
+  const {
+    containerRef,
+    fixedControlsRef,
+    getItemRef,
+    minimumWidth,
+    visibleIds,
+  } = useProgressiveOverflow(actionIds);
+
+  React.useLayoutEffect(() => {
+    onMinimumWidthChange(minimumWidth);
+  }, [minimumWidth, onMinimumWidthChange]);
+
   const { processDownload } = useReportProcessDownload();
   const { downloadExcel, isDownloadExcelPending } = useReportExcelDownload({
-    studyID: state.studyID,
-    cb: ({ studyID, pid }) => {
-      processDownload({ studyID, pid });
+    studyID: studyID ?? "",
+    cb: ({ studyID: callbackStudyID, pid }) => {
+      processDownload({ studyID: callbackStudyID, pid });
     },
   });
   const { downloadSpss, isDownloadSpssPending } = useReportSpssDownload({
-    studyID: state.studyID,
-    cb: ({ studyID, pid }) => {
-      processDownload({ studyID, pid });
+    studyID: studyID ?? "",
+    cb: ({ studyID: callbackStudyID, pid }) => {
+      processDownload({ studyID: callbackStudyID, pid });
     },
   });
   const { downloadTable, isDownloadTablePending } = useReportTableDownload({
-    studyID: state.studyID,
-    cb: ({ studyID, pid }) => {
-      processDownload({ studyID, pid });
+    studyID: studyID ?? "",
+    cb: ({ studyID: callbackStudyID, pid }) => {
+      processDownload({ studyID: callbackStudyID, pid });
     },
   });
   const { downloadPpt, isDownloadPptPending } = useReportPptDownload({
-    studyID: state.studyID,
-    cb: ({ studyID, pid }) => {
-      processDownload({ studyID, pid });
+    studyID: studyID ?? "",
+    cb: ({ studyID: callbackStudyID, pid }) => {
+      processDownload({ studyID: callbackStudyID, pid });
     },
   });
+  const { sideBySideVariables } = useReportSideBySideVariables(studyID);
+
+  const closeMoreDropdown = () => {
+    setShowMoreDropdown(false);
+    window.requestAnimationFrame(() => moreButtonRef.current?.focus());
+  };
+
+  const subGroupToggle = () => {
+    if (subgroupOn) {
+      dispatch(setSide_by_side("0"));
+    } else {
+      dispatch(setSelected(sideBySideVariables?.[0]?.qID ?? ""));
+      dispatch(setSide_by_side("1"));
+    }
+    dispatch(setSubgroupOn(!subgroupOn));
+  };
+
+  const handleSubgroupSave = async (selectedValue: string) => {
+    dispatch(setSelected(selectedValue));
+    await queryClient.refetchQueries({
+      queryKey: reportKeys.viewByIdRoot(studyID),
+      type: "active",
+    });
+    setShowSubgroupModal(false);
+  };
 
   const pointerDropdownData = [
     {
@@ -77,11 +166,9 @@ const ActionButton: React.FC<ActionButtonProps> = ({
         const allSelected =
           tableQList.length > 0 &&
           tableQList.every((item) => fliterReportData.includes(item));
-        if (allSelected) {
-          dispatch(setFliterReportData([]));
-        } else {
-          dispatch(setFliterReportData([...tableQList]));
-        }
+        dispatch(
+          setFliterReportData(allSelected ? [] : [...tableQList])
+        );
       },
     },
     ...tableQList.map((item) => ({
@@ -91,103 +178,143 @@ const ActionButton: React.FC<ActionButtonProps> = ({
         dispatch(
           setFliterReportData(
             fliterReportData.includes(item)
-              ? fliterReportData.filter((pre) => pre !== item)
+              ? fliterReportData.filter((previous) => previous !== item)
               : [...fliterReportData, item]
           )
         ),
     })),
   ];
 
-  const MoreDropdownData = [
+  const overflowMenuItem = (
+    actionId: InlineActionId
+  ): OverflowActionMenuItem => {
+    switch (actionId) {
+      case "subgroups":
+        return {
+          id: actionId,
+          label: subgroupOn ? "Turn Subgroups Off" : "Turn Subgroups On",
+          Icon: subgroupOn ? LuToggleRight : LuToggleLeft,
+          checked: subgroupOn,
+          disabled: !studyID,
+          onSelect: subGroupToggle,
+        };
+      case "configure-subgroups":
+        return {
+          id: actionId,
+          label: "Configure Subgroups",
+          Icon: LuListFilter,
+          disabled: !studyID,
+          onSelect: () => setShowSubgroupModal(true),
+        };
+      case "select-questions":
+        return {
+          id: actionId,
+          label: "Select Report Questions",
+          Icon: LuHand,
+          disabled: !studyID,
+          onSelect: () => setShowPointerDropdown(true),
+        };
+      case "view-mode":
+        return {
+          id: actionId,
+          label: showTableView ? "View Chart" : "View Table",
+          Icon: showTableView ? LuChartColumnBig : LuTable2,
+          onSelect: () => setShowTableView((previous) => !previous),
+        };
+      case "filters":
+        return {
+          id: actionId,
+          label: "Filters",
+          Icon: LuFilter,
+          disabled: true,
+          onSelect: () => setShowFiltersPanel(true),
+        };
+    }
+  };
+
+  const overflowItems = actionIds
+    .filter((actionId) => !visibleIds.has(actionId))
+    .map(overflowMenuItem);
+  const permanentMenuItems: readonly OverflowActionMenuItem[] = [
     {
-      Title: "Add New Filters",
+      id: "add-filters",
+      label: "Add New Filters",
       Icon: LuFilter,
-      onClick: () => {
-        setShowModal(true);
-      },
+      disabled: true,
+      onSelect: () => setShowFilterModal(true),
     },
     {
-      Title: "Download Excel Raw Data",
+      id: "download-excel",
+      label: "Download Excel Raw Data",
       Icon: LuFileSpreadsheet,
-      onClick: () => downloadExcel(),
+      disabled: !studyID || isDownloadExcelPending,
+      onSelect: downloadExcel,
     },
     {
-      Title: "Download SPSS Raw Data",
+      id: "download-spss",
+      label: "Download SPSS Raw Data",
       Icon: LuFiles,
-      onClick: () => downloadSpss(),
+      disabled: !studyID || isDownloadSpssPending,
+      onSelect: downloadSpss,
     },
     {
-      Title: "Download Table Raw Data",
+      id: "download-table",
+      label: "Download Table Raw Data",
       Icon: LuTable2,
-      onClick: () => downloadTable(),
+      disabled: !studyID || isDownloadTablePending,
+      onSelect: downloadTable,
     },
     {
-      Title: "Download PPT",
+      id: "download-ppt",
+      label: "Download PPT",
       Icon: LuPresentation,
-      onClick: () => downloadPpt(),
+      disabled: !studyID || isDownloadPptPending,
+      onSelect: downloadPpt,
     },
     {
-      Title: "Download History",
+      id: "download-history",
+      label: "Download History",
       Icon: LuDownload,
-      onClick: () => {
-        setOpen(true);
-      },
+      disabled: !studyID,
+      onSelect: () => setShowHistory(true),
     },
   ];
-
-  const { sideBySideVariables } = useReportSideBySideVariables(state.studyID);
-
-  const handleSave = async (selectedValue: string) => {
-    dispatch(setSelected(selectedValue));
-    await queryClient.refetchQueries({
-      queryKey: reportKeys.viewByIdRoot(state.studyID),
-      type: "active",
-    });
-    setshowSubgroupModal(false);
-  };
-
-  const subGroupToggle = () => {
-    if (!!subgroupOn) {
-      dispatch(setSide_by_side("0"));
-    } else {
-      dispatch(setSelected(sideBySideVariables?.[0]?.qID ?? ""));
-      dispatch(setSide_by_side("1"));
-    }
-    dispatch(setSubgroupOn(!subgroupOn));
-  };
+  const menuItems = [...overflowItems, ...permanentMenuItems];
+  const selectorIsInline = visibleIds.has("select-questions");
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Node;
-      if (
-        showMoreDropdown &&
-        dropdownRef.current &&
-        !dropdownRef.current.contains(target)
-      ) {
+    const handlePointerDown = (event: MouseEvent) => {
+      if (!interactionRef.current?.contains(event.target as Node)) {
         setShowMoreDropdown(false);
-      }
-
-      if (
-        showPointerDropdown &&
-        selectDropdownRef.current &&
-        !selectDropdownRef.current.contains(target)
-      ) {
         setShowPointerDropdown(false);
       }
     };
-    document.addEventListener("mousedown", handleClickOutside);
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      if (showMoreDropdown || showPointerDropdown) {
+        event.preventDefault();
+        setShowMoreDropdown(false);
+        setShowPointerDropdown(false);
+        moreButtonRef.current?.focus();
+      }
+    };
+
+    document.addEventListener("mousedown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("mousedown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
     };
   }, [showMoreDropdown, showPointerDropdown]);
 
-  return (
-    <div className="relative">
-      <div className="flex min-h-[42px] flex-wrap items-center gap-2 md:justify-end">
-        <div className="flex items-center gap-2">
+  const renderInlineAction = (actionId: InlineActionId) => {
+    switch (actionId) {
+      case "subgroups":
+        return (
           <Button
             data-test-id="GROUP_TOGGLE"
-            className="report-toolbar-btn report-title border home-border-soft bg-white px-4 hover:bg-white hover:text-[var(--color-text-strong)] [&_svg]:size-5"
+            disabled={!studyID}
+            className="report-toolbar-btn report-title border home-border-soft bg-white hover:bg-white hover:text-[var(--color-text-strong)] [&_svg]:size-5"
             onClick={subGroupToggle}
           >
             {subgroupOn ? (
@@ -197,102 +324,158 @@ const ActionButton: React.FC<ActionButtonProps> = ({
             )}
             Subgroups
           </Button>
-          {subgroupOn && (
-            <Button
-              data-test-id="GROUP_TOGGLE_ON"
-              size="icon"
-              tooltip="Configure subgroups"
-              className="report-toolbar-btn bg-[var(--color-study-progress)] text-white hover:bg-[var(--color-study-progress)] hover:text-white hover:opacity-90"
-              onClick={() => {
-                setshowSubgroupModal(true);
-              }}
-            >
-              <LuListFilter />
-            </Button>
-          )}
-        </div>
-        <div className="relative" ref={selectDropdownRef}>
+        );
+      case "configure-subgroups":
+        return (
+          <Button
+            data-test-id="GROUP_TOGGLE_ON"
+            size="default"
+            tooltip="Configure subgroups"
+            disabled={!studyID}
+            className="report-toolbar-btn bg-[var(--color-study-progress)] text-white hover:bg-[var(--color-study-progress)] hover:text-white hover:opacity-90"
+            onClick={() => setShowSubgroupModal(true)}
+          >
+            <LuListFilter />
+          </Button>
+        );
+      case "select-questions":
+        return (
           <Button
             data-test-id="SELECTOR"
             tooltip="Select report questions"
-            onClick={() => setShowPointerDropdown((prev) => !prev)}
-            size="icon"
+            disabled={!studyID}
+            onClick={() => setShowPointerDropdown((previous) => !previous)}
+            size="default"
             className="report-toolbar-btn bg-[var(--color-brand-primary-soft)] text-white hover:bg-login-primary"
           >
             <LuHand />
           </Button>
-          {showPointerDropdown && (
-            <div className="absolute right-0 z-20 mt-2">
-              <DropDown showCheckbox={true} Data={pointerDropdownData} />
-            </div>
-          )}
-        </div>
-        <Button
-          data-test-id="TABLE"
-          size="icon"
-          tooltip={showTableView ? "View chart mode" : "View table mode"}
-          className="report-toolbar-btn report-title border home-border-soft bg-white hover:bg-white hover:text-[var(--color-text-strong)]"
-          onClick={() => setShowTableView((prev) => !prev)}
-        >
-          {showTableView ? <LuChartColumnBig /> : <LuTable2 />}
-        </Button>
-        <Button
-          size="icon"
-          tooltip="Filters"
-          className="report-toolbar-btn bg-[var(--color-brand-info)] text-white hover:opacity-90"
-          onClick={() => {
-            setShowFilter(true);
-          }}
-          
-        >
-          <LuFilter />
-        </Button>
-        <div className="relative" ref={dropdownRef}>
+        );
+      case "view-mode":
+        return (
           <Button
-            data-test-id="MORE_ACTIONS"
-            size="icon"
-            tooltip="More actions"
-            className="report-toolbar-btn bg-[var(--color-questionnaire-multi)] text-white hover:bg-[var(--color-questionnaire-multi)] hover:text-white hover:opacity-90"
-            onClick={() => {
-              setShowMoreDropdown((prev) => !prev);
-            }}
+            data-test-id="TABLE"
+            size="default"
+            tooltip={showTableView ? "View chart mode" : "View table mode"}
+            className="report-toolbar-btn report-title border home-border-soft bg-white hover:bg-white hover:text-[var(--color-text-strong)]"
+            onClick={() => setShowTableView((previous) => !previous)}
           >
-            <LuEllipsis />
+            {showTableView ? <LuChartColumnBig /> : <LuTable2 />}
           </Button>
-          {showMoreDropdown && (
-            <div className="absolute right-0 mt-2 z-10">
-              <DropDown Data={MoreDropdownData} className="w-72 z-20" />
+        );
+      case "filters":
+        return (
+          <Button
+            size="default"
+            tooltip="Filters"
+            className="report-toolbar-btn bg-[var(--color-brand-info)] text-white hover:opacity-90"
+            onClick={() => setShowFiltersPanel(true)}
+            disabled
+          >
+            <LuFilter />
+          </Button>
+        );
+    }
+  };
+
+  return (
+    <div ref={interactionRef} className="relative min-w-0 w-full">
+      <div
+        ref={containerRef}
+        className="flex min-h-8 min-w-0 w-full flex-nowrap items-center justify-end gap-2"
+      >
+        {actionIds.map((actionId) =>
+          visibleIds.has(actionId) ? (
+            <div
+              key={actionId}
+              ref={getItemRef(actionId)}
+              className="relative shrink-0"
+            >
+              {renderInlineAction(actionId)}
+              {actionId === "select-questions" && showPointerDropdown ? (
+                <DropDown
+                  showCheckbox
+                  Data={pointerDropdownData}
+                  className="top-full max-h-[min(70vh,32rem)] max-w-[calc(100vw-2rem)] overflow-auto"
+                />
+              ) : null}
             </div>
-          )}
-        </div>
-        <Link
-          to={"/crosstab"}
-          state={{ studyID: state.studyID }}
-          className="platform-btn-pill report-toolbar-btn inline-flex h-10 items-center gap-2 bg-login-primary px-5 text-sm font-bold text-white hover:bg-login-primary-hover"
-        >
-          Next <LuArrowRight className="h-4 w-4" />
-        </Link>
-      </div>
-      {showFilter && (
-        <ReportFilter onClose={() => setShowFilter(false)} onClear={() => { }} />
-      )}
-      <div>
-        {showSubgroupModal && (
-          <SetSubgroupModal
-            options={sideBySideVariables}
-            onSave={handleSave}
-            onClose={() => setshowSubgroupModal(false)}
-          />
+          ) : null
         )}
+
+        <div
+          ref={fixedControlsRef}
+          className="flex shrink-0 items-center gap-2"
+        >
+          <div className="relative">
+            <Button
+              ref={moreButtonRef}
+              type="button"
+              data-test-id="MORE_ACTIONS"
+              size="default"
+              tooltip="More report actions"
+              aria-haspopup="menu"
+              aria-expanded={showMoreDropdown}
+              disabled={!studyID}
+              className="report-toolbar-btn bg-[var(--color-questionnaire-multi)] text-white hover:bg-[var(--color-questionnaire-multi)] hover:text-white hover:opacity-90"
+              onClick={() => {
+                setShowPointerDropdown(false);
+                setShowMoreDropdown((previous) => !previous);
+              }}
+            >
+              <LuEllipsis />
+            </Button>
+            {showMoreDropdown ? (
+              <OverflowActionsMenu
+                anchorRef={moreButtonRef}
+                ariaLabel="Report actions"
+                items={menuItems}
+                onClose={closeMoreDropdown}
+              />
+            ) : null}
+            {!selectorIsInline && showPointerDropdown ? (
+              <DropDown
+                showCheckbox
+                Data={pointerDropdownData}
+                className="top-full max-h-[min(70vh,32rem)] max-w-[calc(100vw-2rem)] overflow-auto"
+              />
+            ) : null}
+          </div>
+          <Button
+            data-test-id="NEXT_TO_CROSSTAB"
+            variant="theme"
+            disabled={!studyID}
+            onClick={() => navigate("/crosstab", { state: { studyID } })}
+          >
+            Next <LuArrowRight className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
-      <FilterModal isOpen={showModal} setIsOpen={() => setShowModal(false)} />
-      <HistoryModal open={open} onOpenChange={setOpen} />
-      {(isDownloadExcelPending ||
-        isDownloadSpssPending ||
-        isDownloadTablePending ||
-        isDownloadPptPending) && <LoaderSpinner />}
+
+      {showFiltersPanel ? (
+        <ReportFilter
+          onClose={() => setShowFiltersPanel(false)}
+          onClear={() => {}}
+        />
+      ) : null}
+      {showSubgroupModal ? (
+        <SetSubgroupModal
+          options={sideBySideVariables}
+          onSave={handleSubgroupSave}
+          onClose={() => setShowSubgroupModal(false)}
+        />
+      ) : null}
+      <FilterModal
+        isOpen={showFilterModal}
+        setIsOpen={() => setShowFilterModal(false)}
+      />
+      <HistoryModal open={showHistory} onOpenChange={setShowHistory} />
+      {isDownloadExcelPending ||
+      isDownloadSpssPending ||
+      isDownloadTablePending ||
+      isDownloadPptPending ? (
+        <LoaderSpinner />
+      ) : null}
     </div>
   );
-};
-
-export default ActionButton;
+}

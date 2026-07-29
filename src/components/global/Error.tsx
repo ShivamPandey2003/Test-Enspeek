@@ -53,14 +53,14 @@ const Error: React.FC<ErrorPageProps> = ({
 
       <div className="flex gap-3">
         {showRetry && (
-          <Button type="button" varinat="theme" onClick={handleRetry} className="rounded-lg px-6 py-2.5 font-medium">
+          <Button type="button" variant="theme" onClick={handleRetry} className="rounded-lg px-6 py-2.5 font-medium">
             <LuRefreshCw className="w-4 h-4" />
             Try Again
           </Button>
         )}
 
         {showHome && (
-          <Button type="button" varinat="outline" onClick={handleGoHome} className="rounded-lg px-6 py-2.5 font-medium">
+          <Button type="button" variant="outline" onClick={handleGoHome} className="rounded-lg px-6 py-2.5 font-medium">
             <GoHome className="w-4 h-4" />
             Go Home
           </Button>

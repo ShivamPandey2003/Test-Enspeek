@@ -25,14 +25,14 @@ export default function SocialShareLinkModal({
       title={definition.title}
       icon={headerIcon}
       footerLeft={
-        <Button type="button" varinat="cancel" onClick={onClose}>
+        <Button type="button" variant="cancel" onClick={onClose}>
           {definition.cancelLabel}
         </Button>
       }
       footerRight={
         <Button
           type="button"
-          varinat={definition.tone === "success" ? "success" : "theme"}
+          variant={definition.tone === "success" ? "success" : "theme"}
           onClick={() => {
             if (copyContent) {
               navigator.clipboard.writeText(copyContent);
@@ -49,20 +49,20 @@ export default function SocialShareLinkModal({
       <div className="flex flex-col gap-5">
         {linkData?.short_url ? (
           <>
-            <div className="modal-card flex items-center gap-5 px-5 py-5">
+            <div className="modal-card flex items-start gap-3 p-3 sm:gap-5">
               <span className={`modal-header-icon ${accentClassName}`}>
                 <LuLink className="h-5 w-5" />
               </span>
               <div className="min-w-0 flex-1 text-left">
-                <div className="flex items-center gap-3 overflow-hidden whitespace-nowrap">
-                  <strong className="questionnaire-heading shrink-0 text-[24px] font-extrabold text-[var(--color-text-strong)]">
+                <div className="flex min-w-0 flex-wrap items-start gap-x-3 gap-y-1">
+                  <strong className="questionnaire-heading shrink-0 text-[var(--color-text-strong)] sm:pt-0.5">
                     Link:
                   </strong>
                   <a
                     href={linkData.short_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="min-w-0 truncate text-[22px] leading-8 text-[var(--color-brand-primary)] underline decoration-dashed underline-offset-4"
+                    className="min-w-0 break-all text-[var(--color-brand-primary)] underline decoration-dashed underline-offset-4"
                   >
                     {linkData.short_url}
                   </a>
@@ -71,16 +71,16 @@ export default function SocialShareLinkModal({
             </div>
 
             {linkData.Message ? (
-              <div className="modal-card flex items-center gap-5 px-5 py-5">
+              <div className="modal-card flex items-start gap-3 p-3 sm:gap-5">
                 <span className={`modal-header-icon ${accentClassName}`}>
                   <LuMessageSquareQuote className="h-5 w-5" />
                 </span>
                 <div className="min-w-0 flex-1 text-left">
-                  <div className="flex items-center gap-3 overflow-hidden whitespace-nowrap">
-                    <p className="questionnaire-heading shrink-0 text-[24px] font-extrabold text-[var(--color-text-strong)]">
+                  <div className="flex min-w-0 flex-wrap items-start gap-x-3 gap-y-1">
+                    <p className="questionnaire-heading shrink-0 text-[var(--color-text-strong)] sm:pt-0.5">
                       Message:
                     </p>
-                    <p className="min-w-0 truncate text-[22px] leading-8 text-[var(--color-text-default)]">
+                    <p className="min-w-0 whitespace-pre-wrap break-words text-[var(--color-text-default)]">
                       {linkData.Message}
                     </p>
                   </div>
@@ -89,20 +89,20 @@ export default function SocialShareLinkModal({
             ) : null}
           </>
         ) : (
-          <div className="modal-card px-5 py-8 text-center">
+          <div className="modal-card p-3 text-center">
             <p className="text-lg theme-text-muted">Generating link...</p>
           </div>
         )}
 
         <ModalInfoBlock
-          className="gap-5 rounded-lg px-5 py-5 force_align_center"
+          className="gap-5 rounded-lg p-3 force_align_center"
           icon={
             <span className={`modal-header-icon ${accentClassName}`}>
               <LuInfo className="h-5 w-5" />
             </span>
           }
         >
-          <p className="text-left text-[21px] leading-9 text-[var(--color-text-default)]">
+          <p className="text-left text-[var(--color-text-default)]">
             Copy and paste the message to start the conversation after opening
             the link
           </p>

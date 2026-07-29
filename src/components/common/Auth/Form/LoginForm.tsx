@@ -36,6 +36,7 @@ const LoginForm = () => {
           apiToken: data.apitoken,
           firstName: data.firstname,
           lastName: data.lastname,
+          loginType: data.loginType ?? data.logintype,
           userType: data.usertype,
         }),
       );
@@ -87,7 +88,7 @@ const LoginForm = () => {
             <Input id="password" variant="login" type={isPasswordVisible ? "text" : "password"} data-test-id="PASSWORD" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" className="pr-11" />
             <Button
               type="button"
-              varinat="ghost"
+              variant="ghost"
               size="icon"
               className="absolute inset-y-0 right-1 my-auto h-10 w-10 border-0 bg-transparent p-0 text-[var(--color-text-muted)] shadow-none hover:bg-transparent hover:text-[var(--color-text-default)]"
               onClick={() => setIsPasswordVisible(!isPasswordVisible)}
@@ -115,12 +116,12 @@ const LoginForm = () => {
             <span className="bg-login-card px-3 text-login-muted">or</span>
           </div>
         </div>
-        <Button varinat={"social"} className="h-12 rounded-xl text-[15px] font-medium cursor-not-allowed" disabled>
+        <Button variant={"social"} className="h-12 rounded-xl text-[15px] font-medium cursor-not-allowed" disabled>
           <GoogleIcon />
           <span>Continue with Google</span>
         </Button>
         <div className="text-center">
-          <Button varinat={"link"} className="cursor-not-allowed text-sm transition-colors" disabled>
+          <Button variant={"link"} className="cursor-not-allowed text-sm transition-colors" disabled>
             Forgot password?
           </Button>
         </div>

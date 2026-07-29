@@ -8,6 +8,7 @@ declare global {
         container: HTMLElement,
         parameters: {
           sitekey: string;
+          size?: "normal" | "compact";
           callback: (token: string) => void;
           "expired-callback"?: () => void;
           "error-callback"?: () => void;
@@ -23,11 +24,14 @@ const RECAPTCHA_SITE_KEY =
   import.meta.env.VITE_REACT_RECAPTCHA ||
   import.meta.env.VITE_RECAPTCHA_SITE_KEY ||
   "";
+const COMPACT_CAPTCHA_QUERY = "(max-width: 380px)";
 
 type CaptchaWidgetProps = {
   onVerify: (token: string | null) => void;
   resetSignal?: number;
 };
+
+type CaptchaSize = "normal" | "compact";
 
 const loadRecaptchaScript = () =>
   new Promise<void>((resolve, reject) => {
@@ -53,18 +57,22 @@ const loadRecaptchaScript = () =>
     document.body.appendChild(script);
   });
 
+const getShouldUseCompactCaptcha = () => {
+  if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+    return false;
+  }
+
+  return window.matchMedia(COMPACT_CAPTCHA_QUERY).matches;
+};
+
 const CaptchaWidget: React.FC<CaptchaWidgetProps> = ({
   onVerify,
   resetSignal = 0,
 }) => {
-  const containerRef = React.useRef<HTMLDivElement | null>(null);
-  const widgetIdRef = React.useRef<number | null>(null);
-  const onVerifyRef = React.useRef(onVerify);
   const [isReady, setIsReady] = React.useState(false);
-
-  React.useEffect(() => {
-    onVerifyRef.current = onVerify;
-  }, [onVerify]);
+  const [useCompactCaptcha, setUseCompactCaptcha] = React.useState(
+    getShouldUseCompactCaptcha
+  );
 
   React.useEffect(() => {
     let mounted = true;
@@ -78,7 +86,7 @@ const CaptchaWidget: React.FC<CaptchaWidgetProps> = ({
       .catch(() => {
         if (mounted) {
           setIsReady(false);
-          onVerifyRef.current(null);
+          onVerify(null);
         }
       });
 
@@ -88,30 +96,34 @@ const CaptchaWidget: React.FC<CaptchaWidgetProps> = ({
   }, []);
 
   React.useEffect(() => {
-    if (!isReady || !containerRef.current || !window.grecaptcha || !RECAPTCHA_SITE_KEY) {
+    if (typeof window.matchMedia !== "function") {
       return;
     }
 
-    window.grecaptcha.ready(() => {
-      if (!containerRef.current || widgetIdRef.current !== null) {
-        return;
-      }
+    const mediaQuery = window.matchMedia(COMPACT_CAPTCHA_QUERY);
+    const handleViewportChange = (event: MediaQueryListEvent) => {
+      setUseCompactCaptcha(event.matches);
+    };
+    const legacyMediaQuery = mediaQuery as MediaQueryList & {
+      addListener?: (listener: (event: MediaQueryListEvent) => void) => void;
+      removeListener?: (listener: (event: MediaQueryListEvent) => void) => void;
+    };
 
-      widgetIdRef.current = window.grecaptcha?.render(containerRef.current, {
-        sitekey: RECAPTCHA_SITE_KEY,
-        callback: (token) => onVerifyRef.current(token),
-        "expired-callback": () => onVerifyRef.current(null),
-        "error-callback": () => onVerifyRef.current(null),
-      }) ?? null;
-    });
-  }, [isReady]);
-
-  React.useEffect(() => {
-    if (widgetIdRef.current !== null && window.grecaptcha) {
-      window.grecaptcha.reset(widgetIdRef.current);
-      onVerifyRef.current(null);
+    setUseCompactCaptcha(mediaQuery.matches);
+    if (typeof mediaQuery.addEventListener === "function") {
+      mediaQuery.addEventListener("change", handleViewportChange);
+    } else {
+      legacyMediaQuery.addListener?.(handleViewportChange);
     }
-  }, [resetSignal]);
+
+    return () => {
+      if (typeof mediaQuery.removeEventListener === "function") {
+        mediaQuery.removeEventListener("change", handleViewportChange);
+      } else {
+        legacyMediaQuery.removeListener?.(handleViewportChange);
+      }
+    };
+  }, []);
 
   if (!RECAPTCHA_SITE_KEY) {
     return (
@@ -121,7 +133,79 @@ const CaptchaWidget: React.FC<CaptchaWidgetProps> = ({
     );
   }
 
-  return <div ref={containerRef} className="mx-auto min-h-[78px] w-fit" />;
+  const captchaSize: CaptchaSize = useCompactCaptcha ? "compact" : "normal";
+
+  return (
+    <div className="flex w-full max-w-full justify-center">
+      {isReady ? (
+        <RecaptchaInstance
+          key={captchaSize}
+          size={captchaSize}
+          resetSignal={resetSignal}
+          onVerify={onVerify}
+        />
+      ) : (
+        <div className={captchaSize === "compact" ? "min-h-[144px] w-[164px]" : "min-h-[78px] w-[304px] max-w-full"} />
+      )}
+    </div>
+  );
+};
+
+const RecaptchaInstance = ({
+  size,
+  resetSignal,
+  onVerify,
+}: {
+  size: CaptchaSize;
+  resetSignal: number;
+  onVerify: (token: string | null) => void;
+}) => {
+  const containerRef = React.useRef<HTMLDivElement | null>(null);
+  const widgetIdRef = React.useRef<number | null>(null);
+  const onVerifyRef = React.useRef(onVerify);
+
+  React.useEffect(() => {
+    onVerifyRef.current = onVerify;
+  }, [onVerify]);
+
+  React.useEffect(() => {
+    let mounted = true;
+
+    onVerifyRef.current(null);
+
+    window.grecaptcha?.ready(() => {
+      if (!mounted || !containerRef.current || widgetIdRef.current !== null) {
+        return;
+      }
+
+      widgetIdRef.current = window.grecaptcha?.render(containerRef.current, {
+        sitekey: RECAPTCHA_SITE_KEY,
+        size,
+        callback: (token) => onVerifyRef.current(token),
+        "expired-callback": () => onVerifyRef.current(null),
+        "error-callback": () => onVerifyRef.current(null),
+      }) ?? null;
+    });
+
+    return () => {
+      mounted = false;
+      onVerifyRef.current(null);
+    };
+  }, [size]);
+
+  React.useEffect(() => {
+    if (widgetIdRef.current !== null && window.grecaptcha) {
+      window.grecaptcha.reset(widgetIdRef.current);
+      onVerifyRef.current(null);
+    }
+  }, [resetSignal]);
+
+  return (
+    <div
+      ref={containerRef}
+      className={size === "compact" ? "min-h-[144px] w-[164px]" : "min-h-[78px] w-[304px] max-w-full"}
+    />
+  );
 };
 
 export default CaptchaWidget;

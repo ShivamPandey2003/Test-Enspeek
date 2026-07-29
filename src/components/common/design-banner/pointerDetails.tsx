@@ -173,9 +173,9 @@ const PointDetails: React.FC<pointDetailsProps> = ({
               {BannerPointer.length > 1 && (
                 <Button
                   type="button"
-                  varinat="danger"
+                  variant="danger"
                   onClick={() => deleteBannerPoint(activeTab!)}
-                  className="report-toolbar-btn px-4"
+                  className="report-toolbar-btn"
                 >
                   <LuTrash2 className="h-4 w-4" />
                   Delete

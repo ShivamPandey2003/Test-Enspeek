@@ -2,9 +2,8 @@ import { useEffect, type DragEvent } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
-import { MdArrowForwardIos } from "react-icons/md";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
-import { LuBotMessageSquare, LuCircleCheckBig, LuPlus, LuSparkles, LuWandSparkles } from "react-icons/lu";
+import { LuArrowRight, LuPlus } from "react-icons/lu";
 import type { AppDispatch, RootState } from "../../../store/store";
 import { cn, getTimeGreeting, normalizeDisplayName } from "../../../utils";
 import { setEditingQuestion } from "../../../store/QuestionSlice";
@@ -17,6 +16,9 @@ import Button from "../../ui/Button";
 import useAiChat from "../../../api-network/global/ai-chat";
 import { useHydrateQuestionnaireSubmitItems } from "../../../api-network/questionnaire/mutation";
 import { useQuestionnaireList, useQuestionnaireQuestionTypes, useQuestionnaireStudyInfo } from "../../../api-network/questionnaire/query";
+import { focusChatInput } from "../../../utils/modalFocus";
+import PlatformHero from "../../ui/PlatformHero";
+import ChatHistoryLoader from "../../global/ChatHistoryLoader";
 
 export default function QuestionList() {
   const navigate = useNavigate();
@@ -35,13 +37,8 @@ export default function QuestionList() {
 
   const emptyStatePrompts = [
     {
-      title: "Generate screening questions",
-      text: "Generate 5 screening questions for this study",
-      icon: <LuWandSparkles className="h-4 w-4" />,
-    },
-    {
-      title: "Create your first question",
-      text: "Create a single select question for this study",
+      title: "Generate Questions",
+      text: "Generate questions on [Topic]",
       icon: <LuPlus className="h-4 w-4" />,
     },
   ];
@@ -92,11 +89,12 @@ export default function QuestionList() {
   }
 
   return (
-    <div className="questionnaire-page-bg relative flex h-full min-h-0 flex-col overflow-hidden">
+    <div className="relative flex h-full min-h-0 flex-col overflow-hidden">
+      <ChatHistoryLoader enabled={!!studyID && !isStudyInfoLoading} />
       <PageSubheader
         left={
-          <div className="flex flex-wrap items-center gap-3">
-            <h1 className="questionnaire-heading text-[18px] font-semibold leading-none md:text-[22px]">
+          <div className="min-w-0">
+            <h1 className="questionnaire-heading truncate text-[16px] font-semibold leading-none">
               Questionnaire
             </h1>
           </div>
@@ -104,31 +102,27 @@ export default function QuestionList() {
         right={
           submitItems.length > 0 ? (
             <>
-              <div className="questionnaire-question-count inline-flex min-h-[34px] items-center gap-2.5">
-                <div className="flex items-center gap-2">
-                  <span className="questionnaire-question-count-value text-sm font-semibold md:text-base">
-                    {submitItems.length}
-                  </span>
-                  <span className="questionnaire-question-count-label text-[11px] font-semibold uppercase tracking-[0.16em]">
-                    Questions
-                  </span>
-                </div>
+              <div className="questionnaire-question-count min-w-0 truncate whitespace-nowrap text-sm font-semibold md:text-base">
+                {`${submitItems.length} ${submitItems.length === 1 ? "Question" : "Questions"}`}
               </div>
               <Button
                 data-test-id="NEXTTOSURVEY"
-                varinat="theme"
+                variant="theme"
+                size="default"
                 onClick={() => {
                   navigate("/publish-survey", {
                     state: { studyID },
                   });
                 }}
               >
-                Next <MdArrowForwardIos />
+                Next <LuArrowRight />
               </Button>
             </>
           ) : null
         }
-        rightClassName="justify-between gap-4 md:justify-end md:gap-5"
+        contentClassName="flex-row items-center justify-between gap-2"
+        leftClassName="min-w-0 flex-1 overflow-hidden"
+        rightClassName="min-w-0 shrink flex-nowrap justify-end gap-2 md:gap-3"
       />
       <div className="flex flex-1 min-h-0">
         <div
@@ -153,129 +147,39 @@ export default function QuestionList() {
               }}
             />
           ) : submitItems.length === 0 ? (
-            <div className="flex min-h-full w-full items-center justify-center px-5 py-4 md:px-6 md:py-5">
-              <div className="mx-auto flex w-full max-w-5xl flex-col gap-4">
-                <div className="grid gap-4 xl:grid-cols-[minmax(0,1.16fr)_minmax(280px,0.84fr)] xl:items-stretch">
-                  <div className="platform-card-shadow-strong questionnaire-card questionnaire-border overflow-hidden rounded-[30px] border">
-                    <div className="platform-hero-surface px-5 py-5 md:px-6 md:py-6">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="home-panel-soft-bg home-highlight inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em]">
-                          <LuSparkles className="h-3.5 w-3.5" />
-                          AI-assisted questionnaire
-                        </span>
-                      </div>
-
-                      <div className="mt-4 flex items-center gap-3">
-                        <div className="relative flex h-12 w-12 items-center justify-center rounded-[18px] bg-gradient-to-br from-login-primary to-action shadow-lg">
-                          <LuBotMessageSquare className="h-6 w-6 text-white" />
-                          <LuSparkles className="absolute -right-2 -top-2 h-4 w-4 text-amber-400" />
-                        </div>
-                        <div className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold questionnaire-heading shadow-sm">
-                          {`${greeting}, ${normalizedFirstName}`}
-                        </div>
-                      </div>
-
-                      <h2 className="questionnaire-heading mt-4 max-w-3xl text-[clamp(1.9rem,3vw,2.65rem)] font-semibold leading-[1.05] tracking-[-0.04em]">
-                        Start building your questionnaire
-                      </h2>
-                      <p className="home-highlight mt-2.5 max-w-2xl text-[14px] leading-6 md:text-[16px] md:leading-6">
-                        Tell Enspeek what your study is about and it can generate
-                        your first set of questions in plain language.
-                      </p>
-
-                      <Button
-                        type="button"
-                        varinat="outline"
-                        size="sm"
-                        onClick={() =>
-                          openChatWithMessage("Generate 5 questions about my study.")
-                        }
-                        className="mt-4 rounded-full home-muted shadow-sm hover:border-login-primary/30 hover:bg-login-primary/5"
-                      >
-                        Try:
-                        <span className="font-semibold text-login-primary">
-                          "Generate 5 questions about my study."
-                        </span>
-                      </Button>
-
-                      <div className="mt-3.5 grid gap-3 md:grid-cols-2">
-                        {emptyStatePrompts.map((prompt) => (
-                          <Button
-                            key={prompt.title}
-                            type="button"
-                            varinat="outline"
-                            onClick={() => openChatWithMessage(prompt.text)}
-                            className="home-panel-soft-bg questionnaire-border group h-auto w-full items-start justify-start whitespace-normal rounded-[20px] px-4 py-3 text-left leading-normal transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
-                          >
-                            <span className="home-dropdown-icon-wrap flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl">
-                              {prompt.icon}
-                            </span>
-                            <span className="min-w-0 flex-1">
-                              <span className="questionnaire-heading block break-words text-sm font-semibold leading-5">
+            <div className="flex min-h-full w-full items-center justify-center px-5 pb-24 pt-3 md:px-6 md:pb-36 md:pt-4">
+              <div className="mx-auto flex w-full max-w-6xl flex-col gap-4">
+                <div className="w-full">
+                  <div className="overflow-hidden rounded-[24px]">
+                    <PlatformHero
+                      variant="questionnaire"
+                      greeting={`${greeting}, ${normalizedFirstName}`}
+                      title="Start building your questionnaire"
+                      description="Tell Enspeek what your study is about and it can generate your first set of questions in plain language."
+                      actions={
+                        <>
+                          {emptyStatePrompts.map((prompt) => (
+                            <Button
+                              key={prompt.title}
+                              type="button"
+                              variant="outline"
+                              onClick={() => {
+                                openChatWithMessage(prompt.text);
+                                focusChatInput();
+                              }}
+                              className="home-panel-soft-bg questionnaire-border group w-auto items-center justify-center rounded-full text-center leading-normal transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+                            >
+                              <span className="home-dropdown-icon-wrap flex h-7 w-7 shrink-0 items-center justify-center rounded-full [&>svg]:h-4 [&>svg]:w-4">
+                                {prompt.icon}
+                              </span>
+                              <span className="questionnaire-heading whitespace-nowrap text-sm font-semibold">
                                 {prompt.title}
                               </span>
-                              <span className="questionnaire-muted mt-0.5 block break-words text-sm leading-5">
-                                {prompt.text}
-                              </span>
-                            </span>
-                          </Button>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="platform-card-shadow-medium questionnaire-card questionnaire-border h-full rounded-[28px] border px-5 py-5">
-                    <div className="flex h-full flex-col">
-                      <div className="flex items-center gap-3">
-                        <div className="home-panel-soft-bg flex h-10 w-10 items-center justify-center rounded-2xl">
-                          <LuCircleCheckBig className="h-5 w-5 text-login-primary" />
-                        </div>
-                        <div>
-                          <p className="questionnaire-heading text-[17px] font-semibold">
-                            What happens next
-                          </p>
-                          <p className="questionnaire-muted mt-0.5 text-sm leading-5">
-                            A simple path from first question to final survey.
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="mt-3 flex flex-1 flex-col gap-2">
-                        {[
-                          {
-                            title: "Describe your topic in simple words",
-                            body: "Tell Enspeek what the study is about and let it draft the first questions for you.",
-                          },
-                          {
-                            title: "Review and edit the generated questions",
-                            body: "Refine wording, reorder items, or create your own question when you need more control.",
-                          },
-                          {
-                            title: "Move to publish survey when ready",
-                            body: "When the questionnaire looks right, continue to publish and activate the study.",
-                          },
-                        ].map((item, index) => (
-                          <div
-                            key={item.title}
-                            className="home-panel-soft-bg flex flex-1 items-center rounded-[20px] border questionnaire-border px-4 py-3"
-                          >
-                            <div className="flex items-center gap-3">
-                              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-login-primary text-sm font-semibold text-white">
-                                {index + 1}
-                              </div>
-                              <div>
-                                <p className="questionnaire-heading text-sm font-semibold leading-5.5">
-                                  {item.title}
-                                </p>
-                                <p className="questionnaire-muted mt-1 text-sm leading-5">
-                                  {item.body}
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+                            </Button>
+                          ))}
+                        </>
+                      }
+                    />
                   </div>
                 </div>
               </div>

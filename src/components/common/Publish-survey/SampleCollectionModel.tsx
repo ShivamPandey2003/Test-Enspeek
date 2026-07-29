@@ -25,9 +25,9 @@ const SampleCollectionModel: FC<SampleCollectionModalProps> = ({
   const { mutateAsync, isPending } = useInitiateSampleCollectionMutation(state.studyID);
   const definition = modalDefinitions.initiateSampleCollection;
   const title =
-    studyInfo.closed === 1 ? "Relaunch Survey" : definition.title;
+    studyInfo.closed === 1 ? "Relaunch Research" : definition.title;
   const submitLabel =
-    studyInfo.closed === 1 ? "Relaunch Survey" : definition.submitLabel!;
+    studyInfo.closed === 1 ? "Relaunch Research" : definition.submitLabel!;
 
   useEffect(() => {
     if (isOpen && !isPending) {
@@ -67,7 +67,7 @@ const SampleCollectionModel: FC<SampleCollectionModalProps> = ({
     <DynamicModel
       Title={title}
       headerIcon={
-        <span className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[var(--color-brand-primary-softest)] text-login-primary">
+        <span className="inline-flex items-center justify-center rounded-full bg-[var(--color-brand-primary-softest)] text-login-primary">
           <LuUsers className="h-5 w-5" />
         </span>
       }
@@ -90,7 +90,7 @@ const SampleCollectionModel: FC<SampleCollectionModalProps> = ({
       secondaryAction={
         <Button
           type="button"
-          varinat="cancel"
+          variant="cancel"
           onClick={onClose}
           disabled={isPending}
         >

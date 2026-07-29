@@ -149,7 +149,7 @@ export default function EditTableModal({
       description="Update the table details, logic, and row settings, then save the refreshed table configuration."
       descriptionClassName="theme-modal-description"
       headerIcon={
-        <span className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[var(--color-brand-primary-softest)] text-login-primary">
+        <span className="inline-flex items-center justify-center rounded-full bg-[var(--color-brand-primary-softest)] text-login-primary">
           <LuTable className="h-5 w-5" />
         </span>
       }
@@ -177,7 +177,7 @@ export default function EditTableModal({
       secondaryAction={
         <Button
           type="button"
-          varinat="cancel"
+          variant="cancel"
           className="border-gray-300 text-[var(--color-text-strong)] hover:bg-gray-50"
           onClick={() => onOpenChange(false)}
           disabled={isEditTableListQuestionPending}
@@ -288,7 +288,7 @@ export default function EditTableModal({
                 {rows.map((row) => (
                   <tr key={row.id}>
                     <td className="border-r home-border-soft px-3 py-3 align-middle text-center">
-                      <Button type="button" varinat="secondary" size="icon" className="crosstab-muted cursor-all-scroll shadow-none">
+                      <Button type="button" variant="secondary" size="icon" className="crosstab-muted cursor-all-scroll shadow-none" disabled>
                         <LuArrowUpDown />
                       </Button>
                     </td>

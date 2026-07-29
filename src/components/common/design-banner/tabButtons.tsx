@@ -47,9 +47,9 @@ const TabButtons: React.FC<TabButtonsProps> = ({
           <Button
             key={point.title}
             type="button"
-            varinat={activeTab === index ? "theme" : "secondary"}
+            variant={activeTab === index ? "theme" : "secondary"}
             onClick={() => setActiveTab(index)}
-            className={`report-toolbar-btn px-4 ${
+            className={` ${
               activeTab === index
                 ? "bg-[var(--color-brand-primary-softest)] text-login-primary hover:bg-[var(--color-brand-primary-softest)]"
                 : "text-[var(--color-text-supporting)] hover:bg-[var(--color-home-panel-soft)]"
@@ -63,9 +63,8 @@ const TabButtons: React.FC<TabButtonsProps> = ({
       </div>
       <Button
         type="button"
-        varinat="theme"
+        variant="theme"
         onClick={addBannerPoint}
-        className="report-toolbar-btn px-4"
         disabled={isBannerPointerListPending}
       >
         <LuPlus className="h-4 w-4" />

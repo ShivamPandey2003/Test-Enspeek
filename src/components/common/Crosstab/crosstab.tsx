@@ -133,7 +133,7 @@ export default function Crosstab() {
           <div className="flex flex-col items-center justify-center mt-24">
             <p className="crosstab-title mb-4 text-base font-medium">No banner list found.</p>
             <Button
-              varinat="theme"
+              variant="theme"
               onClick={() => dispatch(setIsAddBannerModalOpen(true))}
             >
               <LuPlus />

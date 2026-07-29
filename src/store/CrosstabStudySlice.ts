@@ -14,9 +14,21 @@ interface StudyState {
 
 const data = localStorage.getItem("study");
 
-const initialState: StudyState = data
+// Tolerate a corrupt persisted "study" value instead of throwing at store init.
+const parsePersistedStudy = (raw: string | null): StudyState | null => {
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw) as StudyState;
+  } catch {
+    localStorage.removeItem("study");
+    return null;
+  }
+};
+const persistedStudy = parsePersistedStudy(data);
+
+const initialState: StudyState = persistedStudy
   ? {
-      ...JSON.parse(data),
+      ...persistedStudy,
       Studys: [],
       FilterStudys: [],
     }

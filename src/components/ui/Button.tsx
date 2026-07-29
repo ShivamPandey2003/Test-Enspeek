@@ -13,7 +13,7 @@ const buttonToneVariants = cva(
   "",
   {
     variants: {
-      varinat: {
+      variant: {
         default: "bg-[var(--color-brand-primary)] text-[var(--color-core-text-inverse)] shadow-sm hover:bg-[var(--color-brand-primary-hover)] focus-visible:ring-2 focus-visible:ring-[color:var(--color-brand-primary)]/20",
         theme: "bg-[var(--color-brand-primary)] text-[var(--color-core-text-inverse)] shadow-sm hover:bg-[var(--color-brand-primary-hover)] focus-visible:ring-2 focus-visible:ring-[color:var(--color-brand-primary)]/20",
         success: "bg-[var(--color-study-activated)] text-[var(--color-core-text-inverse)] shadow-sm hover:brightness-95 focus-visible:ring-2 focus-visible:ring-[color:var(--color-study-activated)]/20",
@@ -29,7 +29,7 @@ const buttonToneVariants = cva(
       },
     },
     defaultVariants: {
-      varinat: "default",
+      variant: "default",
     },
   }
 );
@@ -37,11 +37,10 @@ const buttonToneVariants = cva(
 const buttonSizeVariants = cva("", {
   variants: {
     size: {
-      default: "px-5 py-2.5 text-sm",
-      xs: "px-2.5 py-1 text-[10px]",
-      sm: "px-4 py-2 text-sm",
-      lg: "px-6 py-3 text-sm",
-      icon: "aspect-square p-2.5 text-2xl",
+      default: "px-4 py-1 text-sm",
+      xs: "px-2 py-0.5 text-[10px]",
+      lg: "px-3 py-1.5 text-sm",
+      icon: "aspect-square p-1.5 text-2xl",
     },
   },
   defaultVariants: {
@@ -61,7 +60,7 @@ export interface ButtonProps
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
   children,
-  varinat,
+  variant,
   size,
   className,
   tooltip,
@@ -76,7 +75,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
       data-tooltip-delay={tooltip ? tooltipDelay : undefined}
       className={cn(
       buttonBaseClasses,
-      buttonToneVariants({ varinat }),
+      buttonToneVariants({ variant }),
       buttonSizeVariants({ size }),
       className
     )}

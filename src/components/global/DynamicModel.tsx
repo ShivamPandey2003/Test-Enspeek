@@ -27,7 +27,9 @@ const DynamicModel: React.FC<DynamicModalProps> = ({
 
   const resolvedButtonVariant = buttonVariant
     ? buttonVariant
-    : ButtonText.toLowerCase().includes("delete")
+    : ButtonText.toLowerCase() === "close"
+      ? "cancel"
+      : ButtonText.toLowerCase().includes("delete")
       ? "danger"
       : /(save|update|submit)/i.test(ButtonText)
         ? "success"
@@ -56,10 +58,9 @@ const DynamicModel: React.FC<DynamicModalProps> = ({
           {ButtonText && onClick ? (
             <Button
               size="default"
-              varinat={resolvedButtonVariant}
+              variant={resolvedButtonVariant}
               onClick={onClick}
               data-test-id="MODEL_BUTTON"
-              className="min-w-[180px]"
               disabled={disable}
             >
               {buttonIcon}

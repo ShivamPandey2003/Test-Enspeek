@@ -52,14 +52,14 @@ const CopyModel: React.FC<CopyQuestionModalProps> = ({
       icon={<LuCopy className="h-5 w-5" />}
       closeDisabled={isPending}
       footerLeft={
-        <Button type="button" varinat="cancel" onClick={onClose} disabled={isPending}>
+        <Button type="button" variant="cancel" onClick={onClose} disabled={isPending}>
           {definition.cancelLabel}
         </Button>
       }
       footerRight={
         <Button
           type="button"
-          varinat="theme"
+          variant="theme"
           onClick={handleClick}
           disabled={isPending || QID.trim() === "" || QLabel.trim() === ""}
         >

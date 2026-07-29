@@ -46,13 +46,28 @@ declare type Option = {
 
 declare type User = {
   apiToken: string;
+  email?: string;
+  userId?: string;
   firstName: string;
   lastName: string;
+  loginType?: "admin" | "client" | "user" | string;
   userType: "admin" | "user" | string;
+  planType?: 0 | 1 | number;
   grp: string;
   suggest_login_password: number;
   updated_on: string;
+  createdAt?: string;
+  updatedAt?: string;
   enabled: number;
+  isActive?: boolean;
+  isApproved?: boolean;
+  planInfoSynced?: boolean;
+  createdStudies?: number;
+  allowedStudies?: number;
+  usedPrompt?: number;
+  allowedPrompt?: number;
+  createdQuestions?: number;
+  allowedQuestions?: number;
 };
 
 declare type Study = {
@@ -455,7 +470,7 @@ declare type DynamicModalProps = BaseModalControlProps & {
   footerContent?: React.ReactNode;
   secondaryAction?: React.ReactNode;
   secondaryActionPosition?: "before" | "after";
-  buttonVariant?: import("../components/ui/Button").ButtonProps["varinat"];
+  buttonVariant?: import("../components/ui/Button").ButtonProps["variant"];
 };
 
 declare type LogicModalProps = BaseModalControlProps & {

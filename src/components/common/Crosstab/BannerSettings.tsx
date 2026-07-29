@@ -23,7 +23,9 @@ export default function BannerSettings({
   isOpen,
   onClose,
 }: BannerSettingsModalProps) {
-  if (!isOpen) return null;
+  // This component is mounted only while open (both call sites gate on the
+  // open flag), so no pre-hook early return is needed — that previously ran
+  // before the hooks below and violated the Rules of Hooks.
   const definition = modalDefinitions.bannerSettings;
   const [bannerLogic, setBannerLogic] = useState<{ pointLogic: string }[]>([]);
   const { BannersAll, BannerPointer, tableData } = useSelector(
@@ -108,7 +110,7 @@ export default function BannerSettings({
     <DynamicModel
       Title={`${definition.title}: ${value.title}`}
       headerIcon={
-        <span className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[var(--color-brand-primary-softest)] text-login-primary">
+        <span className="inline-flex items-center justify-center rounded-full bg-[var(--color-brand-primary-softest)] text-login-primary">
           <LuPanelsTopLeft className="h-5 w-5" />
         </span>
       }
@@ -128,7 +130,7 @@ export default function BannerSettings({
       secondaryAction={
         <Button
           type="button"
-          varinat="cancel"
+          variant="cancel"
           className="border-gray-300 text-[var(--color-text-strong)] hover:bg-gray-50"
           onClick={onClose}
           disabled={isSaving}

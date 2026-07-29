@@ -137,7 +137,7 @@ export const useSetQuotaMutation = (studyID?: string) => {
     mutationFn: async (quota: number) => {
       const res = await apiRequest(url.setQuota.method, url.setQuota.endpoint, {
         studyID,
-        quota_limit: quota,
+        quota: quota,
       });
       return res.response;
     },

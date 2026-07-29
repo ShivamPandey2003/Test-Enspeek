@@ -16,8 +16,8 @@ const Pagination:React.FC<PaginationProps> = ({table}) => {
       <div className="inline-flex gap-2">
         <Button
           type="button"
-          varinat="outline"
-          size="sm"
+          variant="outline"
+          size="default"
           onClick={() => table.previousPage()}
           disabled={!table.getCanPreviousPage()}
         >
@@ -25,8 +25,8 @@ const Pagination:React.FC<PaginationProps> = ({table}) => {
         </Button>
         <Button
           type="button"
-          varinat="outline"
-          size="sm"
+          variant="outline"
+          size="default"
           onClick={() => table.nextPage()}
           disabled={!table.getCanNextPage()}
         >

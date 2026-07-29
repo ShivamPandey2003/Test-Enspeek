@@ -97,8 +97,14 @@ export default function BannerLogic({
   };
 
   const addSimpleRow = () => {
+    // Derive the next id from the highest existing id, not the row count:
+    // `rows.length + 1` collides with a surviving id after a middle row is
+    // deleted (e.g. [1,2,3] -> delete 2 -> [1,3] -> add -> "3" again), which
+    // corrupts id-based edit/delete matching and duplicates React keys.
+    const nextId =
+      rows.reduce((max, row) => Math.max(max, Number(row.id) || 0), 0) + 1;
     const newRow: LogicRow = {
-      id: (rows.length + 1).toString(),
+      id: nextId.toString(),
       variable: "",
       option: "",
       value: "",

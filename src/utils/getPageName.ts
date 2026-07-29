@@ -16,3 +16,20 @@ export const getPageName = (path: string): string => {
   return '';
 }
 
+export const NewPageNameProvider = (path: string): string =>{
+  if (path.includes("questionnaire")) {
+    return "qnr";
+  } else if (path.includes("publish-survey")) {
+    return "qnr";
+  } else if (path.includes("create")) {
+    return "qnr";
+  } else if (path.includes("report")) {
+    return "qnr";
+  } else if (path.includes("crosstab")) {
+    return "qnr";
+  } else if (path.includes("/")) {
+    return "db";
+  }
+
+  return ""
+}

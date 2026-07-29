@@ -2,15 +2,12 @@ import { useState, type ChangeEvent, useEffect } from "react";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../../store/store";
 import { useLocation } from "react-router";
-import { TbRefresh } from "react-icons/tb";
-import { LuBan, LuChevronDown } from "react-icons/lu";
-import Button from "../../ui/Button";
-import IconActionButton from "../../ui/IconActionButton";
+import { LuBan, LuChevronDown, LuEllipsisVertical, LuGitBranch, LuRotateCcw, LuTrash2 } from "react-icons/lu";
 import Select from "../../ui/Select";
 import { useUpdateOptionLogicMutation } from "../../../api-network/questionnaire/mutation";
+import NewDropdown from "../../global/NewDropDown";
 
 type RowLogic = {
-  row: string;
   value: string;
   terminate: boolean;
 };
@@ -19,40 +16,43 @@ interface OptionLogicProps {
   qID: string;
   rowIndex: string;
   optionText: string;
+  onDelete: () => void;
+  deleteDisabled?: boolean;
 }
-
-const INITIAL_LOGIC: RowLogic[] = [
-  { row: "row1", value: "", terminate: false },
-];
 
 export default function OptionLogic({
   qID,
   rowIndex,
   optionText,
+  onDelete,
+  deleteDisabled = false,
 }: OptionLogicProps) {
   const location = useLocation();
   const studyID = location.state?.studyID;
-  const [logic, setLogic] = useState<RowLogic[]>(INITIAL_LOGIC);
+  const [logic, setLogic] = useState<RowLogic>({
+    value: "",
+    terminate: false,
+  });
   const submitItems = useSelector(
     (state: RootState) => state.question.submitItems
   );
   const questionList = useSelector((state: RootState) => state.question.qList);
-  const { mutate: updateOptionLogic } = useUpdateOptionLogicMutation(
+  const { mutate: updateOptionLogic, isPending } = useUpdateOptionLogicMutation(
     studyID,
     qID,
     rowIndex,
     optionText
   );
+  const hasLogicApplied = Boolean(logic.value?.trim() || logic.terminate);
 
-  const handleLogicChange = (idx: number, value: string) => {
-    const wasSkipApplied = !!logic[idx].value?.trim();
+  const handleLogicChange = (value: string) => {
+    const wasSkipApplied = !!logic.value?.trim();
     const isRemoving = wasSkipApplied && value === "";
 
-    setLogic((prev) =>
-      prev.map((row, rowIndexValue) =>
-        rowIndexValue === idx ? { ...row, value, terminate: false } : row
-      )
-    );
+    setLogic({
+      value,
+      terminate: false,
+    });
 
     updateOptionLogic({
       terminate: false,
@@ -61,120 +61,223 @@ export default function OptionLogic({
     });
   };
 
-  const toggleTerminate = (idx: number) => {
-    const isRemoving = logic[idx].terminate;
+  const toggleTerminate = () => {
+    const isRemoving = logic.terminate;
 
-    setLogic((prev) =>
-      prev.map((row, rowIndexValue) =>
-        rowIndexValue === idx
-          ? { ...row, terminate: !row.terminate, value: "" }
-          : row
-      )
-    );
+    setLogic((current) => ({
+      ...current,
+      terminate: !current.terminate,
+      value: "",
+    }));
 
     updateOptionLogic({
-      terminate: !logic[idx].terminate,
+      terminate: !logic.terminate,
       skipTo: "",
       isRemoveTerminate: isRemoving,
     });
   };
 
-  const handleReset = (idx: number) => {
-    setLogic((prev) =>
-      prev.map((row, rowIndexValue) =>
-        rowIndexValue === idx ? { ...row, value: "", terminate: false } : row
-      )
-    );
+  const resetLogic = () => {
+    setLogic({
+      value: "",
+      terminate: false,
+    });
 
-    updateOptionLogic({ terminate: false, skipTo: "", isReset: true });
+    updateOptionLogic({
+      terminate: false,
+      skipTo: "",
+      isReset: true,
+    });
   };
 
   useEffect(() => {
     const question = submitItems.find((item) => item.qID === qID);
     if (!question?.rowOptionList) return;
 
-    const row = question.rowOptionList.find((item) => item.optionID === rowIndex);
+    const row = question.rowOptionList?.find((item) => item.optionID === rowIndex);
     if (!row) return;
 
-    setLogic((prev) => {
+    setLogic((current) => {
       const apiValue = row.skip_to ?? "";
       const apiTerminate = row.terminate === 1;
 
-      if (prev[0]?.value !== apiValue || prev[0]?.terminate !== apiTerminate) {
-        return [
-          {
-            row: `row${rowIndex + 1}`,
-            value: apiValue,
-            terminate: apiTerminate,
-          },
-        ];
+      if (current.value !== apiValue || current.terminate !== apiTerminate) {
+        return {
+          value: apiValue,
+          terminate: apiTerminate,
+        };
       }
 
-      return prev;
+      return current;
     });
   }, [submitItems, qID, rowIndex]);
 
   return (
-    <div>
-      {logic.map((row, idx) => (
-        <div key={row.row} className="flex items-center">
-          <div className="flex flex-wrap items-center gap-3">
-            {(row.value || row.terminate) && (
-              <IconActionButton
+    <div className="min-w-0">
+        <div className="flex items-center gap-1">
+          {hasLogicApplied ? (
+            <span
+              className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[var(--color-brand-primary-softest)] text-login-primary md:hidden"
+              title="Logic applied"
+              role="img"
+              aria-label="Logic applied"
+            >
+              <LuGitBranch className="h-4 w-4" />
+            </span>
+          ) : null}
+          <div className="hidden items-center gap-1 md:flex">
+            {hasLogicApplied ? (
+              <button
                 type="button"
-                tone="neutral"
-                tooltip="Reset logic"
-                onClick={() => handleReset(idx)}
+                onClick={resetLogic}
+                disabled={isPending}
+                className="questionnaire-muted inline-flex h-7 w-7 items-center justify-center rounded-full transition-colors hover:bg-[var(--color-brand-primary-softest)] hover:text-login-primary disabled:cursor-not-allowed disabled:opacity-50"
+                title="Reset logic"
+                aria-label="Reset logic"
               >
-                <TbRefresh className="h-4 w-4" />
-              </IconActionButton>
-            )}
-            <Button
+                <LuRotateCcw className="h-3.5 w-3.5" />
+              </button>
+            ) : null}
+            <button
               type="button"
-              varinat={row.terminate ? "danger" : "outline"}
-              size="sm"
-              tooltip={row.terminate ? "Remove termination" : "Apply termination"}
-              onClick={() => toggleTerminate(idx)}
-              disabled={!!row.value}
-              className={
-                row.terminate
-                  ? "questionnaire-logic-chip-danger"
-                  : "questionnaire-logic-chip-muted"
-              }
+              onClick={toggleTerminate}
+              disabled={!!logic.value || isPending}
+              className={`inline-flex h-7 items-center gap-1.5 rounded-full px-2 text-xs font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+                logic.terminate
+                  ? "border border-red-200 bg-red-50 text-red-500"
+                  : "questionnaire-muted hover:bg-[var(--color-brand-primary-softest)] hover:text-login-primary"
+              }`}
+              title="Termination"
+              aria-label="Termination"
             >
-              <LuBan className="h-4 w-4" />
-              <span>
-                {row.terminate ? "Termination Applied" : "Apply Termination"}
-              </span>
-            </Button>
-
-            <div
-              title={row.value?.trim() ? "Update skip logic" : "Apply skip logic"}
-              className="relative min-w-[144px]"
-            >
+              <LuBan className="h-3.5 w-3.5" />
+              <span>{logic.terminate ? "Terminated" : "Termination"}</span>
+            </button>
+            <div className="relative">
               <Select
                 variant="questionnaire"
-                className={`w-full rounded-full py-2 pl-3 pr-9 text-sm font-semibold ${
-                  row.value?.trim() ? "questionnaire-logic-select-active" : ""
-                } ${row.terminate ? "opacity-50 cursor-not-allowed" : ""}`}
-                value={row.value}
-                onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-                  handleLogicChange(idx, e.target.value)
-                }
-                disabled={row.terminate}
+                hideIcon
+                aria-label="Skip to question"
+                className={`min-h-7 w-28 rounded-full py-1 pl-2 pr-7 text-xs font-semibold ${
+                  logic.value?.trim() ? "questionnaire-logic-select-active" : ""
+                } ${logic.terminate ? "cursor-not-allowed opacity-50" : ""}`}
+                value={logic.value}
+                onChange={(event: ChangeEvent<HTMLSelectElement>) => {
+                  handleLogicChange(event.target.value);
+                }}
+                disabled={logic.terminate || isPending}
+                title="Skip to question"
               >
                 <option value="">Skip to</option>
-                {questionList?.map((opt) => (
-                  <option key={opt.qID} value={opt.qID}>
-                    SKIP TO {opt.qID}
+                {questionList?.filter((item)=>item.qID >= qID && item.qID !== qID)?.map((option) => (
+                  <option key={option.qID} value={option.qID}>
+                    SKIP TO {option.qID}
                   </option>
                 ))}
               </Select>
-              <LuChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 questionnaire-muted" />
+              <LuChevronDown className="questionnaire-muted pointer-events-none absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2" />
             </div>
+            <button
+              type="button"
+              onClick={onDelete}
+              disabled={deleteDisabled || isPending}
+              className="inline-flex h-7 items-center gap-1.5 rounded-full px-2 text-xs font-semibold text-rose-600 transition-colors hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-50"
+              title="Delete option"
+              aria-label="Delete option"
+            >
+              <LuTrash2 className="h-3.5 w-3.5" />
+            </button>
           </div>
+          <NewDropdown
+            className="md:hidden"
+            position="bottom-right"
+            searchable={false}
+            trigger={
+              <button
+                type="button"
+                aria-label="Answer option actions"
+                title="Answer option actions"
+                className="questionnaire-muted inline-flex h-7 w-7 items-center justify-center rounded-full transition-colors hover:bg-[var(--color-brand-primary-softest)] hover:text-login-primary"
+              >
+                <LuEllipsisVertical className="h-5 w-5" />
+              </button>
+            }
+            renderContent={({ close }) => (
+              <div className="space-y-1">
+                {hasLogicApplied ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      resetLogic();
+                      close();
+                    }}
+                    disabled={isPending}
+                    className="home-dropdown-item flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-left text-sm disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <span className="home-dropdown-icon-wrap flex h-6 w-6 shrink-0 items-center justify-center rounded-full">
+                      <LuRotateCcw className="h-3.5 w-3.5" />
+                    </span>
+                    <span>Reset Logic</span>
+                  </button>
+                ) : null}
+                <button
+                  type="button"
+                  onClick={() => {
+                    toggleTerminate();
+                    close();
+                  }}
+                  disabled={!!logic.value || isPending}
+                  className="home-dropdown-item flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-left text-sm disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <span className="home-dropdown-icon-wrap flex h-6 w-6 shrink-0 items-center justify-center rounded-full">
+                    <LuBan className="h-3.5 w-3.5" />
+                  </span>
+                  <span>{logic.terminate ? "Remove Termination" : "Termination"}</span>
+                </button>
+                <div className="px-2.5 py-1.5">
+                  <div className="relative">
+                    <Select
+                      variant="questionnaire"
+                      hideIcon
+                      aria-label="Skip to question"
+                      className={`min-h-8 w-full rounded-xl py-1 pl-2 pr-7 text-xs font-semibold ${
+                        logic.value?.trim() ? "questionnaire-logic-select-active" : ""
+                      } ${logic.terminate ? "cursor-not-allowed opacity-50" : ""}`}
+                      value={logic.value}
+                      onChange={(event: ChangeEvent<HTMLSelectElement>) => {
+                        handleLogicChange(event.target.value);
+                        close();
+                      }}
+                      disabled={logic.terminate || isPending}
+                    >
+                      <option value="">Skip to</option>
+                      {questionList?.map((option) => (
+                        <option key={option.qID} value={option.qID}>
+                          SKIP TO {option.qID}
+                        </option>
+                      ))}
+                    </Select>
+                    <LuChevronDown className="questionnaire-muted pointer-events-none absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2" />
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    close();
+                    onDelete();
+                  }}
+                  disabled={deleteDisabled || isPending}
+                  className="flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-left text-sm text-rose-600 transition-colors hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-rose-50">
+                    <LuTrash2 className="h-3.5 w-3.5" />
+                  </span>
+                  <span>Delete Option</span>
+                </button>
+              </div>
+            )}
+          />
         </div>
-      ))}
     </div>
   );
 }

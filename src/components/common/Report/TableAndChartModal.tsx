@@ -3,7 +3,6 @@ import DynamicModel from "../../global/DynamicModel";
 import QuestionCard from "../Report/QuestionCard";
 import SingleSelectChart from "../Report/Charts";
 import TableForm from "../Report/TableForm";
-import ModalInstruction from "../../ui/ModalInstruction";
 import { PRIMARY_CHART_COLOR } from "../../../utils/chartColors";
 import { modalDefinitions } from "../../../config/modalDefinitions";
 
@@ -104,6 +103,19 @@ const TableAndChartModal: React.FC<TableAndChartModalProps> = ({
     return "Base: (n = 0)";
   })();
 
+  // For crosstab, `questionData.base` is an object (base per column); passing it
+  // straight to the chart made the tooltip "Count" compute NaN. Reduce it to a
+  // numeric total (falling back to 1, matching the previous `base ?? 1`).
+  const totalRespondents =
+    typeof questionData.base === "number"
+      ? questionData.base
+      : questionData.base && typeof questionData.base === "object"
+        ? Object.values(questionData.base).reduce(
+            (acc: number, val: any) => acc + (typeof val === "number" ? val : 0),
+            0
+          )
+        : 1;
+
   return (
     <DynamicModel
       className="max-w-5xl"
@@ -113,9 +125,6 @@ const TableAndChartModal: React.FC<TableAndChartModalProps> = ({
       ButtonText={definition.submitLabel!}
       onClick={onClose}
     >
-      <ModalInstruction>
-        Review the expanded {type === "chart" ? "chart" : "table"} view for this report question.
-      </ModalInstruction>
       {type === "chart" ? (
         <QuestionCard title={questionData.label} qId={qid}>
            {questionData.external === 1 && questionData.external_link ? (
@@ -133,7 +142,7 @@ const TableAndChartModal: React.FC<TableAndChartModalProps> = ({
             categories={categories}
             baseText={baseText}
             questionText={questionData.text || ""}
-            totalRespondents={questionData.base ?? 1}
+            totalRespondents={totalRespondents}
             questionId={qid}
           />
           )}

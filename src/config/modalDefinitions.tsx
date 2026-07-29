@@ -13,6 +13,7 @@ import {
   LuSettings2,
   LuShare2,
   LuTable,
+  LuTicketCheck,
   LuTrash2,
   LuUsers,
 } from "react-icons/lu";
@@ -29,6 +30,15 @@ export type ModalDefinition = {
   submittingLabel?: string;
   cancelLabel?: string;
   maxWidthClass?: string;
+  confirmationKeyword?: string;
+  confirmationAction?: string;
+  validationMessages?: {
+    wholeNumbers?: string;
+    promptGreaterThanUsed?: string;
+    studiesGreaterThanUsed?: string;
+    questionsGreaterThanUsed?: string;
+    changeAtLeastOneLimit?: string;
+  };
 };
 
 export const modalDefinitions: Record<string, ModalDefinition> = {
@@ -40,7 +50,7 @@ export const modalDefinitions: Record<string, ModalDefinition> = {
     submitLabel: "Archive",
     submittingLabel: "Archiving...",
     cancelLabel: "Cancel",
-    maxWidthClass: "max-w-2xl",
+    maxWidthClass: "max-w-xl",
   },
   unarchiveStudy: {
     id: "unarchiveStudy",
@@ -50,7 +60,7 @@ export const modalDefinitions: Record<string, ModalDefinition> = {
     submitLabel: "Restore",
     submittingLabel: "Restoring...",
     cancelLabel: "Cancel",
-    maxWidthClass: "max-w-2xl",
+    maxWidthClass: "max-w-xl",
   },
   copyStudy: {
     id: "copyStudy",
@@ -60,7 +70,7 @@ export const modalDefinitions: Record<string, ModalDefinition> = {
     submitLabel: "Copy Study",
     submittingLabel: "Copying...",
     cancelLabel: "Cancel",
-    maxWidthClass: "max-w-2xl",
+    maxWidthClass: "max-w-xl",
   },
   deleteStudy: {
     id: "deleteStudy",
@@ -70,7 +80,7 @@ export const modalDefinitions: Record<string, ModalDefinition> = {
     submitLabel: "Delete",
     submittingLabel: "Deleting...",
     cancelLabel: "Cancel",
-    maxWidthClass: "max-w-2xl",
+    maxWidthClass: "max-w-xl",
   },
   copyQuestion: {
     id: "copyQuestion",
@@ -80,7 +90,7 @@ export const modalDefinitions: Record<string, ModalDefinition> = {
     submitLabel: "Copy Question",
     submittingLabel: "Copying...",
     cancelLabel: "Cancel",
-    maxWidthClass: "max-w-2xl",
+    maxWidthClass: "max-w-xl",
   },
   deleteQuestion: {
     id: "deleteQuestion",
@@ -90,17 +100,17 @@ export const modalDefinitions: Record<string, ModalDefinition> = {
     submitLabel: "Delete",
     submittingLabel: "Deleting...",
     cancelLabel: "Cancel",
-    maxWidthClass: "max-w-2xl",
+    maxWidthClass: "max-w-xl",
   },
   activateSurvey: {
     id: "activateSurvey",
-    title: "Activate Survey",
+    title: "Activate Research",
     tone: "success",
     icon: LuBadgeCheck,
-    submitLabel: "Activate Survey",
+    submitLabel: "Activate Research",
     submittingLabel: "Activating...",
     cancelLabel: "Cancel",
-    maxWidthClass: "max-w-lg",
+    maxWidthClass: "max-w-xl",
   },
   initiateSampleCollection: {
     id: "initiateSampleCollection",
@@ -110,7 +120,7 @@ export const modalDefinitions: Record<string, ModalDefinition> = {
     submitLabel: "Initiate Sample Collection",
     submittingLabel: "Initiating...",
     cancelLabel: "Cancel",
-    maxWidthClass: "max-w-lg",
+    maxWidthClass: "max-w-xl",
   },
   facebookLink: {
     id: "facebookLink",
@@ -119,7 +129,7 @@ export const modalDefinitions: Record<string, ModalDefinition> = {
     icon: LuShare2,
     submitLabel: "Copy",
     cancelLabel: "Cancel",
-    maxWidthClass: "max-w-4xl",
+    maxWidthClass: "max-w-xl",
   },
   whatsappLink: {
     id: "whatsappLink",
@@ -128,7 +138,7 @@ export const modalDefinitions: Record<string, ModalDefinition> = {
     icon: LuMessageCircle,
     submitLabel: "Copy",
     cancelLabel: "Cancel",
-    maxWidthClass: "max-w-4xl",
+    maxWidthClass: "max-w-xl",
   },
   chooseSubgroup: {
     id: "chooseSubgroup",
@@ -178,7 +188,7 @@ export const modalDefinitions: Record<string, ModalDefinition> = {
     submitLabel: "Copy Banner",
     submittingLabel: "Copying...",
     cancelLabel: "Cancel",
-    maxWidthClass: "max-w-2xl",
+    maxWidthClass: "max-w-xl",
   },
   deleteBanner: {
     id: "deleteBanner",
@@ -188,7 +198,7 @@ export const modalDefinitions: Record<string, ModalDefinition> = {
     submitLabel: "Delete",
     submittingLabel: "Deleting...",
     cancelLabel: "Cancel",
-    maxWidthClass: "max-w-2xl",
+    maxWidthClass: "max-w-xl",
   },
   bannerSettings: {
     id: "bannerSettings",
@@ -272,6 +282,140 @@ export const modalDefinitions: Record<string, ModalDefinition> = {
     submitLabel: "Close",
     cancelLabel: "Close",
     maxWidthClass: "max-w-5xl",
+  },
+  activateUser: {
+    id: "activateUser",
+    title: "Activate User",
+    tone: "primary",
+    icon: LuBadgeCheck,
+    submitLabel: "Submit",
+    submittingLabel: "Submitting...",
+    cancelLabel: "Cancel",
+    maxWidthClass: "max-w-xl",
+    confirmationKeyword: "confirm",
+    confirmationAction: "activate",
+  },
+  deactivateUser: {
+    id: "deactivateUser",
+    title: "Deactivate User",
+    tone: "primary",
+    icon: LuBadgeCheck,
+    submitLabel: "Submit",
+    submittingLabel: "Submitting...",
+    cancelLabel: "Cancel",
+    maxWidthClass: "max-w-lg",
+    confirmationKeyword: "confirm",
+    confirmationAction: "deactivate",
+  },
+  changeToPaidUser: {
+    id: "changeToPaidUser",
+    title: "Change To Premium User",
+    tone: "primary",
+    icon: LuUsers,
+    submitLabel: "Submit",
+    submittingLabel: "Submitting...",
+    cancelLabel: "Cancel",
+    maxWidthClass: "max-w-xl",
+    confirmationKeyword: "confirm",
+    confirmationAction: "change to premium",
+  },
+  changeToFreeUser: {
+    id: "changeToFreeUser",
+    title: "Change To Free User",
+    tone: "primary",
+    icon: LuUsers,
+    submitLabel: "Submit",
+    submittingLabel: "Submitting...",
+    cancelLabel: "Cancel",
+    maxWidthClass: "max-w-xl",
+    confirmationKeyword: "confirm",
+    confirmationAction: "change to free",
+  },
+  verifyUser: {
+    id: "verifyUser",
+    title: "Verify User",
+    tone: "primary",
+    icon: LuBadgeCheck,
+    submitLabel: "Submit",
+    submittingLabel: "Submitting...",
+    cancelLabel: "Cancel",
+    maxWidthClass: "max-w-xl",
+    confirmationKeyword: "confirm",
+    confirmationAction: "verify",
+  },
+  removeUserVerification: {
+    id: "removeUserVerification",
+    title: "Remove Verification",
+    tone: "primary",
+    icon: LuBadgeCheck,
+    submitLabel: "Submit",
+    submittingLabel: "Submitting...",
+    cancelLabel: "Cancel",
+    maxWidthClass: "max-w-xl",
+    confirmationKeyword: "confirm",
+    confirmationAction: "remove verification for",
+  },
+  updateUserSubscription: {
+    id: "updateUserSubscription",
+    title: "Update Subscription",
+    description:
+      "Enter the new limit. The entered value will become the updated limit.",
+    tone: "primary",
+    icon: LuSettings2,
+    submitLabel: "Update Subscription",
+    submittingLabel: "Submitting...",
+    cancelLabel: "Cancel",
+    maxWidthClass: "max-w-2xl",
+    validationMessages: {
+      wholeNumbers: "Updated limits must be whole numbers.",
+      promptGreaterThanUsed:
+        "Updated prompt limit must be greater than prompts already used.",
+      studiesGreaterThanUsed:
+        "Updated study creation limit must be greater than studies already created.",
+      questionsGreaterThanUsed:
+        "Updated question generation limit must be greater than questions already generated.",
+      changeAtLeastOneLimit: "Please change at least one subscription limit.",
+    },
+  },
+  requestSupport: {
+    id: "requestSupport",
+    title: "Request for Assistance",
+    description: "Get help from our research experts or technical support.",
+    tone: "primary",
+    icon: LuMessageCircle,
+    submitLabel: "Request Assistance",
+    submittingLabel: "Requesting...",
+    cancelLabel: "Cancel",
+    maxWidthClass: "max-w-2xl",
+  },
+  supportTicketDetails: {
+    id: "supportTicketDetails",
+    title: "Support Ticket Details",
+    tone: "primary",
+    icon: LuTicketCheck,
+    cancelLabel: "Cancel",
+    maxWidthClass: "max-w-4xl",
+  },
+  subscriptionRequest: {
+    id: "subscriptionRequest",
+    title: "Subscription Request",
+    tone: "primary",
+    icon: LuMessageCircle,
+    submitLabel: "Submit",
+    submittingLabel: "Submitting...",
+    cancelLabel: "Cancel",
+    maxWidthClass: "max-w-xl",
+  },
+  updateTicketStatus: {
+    id: "updateTicketStatus",
+    title: "Update Ticket Status",
+    tone: "primary",
+    icon: LuTicketCheck,
+    submitLabel: "Submit",
+    submittingLabel: "Submitting...",
+    cancelLabel: "Cancel",
+    maxWidthClass: "max-w-xl",
+    confirmationKeyword: "confirm",
   },
 };
 

@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { cn } from "../../../utils";
 
 interface ModalFieldProps {
   label: ReactNode;
@@ -6,6 +7,8 @@ interface ModalFieldProps {
   children: ReactNode;
   hint?: ReactNode;
   error?: ReactNode;
+  labelClassName?: string;
+  className?: string;
 }
 
 export default function ModalField({
@@ -14,10 +17,12 @@ export default function ModalField({
   children,
   hint,
   error,
+  labelClassName,
+  className,
 }: ModalFieldProps) {
   return (
-    <div className="space-y-2">
-      <label className="modal-label">
+    <div className={cn("space-y-1", className)}>
+      <label className={cn("modal-label", labelClassName)}>
         {label}
         {required ? (
           <span className="modal-label-required ml-1">*</span>

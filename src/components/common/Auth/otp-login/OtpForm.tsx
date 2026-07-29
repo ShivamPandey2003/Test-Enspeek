@@ -52,18 +52,19 @@ const OtpForm: React.FC<OtpFormProps> = ({
       }}
     >
       <div className="text-center">
-        <h3 className="text-[1.75rem] font-semibold leading-tight theme-text-strong">
+        <h3 className="text-[clamp(1.45rem,8vw,1.75rem)] font-semibold leading-tight theme-text-strong">
           Enter OTP
         </h3>
-        <p className="mt-1 text-sm text-login-muted">
-          We sent a verification code to <span className="font-medium">{email}</span>
+        <p className="mt-1 text-wrap break-words text-sm text-login-muted">
+          We sent a verification code to <span className="font-medium break-all">{email}</span>
         </p>
       </div>
 
-      <div className="flex items-center justify-center gap-2">
+      <div className="grid w-full grid-cols-6 gap-1.5 min-[380px]:gap-2">
         {otp.map((digit, index) => (
           <Input
             key={index}
+            data-test-id={`otp-digit-${index}`}
             ref={(node) => {
               inputRefs.current[index] = node;
             }}
@@ -88,17 +89,18 @@ const OtpForm: React.FC<OtpFormProps> = ({
             }
             inputMode="numeric"
             maxLength={1}
-            className="h-12 w-12 rounded-xl px-0 text-center text-lg font-semibold sm:h-14 sm:w-14"
+            className="h-[clamp(2.5rem,12vw,3.5rem)] w-full min-w-0 rounded-xl border border-[var(--color-brand-primary)]/50 px-0 text-center text-lg font-semibold"
           />
         ))}
       </div>
 
       {error ? (
-        <p className="text-center text-sm text-[var(--color-core-danger)]">{error}</p>
+        <p data-test-id="otp-error" className="text-center text-sm text-[var(--color-core-danger)]">{error}</p>
       ) : null}
 
       <Button
         type="submit"
+        data-test-id="otp-submit-button"
         className="h-12 w-full rounded-xl bg-gradient-to-r from-login-primary to-login-bg-end text-base font-semibold text-white transition-all duration-300 hover:from-login-primary-hover hover:to-login-primary"
         disabled={isVerifying || otp.join("").length !== 6}
       >
@@ -108,7 +110,8 @@ const OtpForm: React.FC<OtpFormProps> = ({
       <div className="text-center">
         <Button
           type="button"
-          varinat="link"
+          variant="link"
+          data-test-id="otp-resend-button"
           disabled={isResending || resendSecondsLeft > 0}
           onClick={onResend}
           className="text-sm"
