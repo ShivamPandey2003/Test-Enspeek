@@ -145,7 +145,7 @@ const TruncatedSuggestionButton = ({
         variant="chip"
         size="default"
         disabled={disabled}
-        className={cn("h-auto min-w-0 max-w-48 shrink-0 whitespace-nowrap rounded-full border border-slate-200 bg-white px-4 py-1.5 text-left text-sm font-medium leading-snug text-slate-700 shadow-sm transition-colors hover:border-indigo-200 hover:bg-slate-50 hover:text-indigo-700 active:scale-[0.97]", className)}
+        className={cn("h-auto min-w-0 max-w-full shrink-0 whitespace-nowrap rounded-full border border-slate-200 bg-white px-4 py-1.5 text-left text-sm font-medium leading-snug text-slate-700 shadow-sm transition-colors hover:border-indigo-200 hover:bg-slate-50 hover:text-indigo-700 active:scale-[0.97]", className)}
         onClick={onClick}
       >
         <span ref={textRef} className="block min-w-0 max-w-full truncate">

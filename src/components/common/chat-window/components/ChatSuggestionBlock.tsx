@@ -128,7 +128,7 @@ const ChatSuggestionBlock = ({
                   disabled={isDisabled}
                   item={item}
                   onClick={() => handleSuggestionClick(item)}
-                  className="max-w-[min(20vw,820px)]"
+                  className="max-w-[min(65vw,820px)] md:max-w-full"
                 />
               ))}
             </div>
