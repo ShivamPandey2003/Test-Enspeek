@@ -173,6 +173,7 @@ const ChatWindow: React.FC<{
             visibleMessages.map((msg, index) => (
               <ChatMessage
                 key={index}
+                lastIndex={visibleMessages.length - 1}
                 msg={msg}
                 index={index}
                 fullName={fullName}

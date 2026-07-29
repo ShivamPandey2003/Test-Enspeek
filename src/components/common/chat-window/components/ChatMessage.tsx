@@ -8,6 +8,8 @@ import type { ChatMessage as ChatMessageType, SurveyTab } from "../types";
 import ChatAvatar from "./ChatAvatar";
 import MessageBubble from "./MessageBubble";
 import SurveyRenderer from "./SurveyRenderer";
+import ChatSuggestionBlock, { CHAT_SUGGESTION_DELAY_MS } from "./ChatSuggestionBlock";
+import { hasCompleteSuggestionContent } from "../../../../utils/chatSuggestion";
 
 type ChatMessageProps = {
   msg: ChatMessageType;
@@ -23,6 +25,7 @@ type ChatMessageProps = {
   onSend: (value: string) => boolean;
   onSuggestionVisibleScroll: () => void;
   onSuggestionsVisible: () => void;
+  lastIndex: number
 };
 
 /**
@@ -38,14 +41,15 @@ const ChatMessage = ({
   fullName,
   userAvatarLabel,
   activeTab,
-  // isResponseLocked,
+  isResponseLocked,
   onRowRef,
   onSelectTab,
   onExpand,
   onCopyLink,
-  // onSend,
-  // onSuggestionVisibleScroll,
-  // onSuggestionsVisible,
+  onSend,
+  onSuggestionVisibleScroll,
+  onSuggestionsVisible,
+  lastIndex
 }: ChatMessageProps) => {
   const isUserMessage = msg.sender === "user";
   const isSurvey = msg.type === "surveydata";
@@ -108,7 +112,7 @@ const ChatMessage = ({
           </div>
         </div>
       </div>
-      {/* {!isUserMessage && msg.suggestion ? (
+      {!isUserMessage && index == lastIndex && msg.suggestion ? (
         <ChatSuggestionBlock
           suggestion={msg.suggestion}
           delayMs={msg.source === "history" ? 0 : CHAT_SUGGESTION_DELAY_MS}
@@ -122,7 +126,7 @@ const ChatMessage = ({
           }}
           onSuggestionsVisible={onSuggestionsVisible}
         />
-      ) : null} */}
+      ) : null}
     </>
   );
 };

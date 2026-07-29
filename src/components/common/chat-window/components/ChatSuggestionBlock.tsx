@@ -98,7 +98,7 @@ const ChatSuggestionBlock = ({
 
   return (
     <div
-      className="mb-4 mt-6 flex w-full justify-start"
+      className="mb-4 mt-6 flex w-full justify-start @container"
     >
       <div className="flex max-w-full items-start gap-2.5">
         <ChatAvatar
@@ -128,6 +128,7 @@ const ChatSuggestionBlock = ({
                   disabled={isDisabled}
                   item={item}
                   onClick={() => handleSuggestionClick(item)}
+                  className="max-w-[min(20vw,820px)]"
                 />
               ))}
             </div>

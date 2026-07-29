@@ -169,7 +169,7 @@ export default function OptionLogic({
                 title="Skip to question"
               >
                 <option value="">Skip to</option>
-                {questionList?.filter((item)=>item.qID >= qID && item.qID !== qID)?.map((option) => (
+                {questionList?.filter((_, i)=> i> questionList.findIndex((pre:any)=> pre.qID === qID))?.map((option) => (
                   <option key={option.qID} value={option.qID}>
                     SKIP TO {option.qID}
                   </option>
