@@ -3,7 +3,8 @@ import { LuClock3 } from "react-icons/lu";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
-import { useResendOtpMutation, useSendOtpLoginMutation, useSignupOtpMutation, useVerifyCaptchaMutation, useVerifyOtpMutation } from "../../../../api-network/auth/mutation";
+import { useResendOtpMutation, useSendOtpLoginMutation, useSignupOtpMutation, useVerifyOtpMutation } from "../../../../api-network/auth/mutation";
+// useVerifyCaptchaMutation
 import type { AppDispatch } from "../../../../store/store";
 import { Login } from "../../../../store/UserSlice";
 import Button from "../../../ui/Button";
@@ -80,7 +81,7 @@ const OtpLoginPage = () => {
     return () => window.clearTimeout(timeout);
   }, [resendSecondsLeft]);
 
-  const verifyCaptchaMutation = useVerifyCaptchaMutation();
+  // const verifyCaptchaMutation = useVerifyCaptchaMutation();
   const signupMutation = useSignupOtpMutation();
 
   const sendOtpMutation = useSendOtpLoginMutation();
@@ -380,7 +381,8 @@ const OtpLoginPage = () => {
         <SignInForm
           email={signInState.email}
           emailError={signInError}
-          isPending={sendOtpMutation.isPending || verifyCaptchaMutation.isPending}
+          isPending={sendOtpMutation.isPending}
+          // || verifyCaptchaMutation.isPending
           onEmailChange={(value) => setSignInState({ email: value })}
           onSubmit={handleSignInSubmit}
         />
@@ -390,7 +392,8 @@ const OtpLoginPage = () => {
           lastname={signUpState.lastname}
           email={signUpState.email}
           errors={signUpErrors}
-          isPending={signupMutation.isPending || verifyCaptchaMutation.isPending}
+          isPending={signupMutation.isPending}
+          // || verifyCaptchaMutation.isPending
           onChange={(field, value) =>
             setSignUpState((current) => ({
               ...current,

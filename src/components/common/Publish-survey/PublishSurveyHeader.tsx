@@ -310,7 +310,7 @@ export default function PublishSurveyHeader({
                   </div>
                 ) : null}
 
-                {isSurveyActive ? (
+                {launch ? (
                   <Button
                     ref={nextButtonRef}
                     data-test-id="NEXT_TO_REPORT"
