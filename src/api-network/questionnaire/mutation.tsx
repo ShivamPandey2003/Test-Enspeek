@@ -225,6 +225,9 @@ export const useRearrangeQuestionMutation = (studyID?: string) => {
       );
       return res.response;
     },
+    onSuccess: async()=>{
+      await refreshQuestionnaireQueries(studyID);
+    }
   });
 };
 

@@ -90,6 +90,8 @@ export default function OptionLogic({
     });
   };
 
+  console.log(questionList)
+
   useEffect(() => {
     const question = submitItems.find((item) => item.qID === qID);
     if (!question?.rowOptionList) return;
