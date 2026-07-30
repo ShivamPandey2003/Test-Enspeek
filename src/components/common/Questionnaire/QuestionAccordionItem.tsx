@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import {
   AccordionContent,
   AccordionItem,
@@ -25,6 +25,7 @@ import NewDropdown from "../../global/NewDropDown";
 
 interface QuestionAccordionItem {
   Data: Question;
+  LastIndex: number
   setIsDeleteOpen: () => void;
   setIsCopyOpen: (qID: string, qLabel: string) => void;
   setEditData: () => void;
@@ -35,6 +36,7 @@ interface QuestionAccordionItem {
 
 const QuestionAccordionItem: React.FC<QuestionAccordionItem> = ({
   Data,
+  LastIndex,
   setIsDeleteOpen,
   setIsCopyOpen,
   setEditData,
@@ -52,11 +54,17 @@ const QuestionAccordionItem: React.FC<QuestionAccordionItem> = ({
     (state: RootState) => state.question.logic2Skip?.[Data.qID]
   );
   const expanded = isExpanded(Data.qID);
+  const submittedItems = useSelector(
+    (state: RootState) => state.question.submitItems
+  );
   const toggleQuestion = () => {
     if (isLoaded) {
       toggleItem(Data.qID);
     }
   };
+  const QuestionIndex= useMemo(()=>{
+    return submittedItems.findIndex(item=>item.qID===Data.qID)
+  }, [submittedItems, Data])
 
   const mobileActions = [
     {
@@ -281,6 +289,7 @@ const QuestionAccordionItem: React.FC<QuestionAccordionItem> = ({
                               optionText={key.optionText}
                               onDelete={() => deleteOption(key.optionID)}
                               deleteDisabled={isDeletingOption}
+                              OptionsDisable={QuestionIndex === LastIndex}
                             />
                           </div>
                         </div>

@@ -13,6 +13,8 @@ import ChatSuggestionBlock, {
   CHAT_SUGGESTION_DELAY_MS,
 } from "./ChatSuggestionBlock";
 import { hasCompleteSuggestionContent } from "../../../../utils/chatSuggestion";
+import { UpdateResponseReview } from "../../../../api-network/global/mutation";
+import { useLocation } from "react-router";
 
 type ChatMessageProps = {
   msg: ChatMessageType;
@@ -59,7 +61,10 @@ const ChatMessage = ({
   const isWideBubble = Boolean(msg.sdata || msg.crosstab);
   const [isLike, setIsLike] = useState<boolean>(false);
   const [isDislike, setIsDislike] = useState<boolean>(false);
+  const { state } = useLocation();
+  const studyID = state?.studyID;
 
+  const { mutate } = UpdateResponseReview();
   return (
     <>
       <div
@@ -115,7 +120,12 @@ const ChatMessage = ({
               />
             </div>
             {!isUserMessage && index == lastIndex && msg.suggestion ? (
-              <div className={cn("flex items-center gap-4 mt-2 px-3", (isLike || isDislike) && "opacity-80" )}>
+              <div
+                className={cn(
+                  "flex items-center gap-4 mt-2 px-3",
+                  (isLike || isDislike) && "opacity-80",
+                )}
+              >
                 {isLike ? (
                   <BiSolidLike
                     size={20}
@@ -127,10 +137,18 @@ const ChatMessage = ({
                 ) : (
                   <BiLike
                     size={20}
-                    className="opacity-80 cursor-pointer"
+                    className={cn(
+                      "opacity-80 cursor-pointer",
+                      (isLike || isDislike) && "cursor-not-allowed",
+                    )}
                     onClick={() => {
                       if (isLike || isDislike) return;
                       setIsLike(true);
+                      mutate({
+                        message_id: msg.message_id ?? "",
+                        feedback: 1,
+                        study_id: studyID ?? "",
+                      });
                     }}
                   />
                 )}
@@ -152,6 +170,11 @@ const ChatMessage = ({
                     onClick={() => {
                       if (isLike || isDislike) return;
                       setIsDislike(true);
+                      mutate({
+                        message_id: msg.message_id ?? "",
+                        feedback: 0,
+                        study_id: studyID ?? "",
+                      });
                     }}
                   />
                 )}

@@ -78,6 +78,7 @@ export const createAiChatMessageFromResponse = (
     liveLink: data.liveLink,
     suggestion,
     source: options.source,
+    message_id: data.message_id
   };
 };
 

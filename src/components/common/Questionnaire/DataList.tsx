@@ -88,6 +88,7 @@ const DataList = () => {
             className={cn(index === draggedIndex && "opacity-70")}
           >
             <QuestionAccordionItem
+            LastIndex={submittedItems.length - 1}
               Data={data}
               setIsDeleteOpen={() => {
                 setIsDeleteOpen(true);
