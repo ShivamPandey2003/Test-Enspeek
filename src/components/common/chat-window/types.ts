@@ -32,6 +32,7 @@ export type ChatMessage = {
   suggestion?: unknown;
   source?: "history" | "live" | string;
   createdAt?: string;
+  message_id?: string;
 };
 
 /** Active view toggle per message index. */

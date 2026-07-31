@@ -18,6 +18,7 @@ interface OptionLogicProps {
   optionText: string;
   onDelete: () => void;
   deleteDisabled?: boolean;
+  OptionsDisable?: boolean
 }
 
 export default function OptionLogic({
@@ -26,6 +27,7 @@ export default function OptionLogic({
   optionText,
   onDelete,
   deleteDisabled = false,
+  OptionsDisable = false
 }: OptionLogicProps) {
   const location = useLocation();
   const studyID = location.state?.studyID;
@@ -165,7 +167,7 @@ export default function OptionLogic({
                 onChange={(event: ChangeEvent<HTMLSelectElement>) => {
                   handleLogicChange(event.target.value);
                 }}
-                disabled={logic.terminate || isPending}
+                disabled={logic.terminate || isPending || OptionsDisable}
                 title="Skip to question"
               >
                 <option value="">Skip to</option>

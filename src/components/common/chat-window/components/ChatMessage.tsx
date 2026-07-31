@@ -1,15 +1,20 @@
-import React from "react";
+import React, { useState } from "react";
 import { cn } from "../../../../utils";
 import {
   CHAT_AGENT_AVATAR_LABEL,
   CHAT_AGENT_NAME,
 } from "../../../../config/chatAgent";
 import type { ChatMessage as ChatMessageType, SurveyTab } from "../types";
+import { BiDislike, BiLike, BiSolidDislike, BiSolidLike } from "react-icons/bi";
 import ChatAvatar from "./ChatAvatar";
 import MessageBubble from "./MessageBubble";
 import SurveyRenderer from "./SurveyRenderer";
-import ChatSuggestionBlock, { CHAT_SUGGESTION_DELAY_MS } from "./ChatSuggestionBlock";
+import ChatSuggestionBlock, {
+  CHAT_SUGGESTION_DELAY_MS,
+} from "./ChatSuggestionBlock";
 import { hasCompleteSuggestionContent } from "../../../../utils/chatSuggestion";
+import { UpdateResponseReview } from "../../../../api-network/global/mutation";
+import { useLocation } from "react-router";
 
 type ChatMessageProps = {
   msg: ChatMessageType;
@@ -25,7 +30,7 @@ type ChatMessageProps = {
   onSend: (value: string) => boolean;
   onSuggestionVisibleScroll: () => void;
   onSuggestionsVisible: () => void;
-  lastIndex: number
+  lastIndex: number;
 };
 
 /**
@@ -49,12 +54,17 @@ const ChatMessage = ({
   onSend,
   onSuggestionVisibleScroll,
   onSuggestionsVisible,
-  lastIndex
+  lastIndex,
 }: ChatMessageProps) => {
   const isUserMessage = msg.sender === "user";
   const isSurvey = msg.type === "surveydata";
   const isWideBubble = Boolean(msg.sdata || msg.crosstab);
+  const [isLike, setIsLike] = useState<boolean>(false);
+  const [isDislike, setIsDislike] = useState<boolean>(false);
+  const { state } = useLocation();
+  const studyID = state?.studyID;
 
+  const { mutate } = UpdateResponseReview();
   return (
     <>
       <div
@@ -62,13 +72,13 @@ const ChatMessage = ({
         data-test-id={`${msg.sender}-${index}`}
         className={cn(
           "mb-4 flex w-full",
-          isUserMessage ? "justify-end" : "justify-start"
+          isUserMessage ? "justify-end" : "justify-start",
         )}
       >
         <div
           className={cn(
             "flex max-w-full items-start gap-2.5",
-            isUserMessage && "flex-row-reverse"
+            isUserMessage && "flex-row-reverse",
           )}
         >
           <ChatAvatar
@@ -79,7 +89,7 @@ const ChatMessage = ({
           <div
             className={cn(
               "flex min-w-0 max-w-full flex-col",
-              isUserMessage && "items-end"
+              isUserMessage && "items-end",
             )}
           >
             <div
@@ -90,7 +100,7 @@ const ChatMessage = ({
                       "inline-block max-w-[min(100%,820px)] rounded-[16px] px-3 py-2 text-left text-sm shadow-sm",
                       isUserMessage
                         ? "bg-[#4f56e6] text-white shadow-md"
-                        : "home-surface home-text border home-border shadow-[0_6px_16px_rgba(15,23,42,0.08)]"
+                        : "home-surface home-text border home-border shadow-[0_6px_16px_rgba(15,23,42,0.08)]",
                     )
               }
             >
@@ -109,6 +119,67 @@ const ChatMessage = ({
                 }
               />
             </div>
+            {!isUserMessage && index == lastIndex ? (
+              <div
+                className={cn(
+                  "flex items-center gap-4 mt-2 px-3",
+                  (isLike || isDislike) && "opacity-80",
+                )}
+              >
+                {isLike ? (
+                  <BiSolidLike
+                    size={20}
+                    className={cn(
+                      "cursor-pointer",
+                      (isLike || isDislike) && "cursor-not-allowed",
+                    )}
+                  />
+                ) : (
+                  <BiLike
+                    size={20}
+                    className={cn(
+                      "opacity-80 cursor-pointer",
+                      (isLike || isDislike) && "cursor-not-allowed",
+                    )}
+                    onClick={() => {
+                      if (isLike || isDislike) return;
+                      setIsLike(true);
+                      mutate({
+                        message_id: msg.message_id ?? "",
+                        feedback: 1,
+                        study_id: studyID ?? "",
+                      });
+                    }}
+                  />
+                )}
+                {isDislike ? (
+                  <BiSolidDislike
+                    size={20}
+                    className={cn(
+                      "cursor-pointer",
+                      (isLike || isDislike) && "cursor-not-allowed",
+                    )}
+                  />
+                ) : (
+                  <BiDislike
+                    size={20}
+                    className={cn(
+                      "opacity-80 cursor-pointer",
+                      (isLike || isDislike) && "cursor-not-allowed",
+                    )}
+                    onClick={() => {
+                      if (isLike || isDislike) return;
+                      setIsDislike(true);
+                      mutate({
+                        message_id: msg.message_id ?? "",
+                        feedback: 0,
+                        study_id: studyID ?? "",
+                      });
+                    }}
+                  />
+                )}
+              </div>
+            ) : null}
           </div>
         </div>
       </div>
