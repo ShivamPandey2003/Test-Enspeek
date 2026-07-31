@@ -119,7 +119,7 @@ const ChatMessage = ({
                 }
               />
             </div>
-            {!isUserMessage && index == lastIndex && msg.suggestion ? (
+            {!isUserMessage && index == lastIndex ? (
               <div
                 className={cn(
                   "flex items-center gap-4 mt-2 px-3",
