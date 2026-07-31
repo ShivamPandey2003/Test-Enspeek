@@ -119,7 +119,7 @@ const ChatMessage = ({
                 }
               />
             </div>
-            {!isUserMessage && index == lastIndex ? (
+            {!isUserMessage && index == lastIndex && msg.message_id !== undefined ? (
               <div
                 className={cn(
                   "flex items-center gap-4 mt-2 px-3",
@@ -145,7 +145,7 @@ const ChatMessage = ({
                       if (isLike || isDislike) return;
                       setIsLike(true);
                       mutate({
-                        message_id: msg.message_id ?? "",
+                        message_id: msg.message_id??"",
                         feedback: 1,
                         study_id: studyID ?? "",
                       });
