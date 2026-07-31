@@ -2,7 +2,7 @@ import React from "react";
 import { LuArrowRight } from "react-icons/lu";
 import Button from "../../../ui/Button";
 import Input from "../../../ui/Input";
-import CaptchaWidget from "./CaptchaWidget";
+// import CaptchaWidget from "./CaptchaWidget";
 
 type SignInFormProps = {
   email: string;
@@ -13,18 +13,18 @@ type SignInFormProps = {
 };
 
 const SignInForm: React.FC<SignInFormProps> = ({ email, emailError, isPending, onEmailChange, onSubmit }) => {
-  const [captchaToken, setCaptchaToken] = React.useState<string | null>(null);
-  const [captchaResetSignal, setCaptchaResetSignal] = React.useState(0);
-  const handleCaptchaVerify = React.useCallback((token: string | null) => {
-    setCaptchaToken(token);
-  }, []);
+  // const [captchaToken, setCaptchaToken] = React.useState<string | null>(null);
+  // const [captchaResetSignal, setCaptchaResetSignal] = React.useState(0);
+  // const handleCaptchaVerify = React.useCallback((token: string | null) => {
+  //   setCaptchaToken(token);
+  // }, []);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    if (!captchaToken) {
-      setCaptchaResetSignal((value) => value + 1);
-      return;
-    }
+    // if (!captchaToken) {
+    //   setCaptchaResetSignal((value) => value + 1);
+    //   return;
+    // }
     onSubmit("");
   };
 
@@ -47,10 +47,10 @@ const SignInForm: React.FC<SignInFormProps> = ({ email, emailError, isPending, o
         ) : null}
       </div>
 
-      <CaptchaWidget
+      {/* <CaptchaWidget
         onVerify={handleCaptchaVerify}
         resetSignal={captchaResetSignal}
-      />
+      /> */}
 
       <Button
         type="submit"
